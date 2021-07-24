@@ -32,14 +32,15 @@ export function create(event: PairCreated, transaction: Transaction): Pair {
 export function get(id: string): Pair {
   log.warning('[Pair] Get {}', [id]);
   let pair = Pair.load(id);
+  if (pair == null) throw Error('Pair not found');
   return pair!;
 }
 
 export function swapped(event: Swapped, transaction: Transaction): void {
-  let id = transaction.to.toHexString();
+  let id = event.address.toHexString();
   log.warning('[Pair] Swapped {}', [id]);
   let pair = get(id);
-  let pairSwap = pairSwapLibrary.create(pair!, event, transaction);
+  let pairSwap = pairSwapLibrary.create(pair, event, transaction);
   // let pairContract = PairContract.bind(event.transaction.to!); // TODO: use other "to" -- learn about type conversion
   for (let i: i32 = 1; i < pair.highestId.toI32(); i++) {
     positionLibrary.registerPairSwap(i.toString(), pair, pairSwap);

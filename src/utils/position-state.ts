@@ -30,6 +30,7 @@ export function create(positionId: string, rate: BigInt, startingSwap: BigInt, l
 export function get(id: string): PositionState {
   log.warning('[PositionState] Get {}', [id]);
   let positionState = PositionState.load(id);
+  if (positionState == null) throw Error('PositionState not found');
   return positionState!;
 }
 

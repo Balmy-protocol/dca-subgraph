@@ -70,6 +70,7 @@ export function getByPairAndPositionId(pair: Pair, positionId: string): Position
 export function getById(id: string): Position {
   log.warning('[Position] Get {}', [id]);
   let position = Position.load(id);
+  if (position == null) throw Error('Position not found');
   return position!;
 }
 
