@@ -42,7 +42,9 @@ export function swapped(event: Swapped, transaction: Transaction): void {
   let pair = get(id);
   let pairSwap = pairSwapLibrary.create(pair, event, transaction);
   // let pairContract = PairContract.bind(event.address); // TODO: use other "to" -- learn about type conversion
+  let swapsToPerform = event.params._nextSwapInformation.swapsToPerform;
+  let amountOfSwaps = event.params._nextSwapInformation.amountOfSwaps;
   for (let i: i32 = 1; i <= pair.highestId.toI32(); i++) {
-    positionLibrary.registerPairSwap(i.toString(), pair, pairSwap);
+    positionLibrary.registerPairSwap(i.toString(), pair, pairSwap, swapsToPerform, amountOfSwaps);
   }
 }

@@ -1,6 +1,6 @@
 import { log, BigInt, Address } from '@graphprotocol/graph-ts';
 import { Transaction, Position, PairSwap, Pair, PositionState } from '../../generated/schema';
-import { Deposited, Modified, Terminated, Withdrew } from '../../generated/Factory/Pair';
+import { Deposited, Modified, Swapped_nextSwapInformationSwapsToPerformStruct, Terminated, Withdrew } from '../../generated/Factory/Pair';
 import * as pairLibrary from './pair';
 import * as positionStateLibrary from './position-state';
 import * as tokenLibrary from './token';
@@ -107,11 +107,36 @@ export function withdrew(event: Withdrew, transaction: Transaction): Position {
   return position;
 }
 
-export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairSwap): Position {
+export function shouldRegister(
+  status: String,
+  remainingSwaps: BigInt,
+  swapInterval: string,
+  swapsToPerform: Swapped_nextSwapInformationSwapsToPerformStruct[],
+  amountOfSwaps: i32
+): boolean {
+  let canSwap = false;
+  for (let i: i32 = 0; i < amountOfSwaps; i++) {
+    if (swapsToPerform[i].interval.toString() == swapInterval) {
+      canSwap = true;
+      break;
+    }
+  }
+
+  return status != 'TERMINATED' && remainingSwaps.gt(ZERO_BI) && canSwap;
+}
+
+export function registerPairSwap(
+  positionId: string,
+  pair: Pair,
+  pairSwap: PairSwap,
+  swapsToPerform: Swapped_nextSwapInformationSwapsToPerformStruct[],
+  amountOfSwaps: i32
+): Position {
   log.warning('[Position] Register pair swap for position {}', [positionId]);
   let position = getByPairAndPositionId(pair, positionId);
   let currentState = positionStateLibrary.get(position.current);
-  if (position.status != 'TERMINATED' && currentState.remainingSwaps.gt(ZERO_BI)) {
+
+  if (shouldRegister(position.status, currentState.remainingSwaps, position.swapInterval, swapsToPerform, amountOfSwaps)) {
     let rateOfSwap = position.from == pair.tokenA ? pairSwap.ratePerUnitAToBWithFee : pairSwap.ratePerUnitBToAWithFee;
     let swapped = rateOfSwap.times(currentState.rate).div(tokenLibrary.getMangitudeOf(position.from));
     positionStateLibrary.registerPairSwap(position.current, position, swapped);
