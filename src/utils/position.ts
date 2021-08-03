@@ -8,7 +8,7 @@ import { ONE_BI, ZERO_BI } from './constants';
 
 export function create(event: Deposited, transaction: Transaction): Position {
   let id = getIdByPairAddressAndPositionId(event.address, event.params._dcaId.toString());
-  log.warning('[Position] Create {}', [id]);
+  log.info('[Position] Create {}', [id]);
   let position = Position.load(id);
   let pair = pairLibrary.get(event.address.toHexString());
   let from = tokenLibrary.getOrCreate(event.params._fromToken);
@@ -56,18 +56,18 @@ export function getIdByPairAndPositionId(pair: Pair, positionId: string): string
 
 export function getByPairAddressAndPositionId(pairAddress: Address, positionId: string): Position {
   let id = getIdByPairAddressAndPositionId(pairAddress, positionId);
-  log.warning('[Position] Get by pair address and id {}', [positionId]);
+  log.info('[Position] Get by pair address and id {}', [positionId]);
   return getById(id);
 }
 
 export function getByPairAndPositionId(pair: Pair, positionId: string): Position {
   let id = getIdByPairAndPositionId(pair, positionId);
-  log.warning('[Position] Get by pair and id {}', [id]);
+  log.info('[Position] Get by pair and id {}', [id]);
   return getById(id);
 }
 
 export function getById(id: string): Position {
-  log.warning('[Position] Get {}', [id]);
+  log.info('[Position] Get {}', [id]);
   let position = Position.load(id);
   if (position == null) throw Error('Position not found');
   return position!;
@@ -75,7 +75,7 @@ export function getById(id: string): Position {
 
 export function modified(event: Modified, transaction: Transaction): Position {
   let id = getIdByPairAddressAndPositionId(event.address, event.params._dcaId.toString());
-  log.warning('[Position] Modified {}', [id]);
+  log.info('[Position] Modified {}', [id]);
   let position = getById(id);
   let previousPositionState = positionStateLibrary.get(position.current);
   let newPositionState = positionStateLibrary.create(id, event.params._rate, event.params._startingSwap, event.params._lastSwap, transaction);
@@ -88,7 +88,7 @@ export function modified(event: Modified, transaction: Transaction): Position {
 
 export function terminated(event: Terminated, transaction: Transaction): Position {
   let id = getIdByPairAddressAndPositionId(event.address, event.params._dcaId.toString());
-  log.warning('[Position] Terminated {}', [id]);
+  log.info('[Position] Terminated {}', [id]);
   let position = getById(id);
   position.status = 'TERMINATED';
   position.terminatedAtBlock = transaction.blockNumber;
@@ -99,7 +99,7 @@ export function terminated(event: Terminated, transaction: Transaction): Positio
 
 export function withdrew(event: Withdrew, transaction: Transaction): Position {
   let id = getIdByPairAddressAndPositionId(event.address, event.params._dcaId.toString());
-  log.warning('[Position] Withdrew {}', [id]);
+  log.info('[Position] Withdrew {}', [id]);
   let position = getById(id);
   positionStateLibrary.registerWithdrew(position.current, event.params._amount);
   position.totalWithdrawn = position.totalWithdrawn.plus(event.params._amount);
@@ -132,7 +132,7 @@ export function registerPairSwap(
   swapsToPerform: Swapped_nextSwapInformationSwapsToPerformStruct[],
   amountOfSwaps: i32
 ): Position {
-  log.warning('[Position] Register pair swap for position {}', [positionId]);
+  log.info('[Position] Register pair swap for position {}', [positionId]);
   let position = getByPairAndPositionId(pair, positionId);
   let currentState = positionStateLibrary.get(position.current);
 

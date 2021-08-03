@@ -8,7 +8,7 @@ import {
 
 export function getOrCreate(address: Address): GlobalParameters {
   let id = address.toHexString();
-  log.warning('[GlobalParameters] Get or create {}', [id]);
+  log.info('[GlobalParameters] Get or create {}', [id]);
   let globalParameters = GlobalParameters.load(id);
   if (globalParameters == null) {
     let globalParametersContract = GlobalParametersContract.bind(address);
@@ -25,7 +25,7 @@ export function getOrCreate(address: Address): GlobalParameters {
 }
 
 export function addSwapIntervals(event: SwapIntervalsAllowed, transaction: Transaction): void {
-  log.warning('[GlobalParameters] Add swap interval', []);
+  log.info('[GlobalParameters] Add swap interval', []);
   let globalParameters = getOrCreate(event.address);
   let intervals = event.params._swapIntervals;
   let descriptions = event.params._descriptions;
@@ -44,7 +44,7 @@ export function addSwapIntervals(event: SwapIntervalsAllowed, transaction: Trans
 }
 
 export function removeSwapIntervals(event: SwapIntervalsForbidden, transaction: Transaction): void {
-  log.warning('[GlobalParameters] Remove swap intervals', []);
+  log.info('[GlobalParameters] Remove swap intervals', []);
   // let globalParameters = getOrCreate(event.address!);
   // for (let i = 0; i < event.params._swapIntervals.length; i++) {
   //   let swapIntervalId = transaction.id + i;

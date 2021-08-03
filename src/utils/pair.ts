@@ -11,7 +11,7 @@ import { ZERO_BI } from './constants';
 
 export function create(event: PairCreated, transaction: Transaction): Pair {
   let id = event.params._pair.toHexString();
-  log.warning('[Pair] Create {}', [id]);
+  log.info('[Pair] Create {}', [id]);
   let pair = Pair.load(id);
   let tokenA = tokenLibrary.getOrCreate(event.params._tokenA);
   let tokenB = tokenLibrary.getOrCreate(event.params._tokenB);
@@ -30,7 +30,7 @@ export function create(event: PairCreated, transaction: Transaction): Pair {
 }
 
 export function get(id: string): Pair {
-  log.warning('[Pair] Get {}', [id]);
+  log.info('[Pair] Get {}', [id]);
   let pair = Pair.load(id);
   if (pair == null) throw Error('Pair not found');
   return pair!;
@@ -38,7 +38,7 @@ export function get(id: string): Pair {
 
 export function swapped(event: Swapped, transaction: Transaction): void {
   let id = event.address.toHexString();
-  log.warning('[Pair] Swapped {}', [id]);
+  log.info('[Pair] Swapped {}', [id]);
   let pair = get(id);
   let pairSwap = pairSwapLibrary.create(pair, event, transaction);
   // let pairContract = PairContract.bind(event.address); // TODO: use other "to" -- learn about type conversion

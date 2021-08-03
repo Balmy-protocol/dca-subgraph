@@ -7,7 +7,7 @@ const DEFAULT_DECIMALS = 18;
 
 export function getOrCreate(address: Address): Token {
   let id = address.toHexString();
-  log.warning('[Token] Get or create {}', [id]);
+  log.info('[Token] Get or create {}', [id]);
   let token = Token.load(id);
   if (token === null) {
     token = new Token(id);
@@ -31,7 +31,7 @@ export function getOrCreate(address: Address): Token {
 }
 
 export function getMangitudeOf(id: string): BigInt {
-  log.warning('[Token] Get magnitude of {}', [id]);
+  log.info('[Token] Get magnitude of {}', [id]);
   let token = getOrCreate(Address.fromHexString(id) as Address);
   return BigInt.fromString('10').pow(token.decimals as u8);
 }

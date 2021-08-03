@@ -5,7 +5,7 @@ import * as tokenLibrary from './token';
 
 export function create(positionId: string, rate: BigInt, startingSwap: BigInt, lastSwap: BigInt, transaction: Transaction): PositionState {
   let id = positionId.concat('-').concat(transaction.id);
-  log.warning('[PositionState] Create {}', [id]);
+  log.info('[PositionState] Create {}', [id]);
   let positionState = PositionState.load(id);
   if (positionState == null) {
     positionState = new PositionState(id);
@@ -28,14 +28,14 @@ export function create(positionId: string, rate: BigInt, startingSwap: BigInt, l
 }
 
 export function get(id: string): PositionState {
-  log.warning('[PositionState] Get {}', [id]);
+  log.info('[PositionState] Get {}', [id]);
   let positionState = PositionState.load(id);
   if (positionState == null) throw Error('PositionState not found');
   return positionState!;
 }
 
 export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
-  log.warning('[PositionState] Register withdrew {}', [id]);
+  log.info('[PositionState] Register withdrew {}', [id]);
   let positionState = get(id);
   positionState.withdrawn = positionState.withdrawn.plus(withdrawn);
   // TODO: lastUpdatedAt
@@ -44,7 +44,7 @@ export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
 }
 
 export function registerPairSwap(id: string, position: Position, swapped: BigInt): PositionState {
-  log.warning('[PositionState] Register pair swap {}', [id]);
+  log.info('[PositionState] Register pair swap {}', [id]);
   let positionState = get(id);
   positionState.remainingSwaps = positionState.remainingSwaps.minus(ONE_BI);
   positionState.swapped = positionState.swapped.plus(swapped);

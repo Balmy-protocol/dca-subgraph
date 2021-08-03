@@ -4,7 +4,7 @@ import { Swapped } from '../../generated/Factory/Pair';
 
 export function create(pair: Pair, event: Swapped, transaction: Transaction): PairSwap {
   let pairSwapId = pair.id.concat('-').concat(transaction.id);
-  log.warning('[PairSwap] Create {}', [pairSwapId]);
+  log.info('[PairSwap] Create {}', [pairSwapId]);
   let pairSwap = PairSwap.load(pairSwapId);
   if (pairSwap == null) {
     pairSwap = new PairSwap(pairSwapId);
