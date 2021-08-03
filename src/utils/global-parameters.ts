@@ -36,9 +36,9 @@ export function addSwapIntervals(event: SwapIntervalsAllowed, transaction: Trans
       swapInterval = new SwapInterval(swapIntervalId);
       swapInterval.globalParameters = globalParameters.id;
       swapInterval.interval = intervals[i];
-      swapInterval.description = descriptions[i];
-      swapInterval.save();
     }
+    swapInterval.description = descriptions[i];
+    swapInterval.save();
   }
   // return globalParameters!;
 }
