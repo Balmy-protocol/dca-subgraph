@@ -29,7 +29,6 @@ dataSources:
       eventHandlers:
         - event: PairCreated(indexed address,indexed address,address)
           handler: handlePairCreated
-
   - kind: ethereum/contract
     name: GlobalParameters
     network: {{network}}
@@ -89,3 +88,5 @@ templates:
           handler: handleWithdrewMany
         - event: Swapped(indexed address,indexed address,uint256,uint256,uint32,((uint32,uint32,uint256,uint256)[],uint8,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address,address))
           handler: handleSwapped
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handlePositionTransfer

@@ -1,6 +1,13 @@
 import { log, BigInt, Address } from '@graphprotocol/graph-ts';
 import { Transaction, Position, PairSwap, Pair, PositionState } from '../../generated/schema';
-import { Deposited, Modified, Swapped_nextSwapInformationSwapsToPerformStruct, Terminated, Withdrew } from '../../generated/Factory/Pair';
+import {
+  Deposited,
+  Modified,
+  Swapped_nextSwapInformationSwapsToPerformStruct,
+  Terminated,
+  Transfer,
+  Withdrew,
+} from '../../generated/Factory/Pair';
 import * as pairLibrary from './pair';
 import * as positionStateLibrary from './position-state';
 import * as tokenLibrary from './token';
@@ -143,5 +150,14 @@ export function registerPairSwap(
     position.totalSwapped = position.totalSwapped.plus(swapped);
     position.save();
   }
+  return position;
+}
+
+export function transfer(event: Transfer, transaction: Transaction): Position {
+  let id = getIdByPairAddressAndPositionId(event.address, event.params.tokenId.toString());
+  log.info('[Position] Transfer {}', [id]);
+  let position = getById(id);
+  position.user = event.params.to;
+  position.save();
   return position;
 }
