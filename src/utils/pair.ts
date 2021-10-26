@@ -1,33 +1,33 @@
 import { log, ethereum, BigInt, Bytes } from '@graphprotocol/graph-ts';
 import { Transaction, Pair } from '../../generated/schema';
-import { PairCreated } from '../../generated/Factory/Factory';
+// import { PairCreated } from '../../generated/Hub/Hub';
 import { Pair as PairTemplate } from '../../generated/templates';
 import * as tokenLibrary from '../utils/token';
 import * as positionLibrary from '../utils/position';
 import * as pairSwapLibrary from '../utils/pair-swap';
-import { Swapped } from '../../generated/Factory/Pair';
-import { Pair as PairContract } from '../../generated/Factory/Pair';
+import { Swapped } from '../../generated/Hub/Pair';
+import { Pair as PairContract } from '../../generated/Hub/Pair';
 import { ZERO_BI } from './constants';
 
-export function create(event: PairCreated, transaction: Transaction): Pair {
-  let id = event.params._pair.toHexString();
-  log.info('[Pair] Create {}', [id]);
-  let pair = Pair.load(id);
-  let tokenA = tokenLibrary.getOrCreate(event.params._tokenA);
-  let tokenB = tokenLibrary.getOrCreate(event.params._tokenB);
-  if (pair == null) {
-    pair = new Pair(id);
-    pair.tokenA = tokenA.id;
-    pair.tokenB = tokenB.id;
-    pair.highestId = ZERO_BI; // TODO: Remove this patch
-    pair.transaction = transaction.id;
-    pair.createdAtBlock = transaction.blockNumber;
-    pair.createdAtTimestamp = transaction.timestamp;
-    pair.save();
-    PairTemplate.create(event.params._pair);
-  }
-  return pair!;
-}
+// export function create(event: PairCreated, transaction: Transaction): Pair {
+//   let id = event.params._pair.toHexString();
+//   log.info('[Pair] Create {}', [id]);
+//   let pair = Pair.load(id);
+//   let tokenA = tokenLibrary.getOrCreate(event.params._tokenA);
+//   let tokenB = tokenLibrary.getOrCreate(event.params._tokenB);
+//   if (pair == null) {
+//     pair = new Pair(id);
+//     pair.tokenA = tokenA.id;
+//     pair.tokenB = tokenB.id;
+//     pair.highestId = ZERO_BI; // TODO: Remove this patch
+//     pair.transaction = transaction.id;
+//     pair.createdAtBlock = transaction.blockNumber;
+//     pair.createdAtTimestamp = transaction.timestamp;
+//     pair.save();
+//     PairTemplate.create(event.params._pair);
+//   }
+//   return pair!;
+// }
 
 export function get(id: string): Pair {
   log.info('[Pair] Get {}', [id]);

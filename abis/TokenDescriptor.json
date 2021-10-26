@@ -1,10 +1,34 @@
 {
   "abi": [
     {
+      "inputs": [],
+      "name": "InvalidInterval",
+      "type": "error"
+    },
+    {
       "inputs": [
         {
-          "internalType": "contract IDCAPairPositionHandler",
-          "name": "_positionHandler",
+          "internalType": "uint32",
+          "name": "_swapInterval",
+          "type": "uint32"
+        }
+      ],
+      "name": "intervalToDescription",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "_description",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_hub",
           "type": "address"
         },
         {
@@ -17,7 +41,7 @@
       "outputs": [
         {
           "internalType": "string",
-          "name": "",
+          "name": "_description",
           "type": "string"
         }
       ],

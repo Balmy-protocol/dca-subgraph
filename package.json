@@ -14,7 +14,7 @@
     "thegraph:deploy:ropsten": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ alejoamiras/dca-ropsten",
     "thegraph:deploy:ropsten-stable": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v1-ropsten",
     "thegraph:deploy:kovan": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ alejoamiras/dca-kovan",
-    "thegraph:deploy:kovan-stable": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v1-kovan",
+    "thegraph:deploy:kovan-stable": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v1dot1-kovan",
     "thegraph:deploy:goerli": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ alejoamiras/dca-goerli",
     "thegraph:deploy:goerli-stable": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v1-goerli",
     "thegraph:deploy:mainnet": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca",

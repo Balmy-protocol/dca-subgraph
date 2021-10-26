@@ -1,6 +1,6 @@
 import { Address, log, BigInt } from '@graphprotocol/graph-ts';
 import { Token } from '../../generated/schema';
-import { ERC20 } from '../../generated/Factory/ERC20';
+import { ERC20 } from '../../generated/Hub/ERC20';
 import { ONE_BI, ZERO_BI } from './constants';
 
 const DEFAULT_DECIMALS = 18;

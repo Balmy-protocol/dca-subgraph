@@ -3,54 +3,32 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: Factory
+    name: Hub
     network: {{network}}
     source:
-      startBlock: {{factoryStartBlock}}
-      address: '{{factory}}'
-      abi: Factory
+      startBlock: {{hubStartBlock}}
+      address: '{{hub}}'
+      abi: Hub
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mappings/factory.ts
+      file: ./src/mappings/hub.ts
       entities:
-        - Factory
+        - Hub
         - Pair
         - Transaction
         - Token
       abis:
-        - name: Factory
-          file: ./abis/Factory.json
+        - name: Hub
+          file: ./abis/Hub.json
         - name: Pair
           file: ./abis/Pair.json
         - name: ERC20
           file: ./abis/ERC20Detailed.json
       eventHandlers:
-        - event: PairCreated(indexed address,indexed address,address)
-          handler: handlePairCreated
-  - kind: ethereum/contract
-    name: GlobalParameters
-    network: {{network}}
-    source:
-      startBlock: {{globalParametersStartBlock}}
-      address: '{{globalParameters}}'
-      abi: GlobalParameters
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ./src/mappings/global-parameters.ts
-      entities:
-        - GlobalParameters
-        - SwapInterval
-        - Transaction
-      abis:
-        - name: GlobalParameters
-          file: ./abis/GlobalParameters.json
-      eventHandlers:
-        - event: SwapIntervalsAllowed(uint32[],string[])
-          handler: handleSwapIntervalsAllowed
+        - event: Deposited(indexed address,indexed address,uint256,address,address,uint32,uint120,uint32,uint32)
+          handler: handlePositionDeposit
 templates:
   - kind: ethereum/contract
     name: Pair

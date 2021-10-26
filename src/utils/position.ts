@@ -1,13 +1,6 @@
 import { log, BigInt, Address, Bytes } from '@graphprotocol/graph-ts';
 import { Transaction, Position, PairSwap, Pair, PositionState } from '../../generated/schema';
-import {
-  Deposited,
-  Modified,
-  Swapped_nextSwapInformationSwapsToPerformStruct,
-  Terminated,
-  Transfer,
-  Withdrew,
-} from '../../generated/Factory/Pair';
+import { Deposited, Modified, Swapped_nextSwapInformationSwapsToPerformStruct, Terminated, Transfer, Withdrew } from '../../generated/Hub/Pair';
 import * as pairLibrary from './pair';
 import * as positionStateLibrary from './position-state';
 import * as tokenLibrary from './token';

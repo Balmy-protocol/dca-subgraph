@@ -1,7 +1,7 @@
 import * as transactionLibrary from '../utils/transaction';
 import * as pairLibrary from '../utils/pair';
 import * as positionLibrary from '../utils/position';
-import { Deposited, Modified, Swapped, Terminated, Withdrew, WithdrewMany, Transfer } from '../../generated/Factory/Pair';
+import { Deposited, Modified, Swapped, Terminated, Withdrew, WithdrewMany, Transfer } from '../../generated/Hub/Pair';
 import { ADDRESS_ZERO } from '../utils/constants';
 
 export function handleDeposited(event: Deposited): void {
