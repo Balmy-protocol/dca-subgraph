@@ -36,7 +36,7 @@ type Pair @entity {
   "tokenB"
   tokenB: Token!
   "highest id"
-  highestId: BigInt!
+  positionIds: [String]!
   "positions"
   positions: [Position!]! @derivedFrom(field: "pair")
   "swaps"
@@ -110,7 +110,7 @@ type PositionState @entity {
   startingSwap: BigInt!
   "last swap"
   lastSwap: BigInt!
-  
+
   "remaining swaps"
   remainingSwaps: BigInt!
   "total swapped from -> to (expressed in TO token)"
