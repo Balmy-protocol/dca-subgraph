@@ -10,20 +10,14 @@ import { intervalsfromByte } from './intervals';
 export function create(event: Deposited, transaction: Transaction): Position {
   let id = event.params.positionId.toString();
   log.info('[Position] Create {}', [id]);
-  let position = Position.load(id);
   let from = tokenLibrary.getOrCreate(event.params.fromToken);
   let to = tokenLibrary.getOrCreate(event.params.toToken);
-  let toComesFirst = from.id > to.id;
-  let pairId = toComesFirst ? `${to.id}-${from.id}` : `${from.id}-${to.id}`;
+  let pairId = pairLibrary.buildId(from.id, to.id);
   let pair = pairLibrary.get(pairId);
-  if (!pair) {
-    pair = pairLibrary.create(
-      pairId,
-      toComesFirst ? event.params.toToken : event.params.fromToken,
-      toComesFirst ? event.params.fromToken : event.params.toToken,
-      transaction
-    );
+  if (pair == null) {
+    pair = pairLibrary.create(pairId, event.params.fromToken, event.params.toToken, transaction);
   }
+  let position = Position.load(id);
   if (position == null) {
     position = new Position(id);
     position.user = event.params.owner;

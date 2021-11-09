@@ -12,7 +12,7 @@ type Pair @entity {
   tokenA: Token!
   "tokenB"
   tokenB: Token!
-  "highest id"
+  "positions ids"
   positionIds: [String]!
   "positions"
   positions: [Position!]! @derivedFrom(field: "pair")
@@ -125,18 +125,10 @@ type PairSwap @entity {
   pair: Pair!
   "swapper"
   swapper: Bytes!
-  "swap callee"
-  swapCalle: Bytes
-  "borrowed token a"
-  borrowedTokenA: BigInt!
-  "borrowed token b"
-  borrowedTokenB: BigInt!
+  # "swap callee"
+  # swapCalle: Bytes
   "pair swap intervals"
   pairSwapsIntervals: [PairSwapInterval!]! @derivedFrom(field: "pairSwap")
-  "available to borrow token a"
-  availableToBorrowTokenA: BigInt!
-  "available to borrow token b"
-  availableToBorrowTokenB: BigInt!
   "rate per unit b to a"
   ratePerUnitBToA: BigInt!
   "rate per unit b to a with fee subtracted"
@@ -145,18 +137,18 @@ type PairSwap @entity {
   ratePerUnitAToB: BigInt!
   "rate per unit a to b with fee subtracted"
   ratePerUnitAToBWithFee: BigInt!
-  "fee from token a"
-  platformFeeTokenA: BigInt!
-  "fee from token b"
-  platformFeeTokenB: BigInt!
-  "amount to be provided by swapper"
-  amountToBeProvidedBySwapper: BigInt!
-  "amount to reward swapper"
-  amountToRewardSwapperWith: BigInt!
-  "token to be provided by swapper"
-  tokenToBeProvidedBySwapper: Token!
-  "token to reward swapper with"
-  tokenToRewardSwapperWith: Token!
+  # "fee from token a"
+  # platformFeeTokenA: BigInt!
+  # "fee from token b"
+  # platformFeeTokenB: BigInt!
+  # "amount to be provided by swapper"
+  # amountToBeProvidedBySwapper: BigInt!
+  # "amount to reward swapper"
+  # amountToRewardSwapperWith: BigInt!
+  # "token to be provided by swapper"
+  # tokenToBeProvidedBySwapper: Token!
+  # "token to reward swapper with"
+  # tokenToRewardSwapperWith: Token!
   "executed with transaction"
   transaction: Transaction!
   "executed at block number"
@@ -174,12 +166,12 @@ type PairSwapInterval @entity {
   pairSwap: PairSwap!
   "swap interval"
   swapInterval: SwapInterval!
-  "swap performed"
-  swapPerformed: BigInt!
-  "amount to swap token a"
-  amountToSwapTokenA: BigInt!
-  "amount to swap token b"
-  amountToSwapTokenB: BigInt!
+  # "swap performed"
+  # swapPerformed: BigInt!
+  # "amount to swap token a"
+  # amountToSwapTokenA: BigInt!
+  # "amount to swap token b"
+  # amountToSwapTokenB: BigInt!
 }
 
 type Transaction @entity {
@@ -189,10 +181,10 @@ type Transaction @entity {
   event: String!
   "The transaction sender"
   from: Bytes!
-  "Gas price used in the transaction"
-  gasPrice: BigInt!
-  "Gas sent used in the transaction"
-  gasSent: BigInt!
+  # "Gas price used in the transaction"
+  # gasPrice: BigInt!
+  # "Gas sent used in the transaction"
+  # gasSent: BigInt!
   "Transaction hash"
   hash: Bytes!
   "The transaction index"
@@ -203,8 +195,8 @@ type Transaction @entity {
   value: BigInt!
   "Timestamp when the transaction was executed"
   timestamp: BigInt!
-  "Gas limit used in the transaction"
-  gasLimit: BigInt!
+  # "Gas limit used in the transaction"
+  # gasLimit: BigInt!
   "Block number"
   blockNumber: BigInt!
 }

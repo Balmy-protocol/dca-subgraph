@@ -24,14 +24,14 @@ function _getOrCreate(ethTransaction: ethereum.Transaction, block: ethereum.Bloc
   if (transaction == null) {
     transaction = new Transaction(id);
     transaction.from = ethTransaction.from;
-    transaction.gasPrice = ethTransaction.gasPrice;
-    transaction.gasSent = ethTransaction.gasUsed;
+    // transaction.gasPrice = ethTransaction.gasPrice;
+    // transaction.gasSent = ethTransaction.gasUsed;
     transaction.hash = ethTransaction.hash;
     transaction.index = ethTransaction.index;
     transaction.to = ethTransaction.to as Bytes;
     transaction.value = ethTransaction.value;
     transaction.timestamp = block.timestamp;
-    transaction.gasLimit = block.gasLimit;
+    // transaction.gasLimit = block.gasLimit;
     transaction.blockNumber = block.number;
     transaction.event = action;
     transaction.save();
