@@ -1,4 +1,5 @@
 import { SwapInterval } from '../../generated/schema';
+import { BigInt } from '@graphprotocol/graph-ts';
 
 let ONE_MINUTE = 60;
 let FIVE_MINUTES = ONE_MINUTE * 5;
@@ -23,17 +24,29 @@ const getIntervals = (): i32[] => {
   return INTERVALS;
 };
 
+const getBitIntervals = (): BigInt[] => {
+  let BIT_INTERVALS = new Array<BigInt>(8);
+  BIT_INTERVALS.push(BigInt.fromString('1'));
+  BIT_INTERVALS.push(BigInt.fromString('2'));
+  BIT_INTERVALS.push(BigInt.fromString('4'));
+  BIT_INTERVALS.push(BigInt.fromString('8'));
+  BIT_INTERVALS.push(BigInt.fromString('16'));
+  BIT_INTERVALS.push(BigInt.fromString('32'));
+  BIT_INTERVALS.push(BigInt.fromString('64'));
+  BIT_INTERVALS.push(BigInt.fromString('128'));
+
+  return BIT_INTERVALS;
+};
+
 export const intervalsfromByte = (byte: string): i32[] => {
   let intervals = getIntervals();
-  let num = parseInt(byte);
-  let index = 0;
+  let bit_intervals = getBitIntervals();
+  let num = BigInt.fromString(byte);
   let result = new Array<i32>();
-  while (index <= 8 && 1 << index <= num) {
-    let currentNumber = 1 << index;
-    if ((num & currentNumber) != 0) {
-      result.push(intervals[index]);
+  for (let i: i32 = 0; i <= 8; i++) {
+    if (num & bit_intervals[i]) {
+      result.push(intervals[i]);
     }
-    index++;
   }
   return result;
 };
