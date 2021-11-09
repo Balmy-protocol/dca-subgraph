@@ -3,7 +3,7 @@ import { SwapInterval, Transaction } from '../../generated/schema';
 import { SwapIntervalsAllowed } from '../../generated/Hub/Hub';
 
 export function addSwapIntervals(event: SwapIntervalsAllowed, transaction: Transaction): void {
-  log.info('[GlobalParameters] Add swap interval', []);
+  log.info('[SwapIntervals] Add swap interval', []);
   let intervals = event.params._swapIntervals;
   for (let i: i32 = 0; i < intervals.length; i++) {
     let swapIntervalId = intervals[i].toString();

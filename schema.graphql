@@ -1,31 +1,8 @@
-type GlobalParameter @entity {
-  "address"
-  id: ID!
-  "fee recipient"
-  feeRecipient: Bytes
-  # "nft descriptor"
-  nftDescriptor: Bytes
-  "swap fee"
-  swapFee: BigInt
-  "loan fee"
-  loanFee: BigInt
-  "fee precision"
-  FEE_PRECISION: Int
-  "max fee"
-  MAX_FEE: BigInt
-  "intervals"
-  allowedIntervals: [SwapInterval!]! @derivedFrom(field: "globalParameters")
-}
-
 type SwapInterval @entity {
   "interval"
   id: ID!
   "interval"
   interval: BigInt!
-  "description"
-  description: String!
-  # "dca global parameter"
-  globalParameters: GlobalParameter!
 }
 
 type Pair @entity {
