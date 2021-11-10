@@ -3,6 +3,8 @@ type SwapInterval @entity {
   id: ID!
   "interval"
   interval: BigInt!
+  "active interval"
+  active: Boolean!
 }
 
 type Pair @entity {
@@ -36,8 +38,6 @@ enum POSITION_STATUS {
 type Position @entity {
   "pair.id-position.id"
   id: ID!
-  "dca id"
-  dcaId: String!
   "user"
   user: Bytes!
   "from"

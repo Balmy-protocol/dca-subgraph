@@ -45,3 +45,5 @@ dataSources:
           handler: handleSwapped
         - event: SwapIntervalsAllowed(uint32[])
           handler: handleSwapIntervalsAllowed
+        - event: SwapIntervalsForbidden(uint32[])
+          handler: handleSwapIntervalsDisabled
