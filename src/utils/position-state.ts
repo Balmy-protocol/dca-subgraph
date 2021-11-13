@@ -1,7 +1,7 @@
 import { log, BigInt } from '@graphprotocol/graph-ts';
-import { Position, PositionState, Transaction } from '../../generated/schema';
+import { PairSwap, Position, PositionPairSwap, PositionState, Transaction } from '../../generated/schema';
 import { ONE_BI, ZERO_BI } from './constants';
-import * as tokenLibrary from './token';
+import * as positionPairSwapLibrary from './position-pair-swap';
 
 export function create(positionId: string, rate: BigInt, startingSwap: BigInt, lastSwap: BigInt, transaction: Transaction): PositionState {
   let id = positionId.concat('-').concat(transaction.id);
@@ -43,12 +43,13 @@ export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
   return positionState!;
 }
 
-export function registerPairSwap(id: string, position: Position, swapped: BigInt): PositionState {
+export function registerPairSwap(id: string, position: Position, pairSwap: PairSwap, swapped: BigInt): PositionState {
   log.info('[PositionState] Register pair swap {}', [id]);
   let positionState = get(id);
   positionState.remainingSwaps = positionState.remainingSwaps.minus(ONE_BI);
   positionState.swapped = positionState.swapped.plus(swapped);
   positionState.remainingLiquidity = positionState.remainingLiquidity.minus(positionState.rate);
+  positionPairSwapLibrary.create(position, positionState, pairSwap, swapped);
   // TODO: lastUpdatedAt
   positionState.save();
   return positionState!;

@@ -58,6 +58,8 @@ type Position @entity {
   totalSwapped: BigInt!
   "total swaps"
   totalSwaps: BigInt!
+  "swaps"
+  swaps: [PositionPairSwap!]! @derivedFrom(field: "position")
   "state"
   current: PositionState!
   "past states"
@@ -97,6 +99,9 @@ type PositionState @entity {
   "remaining liquidity (expressed in FROM token)"
   remainingLiquidity: BigInt!
 
+  "swaps"
+  swaps: [PositionPairSwap!]! @derivedFrom(field: "positionState")
+
   "transaction"
   transaction: Transaction!
   "createdAtBlock"
@@ -110,6 +115,8 @@ type PositionPairSwap @entity {
   id: ID!
   "position"
   position: Position!
+  "position state"
+  positionState: PositionState!
   "pair swap"
   pairSwap: PairSwap!
   "from amount"
