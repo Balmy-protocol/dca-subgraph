@@ -24,14 +24,14 @@ export function create(positionId: string, rate: BigInt, startingSwap: BigInt, l
     positionState.createdAtTimestamp = transaction.timestamp;
     positionState.save();
   }
-  return positionState!;
+  return positionState;
 }
 
 export function get(id: string): PositionState {
   log.info('[PositionState] Get {}', [id]);
   let positionState = PositionState.load(id);
   if (positionState == null) throw Error('PositionState not found');
-  return positionState!;
+  return positionState;
 }
 
 export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
@@ -40,7 +40,7 @@ export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
   positionState.withdrawn = positionState.withdrawn.plus(withdrawn);
   // TODO: lastUpdatedAt
   positionState.save();
-  return positionState!;
+  return positionState;
 }
 
 export function registerPairSwap(id: string, position: Position, swapped: BigInt): PositionState {
@@ -51,5 +51,5 @@ export function registerPairSwap(id: string, position: Position, swapped: BigInt
   positionState.remainingLiquidity = positionState.remainingLiquidity.minus(positionState.rate);
   // TODO: lastUpdatedAt
   positionState.save();
-  return positionState!;
+  return positionState;
 }

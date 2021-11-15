@@ -15,7 +15,7 @@ type Pair @entity {
   "tokenB"
   tokenB: Token!
   "positions ids"
-  positionIds: [String]!
+  positionIds: [String!]!
   "positions"
   positions: [Position!]! @derivedFrom(field: "pair")
   "swaps"
