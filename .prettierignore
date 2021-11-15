@@ -1,10 +1,7 @@
 # General
 .prettierignore
-.solhintignore
 .husky
 .gitignore
-.gitattributes
-.versionrc
 CHANGELOG.md
 
 # The graph
