@@ -3,6 +3,33 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
+    name: PermissionsManager
+    network: {{network}}
+    source:
+      startBlock: {{permissionsManagerStartBlock}}
+      address: '{{permissionsManager}}'
+      abi: PermissionsManager
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/permissionsManager.ts
+      entities:
+        - PermissionsManager
+        - Transaction
+      abis:
+        - name: PermissionsManager
+          file: ./abis/PermissionsManager.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: Modified(uint256,(address,uint8[])[])
+          handler: handleModified
+  - kind: ethereum/contract
     name: Hub
     network: {{network}}
     source:
