@@ -37,5 +37,5 @@ function _getOrCreate(ethTransaction: ethereum.Transaction, block: ethereum.Bloc
     transaction.save();
   }
 
-  return transaction!;
+  return transaction;
 }

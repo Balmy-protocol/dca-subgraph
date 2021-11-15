@@ -13,7 +13,7 @@ export function getOrCreate(interval: BigInt, isActive: boolean): SwapInterval {
     swapInterval.save();
   }
 
-  return swapInterval!;
+  return swapInterval;
 }
 
 export function addSwapIntervals(event: SwapIntervalsAllowed, transaction: Transaction): void {
