@@ -60,8 +60,8 @@ type Position @entity {
   totalSwaps: BigInt!
   "state"
   current: PositionState!
-  "past states"
-  history: [PositionState!]! @derivedFrom(field: "position")
+  # "past states"
+  # history: [PositionState!]! @derivedFrom(field: "position")
   "position status"
   status: POSITION_STATUS!
   "transaction"
@@ -79,8 +79,8 @@ type Position @entity {
 type PositionState @entity {
   "position.id-tx.hash-tx.index"
   id: ID!
-  "position"
-  position: Position!
+  # "position"
+  # position: Position!
   "rate"
   rate: BigInt!
   "starting swap"
@@ -103,19 +103,6 @@ type PositionState @entity {
   createdAtBlock: BigInt!
   "createdAtTimestamp"
   createdAtTimestamp: BigInt!
-}
-
-type PositionPairSwap @entity {
-  "position.id-pairSwap.id"
-  id: ID!
-  "position"
-  position: Position!
-  "pair swap"
-  pairSwap: PairSwap!
-  "from amount"
-  used: BigInt!
-  "to amount"
-  swapped: BigInt!
 }
 
 type PairSwap @entity {
