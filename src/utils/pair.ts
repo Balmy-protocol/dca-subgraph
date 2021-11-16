@@ -21,7 +21,7 @@ export function create(id: string, token0Address: Address, token1Address: Addres
     pair.createdAtTimestamp = transaction.timestamp;
     pair.save();
   }
-  return pair;
+  return pair!;
 }
 
 export function buildId(token0Address: string, token1Address: string): string {

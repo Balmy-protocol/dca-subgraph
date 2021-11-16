@@ -46,14 +46,14 @@ export function create(event: Deposited, transaction: Transaction): Position {
     pair.positionIds = newPositionIds;
     pair.save();
   }
-  return position;
+  return position!;
 }
 
 export function getById(id: string): Position {
   log.info('[Position] Get {}', [id]);
   let position = Position.load(id);
   if (position == null) throw Error('Position not found');
-  return position;
+  return position!;
 }
 
 export function modified(event: Modified, transaction: Transaction): Position {

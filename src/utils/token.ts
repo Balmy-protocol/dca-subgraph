@@ -27,7 +27,7 @@ export function getOrCreate(address: Address): Token {
     token.save();
   }
 
-  return token;
+  return token!;
 }
 
 export function getMangitudeOf(id: string): BigInt {
