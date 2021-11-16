@@ -24,14 +24,14 @@ export function create(positionId: string, rate: BigInt, startingSwap: BigInt, l
     positionState.createdAtTimestamp = transaction.timestamp;
     positionState.save();
   }
-  return positionState!;
+  return positionState;
 }
 
 export function get(id: string): PositionState {
   log.info('[PositionState] Get {}', [id]);
   let positionState = PositionState.load(id);
   if (positionState == null) throw Error('PositionState not found');
-  return positionState!;
+  return positionState;
 }
 
 export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
