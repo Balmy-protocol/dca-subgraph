@@ -60,8 +60,10 @@ type Position @entity {
   totalSwaps: BigInt!
   "state"
   current: PositionState!
-  # "past states"
-  # history: [PositionState!]! @derivedFrom(field: "position")
+  "past states"
+  history: [PositionState!]! @derivedFrom(field: "position")
+  "actions"
+  actionsHistory: [PositionAction!]! @derivedFrom(field: "position")
   "position status"
   status: POSITION_STATUS!
   "transaction"
@@ -79,8 +81,8 @@ type Position @entity {
 type PositionState @entity {
   "position.id-tx.hash-tx.index"
   id: ID!
-  # "position"
-  # position: Position!
+  "position"
+  position: Position!
   "rate"
   rate: BigInt!
   "starting swap"
@@ -96,6 +98,47 @@ type PositionState @entity {
   withdrawn: BigInt!
   "remaining liquidity (expressed in FROM token)"
   remainingLiquidity: BigInt!
+
+  "transaction"
+  transaction: Transaction!
+  "createdAtBlock"
+  createdAtBlock: BigInt!
+  "createdAtTimestamp"
+  createdAtTimestamp: BigInt!
+}
+
+enum POSITION_ACTION {
+  MODIFIED
+  WITHDRAW
+  MODIFIED_PERMISSIONS
+  SWAPPED
+  CREATED
+}
+
+type PositionAction @entity {
+  "position.id-tx.hash-tx.index"
+  id: ID!
+  "position"
+  position: Position!
+  "action that caused the modification"
+  action: POSITION_ACTION!
+  "actor who executed the action"
+  actor: Bytes
+  
+  "rate"
+  rate: BigInt
+  "starting swap"
+  startingSwap: BigInt
+  "last swap"
+  lastSwap: BigInt
+  "remaining swaps"
+  remainingSwaps: BigInt
+  "swapped (is this necesarry? swapped = rate, always)"
+  swapped: BigInt
+  "withdrawn (expressed in TO token)"
+  withdrawn: BigInt
+  "remaining liquidity (expressed in FROM token)"
+  remainingLiquidity: BigInt
 
   "transaction"
   transaction: Transaction!
