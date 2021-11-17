@@ -107,10 +107,11 @@ type PositionState @entity {
   createdAtTimestamp: BigInt!
 }
 
-enum POSITION_ACTION {
-  MODIFIED
-  WITHDRAW
-  MODIFIED_PERMISSIONS
+enum ACTION {
+  MODIFIED_RATE
+  MODIFIED_DURATION
+  MODIFIED_RATE_AND_DURATION
+  WITHDREW
   SWAPPED
   CREATED
 }
@@ -121,24 +122,18 @@ type PositionAction @entity {
   "position"
   position: Position!
   "action that caused the modification"
-  action: POSITION_ACTION!
+  action: ACTION!
   "actor who executed the action"
   actor: Bytes
   
   "rate"
   rate: BigInt
-  "starting swap"
-  startingSwap: BigInt
-  "last swap"
-  lastSwap: BigInt
   "remaining swaps"
   remainingSwaps: BigInt
   "swapped (is this necesarry? swapped = rate, always)"
   swapped: BigInt
   "withdrawn (expressed in TO token)"
   withdrawn: BigInt
-  "remaining liquidity (expressed in FROM token)"
-  remainingLiquidity: BigInt
 
   "transaction"
   transaction: Transaction!
