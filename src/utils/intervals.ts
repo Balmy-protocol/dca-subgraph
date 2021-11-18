@@ -1,5 +1,6 @@
 import { SwapInterval } from '../../generated/schema';
-import { BigInt } from '@graphprotocol/graph-ts';
+import { BigInt, ByteArray, Bytes, log } from '@graphprotocol/graph-ts';
+import { ONE_BI, TWO_BI, ZERO_BI } from './constants';
 
 let ONE_MINUTE = 60;
 let FIVE_MINUTES = ONE_MINUTE * 5;
@@ -11,7 +12,7 @@ let ONE_DAY = FOUR_HOURS * 6;
 let ONE_WEEK = ONE_DAY * 7;
 
 const getIntervals = (): i32[] => {
-  let INTERVALS = new Array<i32>(8);
+  let INTERVALS = new Array<i32>();
   INTERVALS.push(ONE_MINUTE);
   INTERVALS.push(FIVE_MINUTES);
   INTERVALS.push(FIFTEEN_MINUTES);
@@ -24,29 +25,20 @@ const getIntervals = (): i32[] => {
   return INTERVALS;
 };
 
-const getBitIntervals = (): BigInt[] => {
-  let BIT_INTERVALS = new Array<BigInt>(8);
-  BIT_INTERVALS.push(BigInt.fromString('1'));
-  BIT_INTERVALS.push(BigInt.fromString('2'));
-  BIT_INTERVALS.push(BigInt.fromString('4'));
-  BIT_INTERVALS.push(BigInt.fromString('8'));
-  BIT_INTERVALS.push(BigInt.fromString('16'));
-  BIT_INTERVALS.push(BigInt.fromString('32'));
-  BIT_INTERVALS.push(BigInt.fromString('64'));
-  BIT_INTERVALS.push(BigInt.fromString('128'));
-
-  return BIT_INTERVALS;
-};
-
-export const intervalsfromByte = (byte: string): i32[] => {
+export const intervalsFromBytes = (intervalsBytes: Bytes): i32[] => {
   let intervals = getIntervals();
-  let bit_intervals = getBitIntervals();
-  let num = BigInt.fromString(byte);
   let result = new Array<i32>();
-  for (let i: i32 = 0; i <= 8; i++) {
-    if (num & bit_intervals[i]) {
-      result.push(intervals[i]);
+  let intervalsAsNumber = BigInt.fromI32(intervalsBytes.toI32());
+  let cycle = 0;
+  while (intervalsAsNumber.gt(ZERO_BI)) {
+    if (intervalsAsNumber.notEqual(ONE_BI) && intervalsAsNumber.mod(TWO_BI).notEqual(ZERO_BI)) {
+      result.push(intervals[cycle]);
+    } else if (intervalsAsNumber.equals(ONE_BI)) {
+      result.push(intervals[cycle]);
+      intervalsAsNumber = ZERO_BI;
     }
+    cycle = cycle + 1;
+    intervalsAsNumber = intervalsAsNumber.div(TWO_BI);
   }
   return result;
 };

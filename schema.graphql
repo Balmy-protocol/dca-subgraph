@@ -191,8 +191,8 @@ type PairSwapInterval @entity {
   pairSwap: PairSwap!
   "swap interval"
   swapInterval: SwapInterval!
-  # "swap performed"
-  # swapPerformed: BigInt!
+  "swap performed"
+  swapPerformed: BigInt!
   # "amount to swap token a"
   # amountToSwapTokenA: BigInt!
   # "amount to swap token b"

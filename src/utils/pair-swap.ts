@@ -1,7 +1,7 @@
 import { log, BigInt } from '@graphprotocol/graph-ts';
 import { Transaction, Pair, PairSwap, PairSwapInterval } from '../../generated/schema';
 import { SwappedSwapInformationPairsStruct } from '../../generated/Hub/Hub';
-import { intervalsfromByte } from './intervals';
+import { intervalsFromBytes } from './intervals';
 
 export function create(pair: Pair, event: SwappedSwapInformationPairsStruct, transaction: Transaction, fee: BigInt): PairSwap {
   let pairSwapId = pair.id.concat('-').concat(transaction.id);
@@ -20,18 +20,18 @@ export function create(pair: Pair, event: SwappedSwapInformationPairsStruct, tra
     pairSwap.executedAtTimestamp = transaction.timestamp;
     pairSwap.save();
 
-    let intervals = intervalsfromByte(event.intervalsInSwap.toString());
-    intervals.forEach((interval) => {
-      let pairSwapId = pair.id.concat('-').concat(transaction.id);
-      let pairSwapIntervalId = pairSwapId.concat('-').concat(interval.toString());
+    let intervals = intervalsFromBytes(event.intervalsInSwap);
+    for (let i: i32 = 0; i < intervals.length; i++) {
+      let pairSwapIntervalId = pairSwapId.concat('-').concat(intervals[i].toString());
       let pairSwapInterval = new PairSwapInterval(pairSwapIntervalId);
       pairSwapInterval.pair = pair.id;
       pairSwapInterval.pairSwap = pairSwapId;
-      pairSwapInterval.swapInterval = interval.toString();
+      pairSwapInterval.swapInterval = intervals[i].toString();
+      // FIX: swapPerformed
       pairSwapInterval.save();
-    });
+    }
   }
-  return pairSwap!;
+  return pairSwap;
 }
 
 function APPLY_FEE(fee: BigInt, amount: BigInt): BigInt {

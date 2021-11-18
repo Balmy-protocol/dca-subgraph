@@ -30,8 +30,8 @@ export function getOrCreate(address: Address): Token {
   return token;
 }
 
-export function getMangitudeOf(id: string): BigInt {
+export function getMagnitudeOf(id: string): BigInt {
   log.info('[Token] Get magnitude of {}', [id]);
-  let token = getOrCreate(Address.fromHexString(id) as Address);
-  return BigInt.fromString('10').pow(token.decimals as u8);
+  let token = getOrCreate(Address.fromString(id));
+  return BigInt.fromI32(10).pow(token.decimals as u8);
 }

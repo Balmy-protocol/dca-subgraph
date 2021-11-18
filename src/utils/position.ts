@@ -6,7 +6,7 @@ import * as positionStateLibrary from './position-state';
 import * as positionActionLibrary from './position-action';
 import * as tokenLibrary from './token';
 import { ONE_BI, ZERO_BI } from './constants';
-import { intervalsfromByte } from './intervals';
+import { intervalsFromBytes } from './intervals';
 
 export function create(event: Deposited, transaction: Transaction): Position {
   let id = event.params.positionId.toString();
@@ -111,31 +111,36 @@ export function withdrew(event: Withdrew, transaction: Transaction): Position {
   return position;
 }
 
-export function shouldRegister(status: String, remainingSwaps: BigInt, swapInterval: string, intervalsByte: Bytes): boolean {
-  let canSwap = false;
-  let intervals = intervalsfromByte(intervalsByte.toString());
+export function shouldRegister(status: String, remainingSwaps: BigInt, swapInterval: string, intervals: i32[]): boolean {
+  let intervalOfPositionWasSwapped = false;
 
-  for (let i: i32 = 0; i <= intervals.length; i++) {
-    if (BigInt.fromI32(intervals[i]).toString() == swapInterval) {
-      canSwap = true;
-      break;
+  for (let i: i32 = 0; i < intervals.length && !intervalOfPositionWasSwapped; i++) {
+    if (BigInt.fromI32(intervals[i]).equals(BigInt.fromString(swapInterval))) {
+      intervalOfPositionWasSwapped = true;
     }
   }
 
-  return status != 'TERMINATED' && remainingSwaps.gt(ZERO_BI) && canSwap;
+  return status != 'TERMINATED' && remainingSwaps.gt(ZERO_BI) && intervalOfPositionWasSwapped;
 }
 
-export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairSwap, intervalsByte: Bytes): Position {
+export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairSwap, intervals: i32[], transaction: Transaction): Position {
   log.info('[Position] Register pair swap for position {}', [positionId]);
   let position = getById(positionId);
   let currentState = positionStateLibrary.get(position.current);
 
-  if (shouldRegister(position.status, currentState.remainingSwaps, position.swapInterval, intervalsByte)) {
+  if (shouldRegister(position.status, currentState.remainingSwaps, position.swapInterval, intervals)) {
     let rateOfSwap = position.from == pair.tokenA ? pairSwap.ratePerUnitAToBWithFee : pairSwap.ratePerUnitBToAWithFee;
-    let swapped = rateOfSwap.times(currentState.rate).div(tokenLibrary.getMangitudeOf(position.from));
+    let magnitude = tokenLibrary.getMagnitudeOf(position.from);
+    let augmentedSwapped = rateOfSwap.times(currentState.rate);
+    let swapped = augmentedSwapped.div(magnitude);
+    // Position state
     positionStateLibrary.registerPairSwap(position.current, position, swapped);
     position.totalSwapped = position.totalSwapped.plus(swapped);
     position.save();
+    //
+    // Position action
+    positionActionLibrary.swapped(positionId, swapped, transaction);
+    //
   }
   return position;
 }

@@ -4,6 +4,8 @@ import * as tokenLibrary from '../utils/token';
 import * as positionLibrary from '../utils/position';
 import * as pairSwapLibrary from '../utils/pair-swap';
 import { Swapped } from '../../generated/Hub/Hub';
+import { ONE_BI, ZERO_BI } from './constants';
+import { intervalsFromBytes } from './intervals';
 
 export function create(id: string, token0Address: Address, token1Address: Address, transaction: Transaction): Pair {
   log.info('[Pair] Create {}', [id]);
@@ -38,15 +40,16 @@ export function get(id: string): Pair | null {
 export function swapped(event: Swapped, transaction: Transaction): void {
   let id = event.address.toHexString();
   log.info('[Pair] Swapped {}', [id]);
-  // let pairs = event.params.swapInformation.pairs;
-  // pairs.forEach((incomingPair) => {
-  //   let fee = event.params.fee;
-  //   let pair = get(`${incomingPair.tokenA}-${incomingPair.tokenB}`);
-  //   let pairSwap = pairSwapLibrary.create(pair!, incomingPair, transaction, fee);
-  //   let positionIdsLength = pair.positionIds.length;
-  //   let positionIds = pair.positionIds;
-  //   for (let i: i32 = 0; i <= positionIdsLength; i++) {
-  //     positionLibrary.registerPairSwap(positionIds[i], pair!, pairSwap, incomingPair.intervalsInSwap);
-  //   }
-  // });
+  let pairs = event.params.swapInformation.pairs;
+  let fee = event.params.fee;
+  for (let i: i32 = 0; i < pairs.length; i++) {
+    let id = pairs[i].tokenA.toHexString().concat('-').concat(pairs[i].tokenB.toHexString());
+    let pair = get(id)!;
+    let pairSwap = pairSwapLibrary.create(pair, pairs[i], transaction, fee);
+    let intervals = intervalsFromBytes(pairs[i].intervalsInSwap);
+    let positionIds = pair.positionIds;
+    for (let x: i32 = 0; x < positionIds.length; x++) {
+      positionLibrary.registerPairSwap(positionIds[x], pair, pairSwap, intervals, transaction);
+    }
+  }
 }
