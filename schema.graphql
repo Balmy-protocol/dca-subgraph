@@ -62,6 +62,8 @@ type Position @entity {
   current: PositionState!
   "past states"
   history: [PositionState!]! @derivedFrom(field: "position")
+  "actions"
+  actionsHistory: [PositionAction!]! @derivedFrom(field: "position")
   "position status"
   status: POSITION_STATUS!
   "transaction"
@@ -105,17 +107,40 @@ type PositionState @entity {
   createdAtTimestamp: BigInt!
 }
 
-type PositionPairSwap @entity {
-  "position.id-pairSwap.id"
+enum ACTION {
+  MODIFIED_RATE
+  MODIFIED_DURATION
+  MODIFIED_RATE_AND_DURATION
+  WITHDREW
+  SWAPPED
+  CREATED
+}
+
+type PositionAction @entity {
+  "position.id-tx.hash-tx.index"
   id: ID!
   "position"
   position: Position!
-  "pair swap"
-  pairSwap: PairSwap!
-  "from amount"
-  used: BigInt!
-  "to amount"
-  swapped: BigInt!
+  "action that caused the modification"
+  action: ACTION!
+  "actor who executed the action"
+  actor: Bytes
+  
+  "rate"
+  rate: BigInt
+  "remaining swaps"
+  remainingSwaps: BigInt
+  "swapped (is this necesarry? swapped = rate, always)"
+  swapped: BigInt
+  "withdrawn (expressed in TO token)"
+  withdrawn: BigInt
+
+  "transaction"
+  transaction: Transaction!
+  "createdAtBlock"
+  createdAtBlock: BigInt!
+  "createdAtTimestamp"
+  createdAtTimestamp: BigInt!
 }
 
 type PairSwap @entity {
@@ -166,8 +191,8 @@ type PairSwapInterval @entity {
   pairSwap: PairSwap!
   "swap interval"
   swapInterval: SwapInterval!
-  # "swap performed"
-  # swapPerformed: BigInt!
+  "swap performed"
+  swapPerformed: BigInt!
   # "amount to swap token a"
   # amountToSwapTokenA: BigInt!
   # "amount to swap token b"

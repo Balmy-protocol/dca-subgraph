@@ -27,6 +27,12 @@ export function create(positionId: string, rate: BigInt, startingSwap: BigInt, l
   return positionState;
 }
 
+// export function clone(positionId: string): PositionState {
+//   let positionState = get(positionId);
+//   positionState.id = '';
+//   return positionState;
+// }
+
 export function get(id: string): PositionState {
   log.info('[PositionState] Get {}', [id]);
   let positionState = PositionState.load(id);

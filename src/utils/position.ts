@@ -3,9 +3,10 @@ import { Transaction, Position, PairSwap, Pair, PositionState } from '../../gene
 import { Deposited, Modified, Terminated, Withdrew, SwappedSwapInformationPairsStruct } from '../../generated/Hub/Hub';
 import * as pairLibrary from './pair';
 import * as positionStateLibrary from './position-state';
+import * as positionActionLibrary from './position-action';
 import * as tokenLibrary from './token';
 import { ONE_BI, ZERO_BI } from './constants';
-import { intervalsfromByte } from './intervals';
+import { intervalsFromBytes } from './intervals';
 
 export function create(event: Deposited, transaction: Transaction): Position {
   let id = event.params.positionId.toString();
@@ -35,6 +36,10 @@ export function create(event: Deposited, transaction: Transaction): Position {
 
     // Create position state
     let positionState = positionStateLibrary.create(id, event.params.rate, event.params.startingSwap, event.params.lastSwap, transaction);
+
+    // Create position action
+    positionActionLibrary.create(id, event.params.rate, event.params.startingSwap, event.params.lastSwap, transaction);
+
     position.totalDeposits = event.params.rate.times(positionState.remainingSwaps);
     position.totalSwaps = positionState.remainingSwaps;
     position.current = positionState.id;
@@ -60,12 +65,23 @@ export function modified(event: Modified, transaction: Transaction): Position {
   let id = event.params.positionId.toString();
   let position = getById(event.params.positionId.toString());
   log.info('[Position] Modified {}', [id]);
+  // Position state
   let previousPositionState = positionStateLibrary.get(position.current);
   let newPositionState = positionStateLibrary.create(id, event.params.rate, event.params.startingSwap, event.params.lastSwap, transaction);
   position.totalDeposits = position.totalDeposits.minus(previousPositionState.remainingLiquidity).plus(newPositionState.remainingLiquidity);
   position.totalSwaps = position.totalSwaps.minus(previousPositionState.remainingSwaps).plus(newPositionState.remainingSwaps);
   position.current = newPositionState.id;
   position.save();
+  //
+  // Position action
+  if (!previousPositionState.rate.equals(event.params.rate) && !previousPositionState.lastSwap.equals(event.params.lastSwap)) {
+    positionActionLibrary.modifiedRateAndDuration(id, event.params.rate, event.params.startingSwap, event.params.lastSwap, transaction);
+  } else if (!previousPositionState.rate.equals(event.params.rate)) {
+    positionActionLibrary.modifiedRate(id, event.params.rate, transaction);
+  } else {
+    positionActionLibrary.modifiedDuration(id, event.params.startingSwap, event.params.lastSwap, transaction);
+  }
+  //
   return position;
 }
 
@@ -84,37 +100,47 @@ export function withdrew(event: Withdrew, transaction: Transaction): Position {
   let id = event.params.positionId.toString();
   log.info('[Position] Withdrew {}', [id]);
   let position = getById(id);
+  // Position state
   positionStateLibrary.registerWithdrew(position.current, event.params.amount);
   position.totalWithdrawn = position.totalWithdrawn.plus(event.params.amount);
   position.save();
+  //
+  // Position action
+  positionActionLibrary.withdrew(id, event.params.amount, transaction);
+  //
   return position;
 }
 
-export function shouldRegister(status: String, remainingSwaps: BigInt, swapInterval: string, intervalsByte: Bytes): boolean {
-  let canSwap = false;
-  let intervals = intervalsfromByte(intervalsByte.toString());
+export function shouldRegister(status: String, remainingSwaps: BigInt, swapInterval: string, intervals: i32[]): boolean {
+  let intervalOfPositionWasSwapped = false;
 
-  for (let i: i32 = 0; i <= intervals.length; i++) {
-    if (BigInt.fromI32(intervals[i]).toString() == swapInterval) {
-      canSwap = true;
-      break;
+  for (let i: i32 = 0; i < intervals.length && !intervalOfPositionWasSwapped; i++) {
+    if (BigInt.fromI32(intervals[i]).equals(BigInt.fromString(swapInterval))) {
+      intervalOfPositionWasSwapped = true;
     }
   }
 
-  return status != 'TERMINATED' && remainingSwaps.gt(ZERO_BI) && canSwap;
+  return status != 'TERMINATED' && remainingSwaps.gt(ZERO_BI) && intervalOfPositionWasSwapped;
 }
 
-export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairSwap, intervalsByte: Bytes): Position {
+export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairSwap, intervals: i32[], transaction: Transaction): Position {
   log.info('[Position] Register pair swap for position {}', [positionId]);
   let position = getById(positionId);
   let currentState = positionStateLibrary.get(position.current);
 
-  if (shouldRegister(position.status, currentState.remainingSwaps, position.swapInterval, intervalsByte)) {
+  if (shouldRegister(position.status, currentState.remainingSwaps, position.swapInterval, intervals)) {
     let rateOfSwap = position.from == pair.tokenA ? pairSwap.ratePerUnitAToBWithFee : pairSwap.ratePerUnitBToAWithFee;
-    let swapped = rateOfSwap.times(currentState.rate).div(tokenLibrary.getMangitudeOf(position.from));
+    let magnitude = tokenLibrary.getMagnitudeOf(position.from);
+    let augmentedSwapped = rateOfSwap.times(currentState.rate);
+    let swapped = augmentedSwapped.div(magnitude);
+    // Position state
     positionStateLibrary.registerPairSwap(position.current, position, swapped);
     position.totalSwapped = position.totalSwapped.plus(swapped);
     position.save();
+    //
+    // Position action
+    positionActionLibrary.swapped(positionId, swapped, transaction);
+    //
   }
   return position;
 }
