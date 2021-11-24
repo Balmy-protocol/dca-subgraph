@@ -82,6 +82,8 @@ export function modified(event: Modified, transaction: Transaction): Position {
     previousPositionState.idleSwapped,
     transaction
   );
+  let oldPositionRate = previousPositionState.rate;
+  let oldRemainingSwaps = previousPositionState.remainingSwaps;
   position.totalDeposits = position.totalDeposits.minus(previousPositionState.remainingLiquidity).plus(newPositionState.remainingLiquidity);
   position.totalSwaps = position.totalSwaps.minus(previousPositionState.remainingSwaps).plus(newPositionState.remainingSwaps);
   position.current = newPositionState.id;
@@ -89,11 +91,35 @@ export function modified(event: Modified, transaction: Transaction): Position {
   //
   // Position action
   if (!previousPositionState.rate.equals(event.params.rate) && !previousPositionState.lastSwap.equals(event.params.lastSwap)) {
-    positionActionLibrary.modifiedRateAndDuration(id, event.params.rate, event.params.startingSwap, event.params.lastSwap, transaction);
+    positionActionLibrary.modifiedRateAndDuration(
+      id,
+      event.params.rate,
+      event.params.startingSwap,
+      event.params.lastSwap,
+      oldPositionRate,
+      oldRemainingSwaps,
+      transaction
+    );
   } else if (!previousPositionState.rate.equals(event.params.rate)) {
-    positionActionLibrary.modifiedRate(id, event.params.rate, transaction);
+    positionActionLibrary.modifiedRate(
+      id,
+      event.params.rate,
+      event.params.startingSwap,
+      event.params.lastSwap,
+      oldPositionRate,
+      oldRemainingSwaps,
+      transaction
+    );
   } else {
-    positionActionLibrary.modifiedDuration(id, event.params.startingSwap, event.params.lastSwap, transaction);
+    positionActionLibrary.modifiedDuration(
+      id,
+      event.params.rate,
+      event.params.startingSwap,
+      event.params.lastSwap,
+      oldPositionRate,
+      oldRemainingSwaps,
+      transaction
+    );
   }
   //
   return position;
@@ -144,12 +170,13 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
 
   if (shouldRegister(position.status, currentState.remainingSwaps, position.swapInterval, intervals)) {
     let rateOfSwap = position.from == pair.tokenA ? pairSwap.ratePerUnitAToBWithFee : pairSwap.ratePerUnitBToAWithFee;
+    let rate = currentState.rate;
     // Position state
     let updatedPositionState = positionStateLibrary.registerPairSwap(position.current, position, rateOfSwap);
     let swapped = updatedPositionState.swapped.minus(currentState.swapped);
     //
     // Position action
-    positionActionLibrary.swapped(positionId, swapped, transaction);
+    positionActionLibrary.swapped(positionId, swapped, rate, pairSwap, transaction);
     //
     position.totalSwapped = position.totalSwapped.plus(swapped);
     position.save();
