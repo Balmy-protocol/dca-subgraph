@@ -35,7 +35,14 @@ export function create(event: Deposited, transaction: Transaction): Position {
     position.createdAtTimestamp = transaction.timestamp;
 
     // Create position state
-    let positionState = positionStateLibrary.create(id, event.params.rate, event.params.startingSwap, event.params.lastSwap, transaction);
+    let positionState = positionStateLibrary.create(
+      id,
+      event.params.rate,
+      event.params.startingSwap,
+      event.params.lastSwap,
+      ZERO_BI,
+      transaction
+    );
 
     // Create position action
     positionActionLibrary.create(id, event.params.rate, event.params.startingSwap, event.params.lastSwap, transaction);
@@ -67,7 +74,14 @@ export function modified(event: Modified, transaction: Transaction): Position {
   log.info('[Position] Modified {}', [id]);
   // Position state
   let previousPositionState = positionStateLibrary.get(position.current);
-  let newPositionState = positionStateLibrary.create(id, event.params.rate, event.params.startingSwap, event.params.lastSwap, transaction);
+  let newPositionState = positionStateLibrary.create(
+    id,
+    event.params.rate,
+    event.params.startingSwap,
+    event.params.lastSwap,
+    previousPositionState.idleSwapped,
+    transaction
+  );
   position.totalDeposits = position.totalDeposits.minus(previousPositionState.remainingLiquidity).plus(newPositionState.remainingLiquidity);
   position.totalSwaps = position.totalSwaps.minus(previousPositionState.remainingSwaps).plus(newPositionState.remainingSwaps);
   position.current = newPositionState.id;
@@ -130,17 +144,15 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
 
   if (shouldRegister(position.status, currentState.remainingSwaps, position.swapInterval, intervals)) {
     let rateOfSwap = position.from == pair.tokenA ? pairSwap.ratePerUnitAToBWithFee : pairSwap.ratePerUnitBToAWithFee;
-    let magnitude = tokenLibrary.getMagnitudeOf(position.from);
-    let augmentedSwapped = rateOfSwap.times(currentState.rate);
-    let swapped = augmentedSwapped.div(magnitude);
     // Position state
-    positionStateLibrary.registerPairSwap(position.current, position, swapped);
-    position.totalSwapped = position.totalSwapped.plus(swapped);
-    position.save();
+    let updatedPositionState = positionStateLibrary.registerPairSwap(position.current, position, rateOfSwap);
+    let swapped = updatedPositionState.swapped.minus(currentState.swapped);
     //
     // Position action
     positionActionLibrary.swapped(positionId, swapped, transaction);
     //
+    position.totalSwapped = position.totalSwapped.plus(swapped);
+    position.save();
   }
   return position;
 }

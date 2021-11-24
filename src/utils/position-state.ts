@@ -3,7 +3,14 @@ import { Position, PositionState, Transaction } from '../../generated/schema';
 import { ONE_BI, ZERO_BI } from './constants';
 import * as tokenLibrary from './token';
 
-export function create(positionId: string, rate: BigInt, startingSwap: BigInt, lastSwap: BigInt, transaction: Transaction): PositionState {
+export function create(
+  positionId: string,
+  rate: BigInt,
+  startingSwap: BigInt,
+  lastSwap: BigInt,
+  swappedBeforeModified: BigInt,
+  transaction: Transaction
+): PositionState {
   let id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionState] Create {}', [id]);
   let positionState = PositionState.load(id);
@@ -16,8 +23,12 @@ export function create(positionId: string, rate: BigInt, startingSwap: BigInt, l
 
     positionState.remainingSwaps = lastSwap.minus(startingSwap).plus(ONE_BI);
     positionState.swapped = ZERO_BI;
+    positionState.idleSwapped = swappedBeforeModified;
     positionState.withdrawn = ZERO_BI;
     positionState.remainingLiquidity = rate.times(positionState.remainingSwaps);
+
+    positionState.swappedBeforeModified = swappedBeforeModified;
+    positionState.rateAccumulator = ZERO_BI;
 
     positionState.transaction = transaction.id;
     positionState.createdAtBlock = transaction.blockNumber;
@@ -49,12 +60,22 @@ export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
   return positionState;
 }
 
-export function registerPairSwap(id: string, position: Position, swapped: BigInt): PositionState {
+export function registerPairSwap(id: string, position: Position, ratio: BigInt): PositionState {
   log.info('[PositionState] Register pair swap {}', [id]);
   let positionState = get(id);
+  let magnitude = tokenLibrary.getMagnitudeOf(position.from);
+
+  positionState.rateAccumulator = positionState.rateAccumulator.plus(ratio);
+
+  let augmentedSwapped = positionState.rateAccumulator.times(positionState.rate);
+  let totalSwapped = augmentedSwapped.div(magnitude);
+
+  positionState.swapped = positionState.swappedBeforeModified.plus(totalSwapped);
+  positionState.idleSwapped = positionState.swapped.minus(positionState.withdrawn);
+
   positionState.remainingSwaps = positionState.remainingSwaps.minus(ONE_BI);
-  positionState.swapped = positionState.swapped.plus(swapped);
   positionState.remainingLiquidity = positionState.remainingLiquidity.minus(positionState.rate);
+
   // TODO: lastUpdatedAt
   positionState.save();
   return positionState;
