@@ -54,6 +54,7 @@ export function get(id: string): PositionState {
 export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
   log.info('[PositionState] Register withdrew {}', [id]);
   let positionState = get(id);
+  positionState.idleSwapped = positionState.idleSwapped.minus(withdrawn);
   positionState.withdrawn = positionState.withdrawn.plus(withdrawn);
   // TODO: lastUpdatedAt
   positionState.save();
