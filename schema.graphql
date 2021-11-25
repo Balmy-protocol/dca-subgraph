@@ -94,10 +94,18 @@ type PositionState @entity {
   remainingSwaps: BigInt!
   "total swapped from -> to (expressed in TO token)"
   swapped: BigInt!
+  "to be withdrawn (swapped, not withrawn, expressed in TO token)"
+  idleSwapped: BigInt!
   "withdrawn (expressed in TO token)"
   withdrawn: BigInt!
   "remaining liquidity (expressed in FROM token)"
   remainingLiquidity: BigInt!
+
+  # Mimic on-chain swapped amounts
+  "swapped before modified"
+  swappedBeforeModified: BigInt!
+  "rates accumulator"
+  rateAccumulator: BigInt!
 
   "transaction"
   transaction: Transaction!
