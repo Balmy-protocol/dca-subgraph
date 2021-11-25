@@ -133,15 +133,25 @@ type PositionAction @entity {
   action: ACTION!
   "actor who executed the action"
   actor: Bytes
-  
+
   "rate"
   rate: BigInt
+  "previous rate"
+  oldRate: BigInt
   "remaining swaps"
   remainingSwaps: BigInt
+  "previous remaining swaps"
+  oldRemainingSwaps: BigInt
+
   "swapped (is this necesarry? swapped = rate, always)"
   swapped: BigInt
   "withdrawn (expressed in TO token)"
   withdrawn: BigInt
+
+  "rate per unit b to a with fee subtracted"
+  ratePerUnitBToAWithFee: BigInt!
+  "rate per unit a to b with fee subtracted"
+  ratePerUnitAToBWithFee: BigInt!
 
   "transaction"
   transaction: Transaction!

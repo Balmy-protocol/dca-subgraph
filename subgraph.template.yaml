@@ -58,7 +58,7 @@ dataSources:
         - name: ERC20
           file: ./abis/ERC20Detailed.json
       eventHandlers:
-        - event: Deposited(indexed address,indexed address,uint256,address,address,uint32,uint120,uint32,uint32)
+        - event: Deposited(indexed address,indexed address,uint256,address,address,uint32,uint120,uint32,uint32,(address,uint8[])[])
           handler: handleDeposited
         - event: Modified(indexed address,uint256,uint120,uint32,uint32)
           handler: handleModified
