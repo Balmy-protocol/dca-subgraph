@@ -120,6 +120,24 @@ export function withdrew(positionId: string, withdrawn: BigInt, transaction: Tra
   return positionAction;
 }
 
+export function terminated(positionId: string, transaction: Transaction): PositionAction {
+  let id = positionId.concat('-').concat(transaction.id);
+  log.info('[PositionAction] Withdrew {}', [id]);
+  let positionAction = PositionAction.load(id);
+  if (positionAction == null) {
+    positionAction = new PositionAction(id);
+    positionAction.position = positionId;
+    positionAction.action = 'TERMINATED';
+    positionAction.actor = transaction.from;
+
+    positionAction.transaction = transaction.id;
+    positionAction.createdAtBlock = transaction.blockNumber;
+    positionAction.createdAtTimestamp = transaction.timestamp;
+    positionAction.save();
+  }
+  return positionAction;
+}
+
 export function swapped(positionId: string, swapped: BigInt, rate: BigInt, pairSwap: PairSwap, transaction: Transaction): PositionAction {
   let id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Swapped {}', [id]);
