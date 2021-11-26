@@ -51,6 +51,21 @@ export function get(id: string): PositionState {
   return positionState;
 }
 
+export function registerTerminated(id: string): PositionState {
+  log.info('[PositionState] Register terminated {}', [id]);
+  let positionState = get(id);
+  positionState.rate = ZERO_BI;
+
+  positionState.remainingSwaps = ZERO_BI;
+  positionState.idleSwapped = ZERO_BI;
+  positionState.withdrawn = positionState.withdrawn.plus(positionState.idleSwapped);
+  positionState.remainingLiquidity = ZERO_BI;
+
+  // TODO: lastUpdatedAt
+  positionState.save();
+  return positionState;
+}
+
 export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
   log.info('[PositionState] Register withdrew {}', [id]);
   let positionState = get(id);
