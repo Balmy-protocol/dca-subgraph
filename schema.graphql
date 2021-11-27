@@ -126,6 +126,7 @@ enum ACTION {
   WITHDREW
   SWAPPED
   CREATED
+  TERMINATED
 }
 
 type PositionAction @entity {

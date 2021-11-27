@@ -133,6 +133,13 @@ export function terminated(event: Terminated, transaction: Transaction): Positio
   position.status = 'TERMINATED';
   position.terminatedAtBlock = transaction.blockNumber;
   position.terminatedAtTimestamp = transaction.timestamp;
+
+  // Position state
+  positionStateLibrary.registerTerminated(position.current);
+
+  // Position action
+  positionActionLibrary.terminated(id, transaction);
+
   position.save();
 
   // Remove position from actives
