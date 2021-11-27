@@ -12,17 +12,7 @@ let ONE_DAY = FOUR_HOURS.times(BigInt.fromI32(6));
 let ONE_WEEK = ONE_DAY.times(BigInt.fromI32(7));
 
 export const getIntervals = (): BigInt[] => {
-  let INTERVALS = new Array<BigInt>();
-  INTERVALS.push(ONE_MINUTE);
-  INTERVALS.push(FIVE_MINUTES);
-  INTERVALS.push(FIFTEEN_MINUTES);
-  INTERVALS.push(THIRTY_MINUTES);
-  INTERVALS.push(ONE_HOUR);
-  INTERVALS.push(FOUR_HOURS);
-  INTERVALS.push(ONE_DAY);
-  INTERVALS.push(ONE_WEEK);
-
-  return INTERVALS;
+  return [ONE_MINUTE, FIVE_MINUTES, FIFTEEN_MINUTES, THIRTY_MINUTES, ONE_HOUR, FOUR_HOURS, ONE_DAY, ONE_WEEK];
 };
 
 export const getIndexOfInterval = (swapInterval: BigInt): i32 => {
