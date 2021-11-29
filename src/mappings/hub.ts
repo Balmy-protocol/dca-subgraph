@@ -12,7 +12,6 @@ import {
   Withdrew,
   WithdrewMany,
 } from '../../generated/Hub/Hub';
-import { ADDRESS_ZERO } from '../utils/constants';
 import { BigInt } from '@graphprotocol/graph-ts';
 
 // intervals defined by contract by default

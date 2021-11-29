@@ -127,7 +127,6 @@ export function getNextSwapAvailableAtAfterPositionChange(
 ): BigInt {
   let intervals = getIntervals();
   let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
-  // activePositionsPerInterval[indexOfPositionInterval] = (beingRemoved) ? activePositionsPerInterval[indexOfPositionInterval].minus(ONE_BI) : activePositionsPerInterval[indexOfPositionInterval].plus(ONE_BI);
   let indexOfCloserInterval = activePositionsPerInterval.length + 1;
   let i: i32 = 0;
   while (i < activePositionsPerInterval.length && indexOfCloserInterval == activePositionsPerInterval.length + 1) {
@@ -147,3 +146,20 @@ export function getNextSwapAvailableAtAfterPositionChange(
   // Removed position is on the same interval as the one signaling next swap available at
   return nextSwapAvailableAt;
 }
+
+// index of position interval = 7
+// index of closer interval = 8
+// we might need to indicate if its a new position or not.
+// => ZERO_BI
+
+// If position is new, and activePositionsPerInterval doesnt have position accounted for
+// indexOfCloserInterval == activePositionsPerInterval.length + 1 => ZERO_BI
+// indexOfCloserInterval > indexOfPositionInterval => ZERO_BI
+// indexOfCloserInterval < indexOfPositionInterval => nextSwapAvailableAt should not be modified
+// indexOfCloserInterval == indexOfPositionInterval => nextSwapAvailableAt should not be modified
+
+// If position is being removed and activePositionsPerInterval doesnt have position accounted for
+// indexOfCloserInterval == activePositionsPerInterval.length + 1 => MAX_BI
+// indexOfCloserInterval > indexOfPositionInterval => nextSwapAvailableAt.minus(intervals[indexOfPositionInterval]).plus(intervals[indexOfCloserInterval]);
+// indexOfCloserInterval < indexOfPositionInterval => nextSwapAvailableAt should not be modified
+// indexOfCloserInterval == indexOfPositionInterval => nextSwapAvailableAt should not be modified
