@@ -144,17 +144,17 @@ export function terminated(event: Terminated, transaction: Transaction): Positio
   return position;
 }
 
-export function withdrew(event: Withdrew, transaction: Transaction): Position {
-  let id = event.params.positionId.toString();
-  log.info('[Position] Withdrew {}', [id]);
-  let position = getById(id);
+export function withdrew(positionId: string, transaction: Transaction): Position {
+  log.info('[Position] Withdrew {}', [positionId]);
+  let position = getById(positionId);
+  let currentState = positionStateLibrary.get(position.current);
   // Position state
-  positionStateLibrary.registerWithdrew(position.current, event.params.amount);
-  position.totalWithdrawn = position.totalWithdrawn.plus(event.params.amount);
+  positionStateLibrary.registerWithdrew(position.current, currentState.idleSwapped);
+  position.totalWithdrawn = position.totalWithdrawn.plus(currentState.idleSwapped);
   position.save();
   //
   // Position action
-  positionActionLibrary.withdrew(id, event.params.amount, transaction);
+  positionActionLibrary.withdrew(positionId, currentState.idleSwapped, transaction);
   //
   return position;
 }
