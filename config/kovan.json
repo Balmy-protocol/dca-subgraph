@@ -1,7 +1,7 @@
 {
   "network": "kovan",
-  "hubStartBlock": "28539084",
-  "hub": "0x00A882bD48377309d1DfA59bf49E60729f04c9DF",
-  "permissionsManagerStartBlock": "28539082",
-  "permissionsManager": "0xb8e1022248836e8c1a9e4ad295832341DfE65c46"
+  "hubStartBlock": "28585910",
+  "hub": "0xA9DFAe8b08eCA017E4f33C0C580b7B5b97974567",
+  "permissionsManagerStartBlock": "28585909",
+  "permissionsManager": "0xbB3E83D7C2fD7c1D07bb2dCCe435728Da2e42463"
 }
