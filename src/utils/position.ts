@@ -7,6 +7,7 @@ import * as positionActionLibrary from './position-action';
 import * as tokenLibrary from './token';
 import { ONE_BI, ZERO_BI } from './constants';
 import { intervalsFromBytes } from './intervals';
+import { ConvertedDeposit } from '../../generated/HubCompanion/HubCompanion';
 
 export function create(event: Deposited, transaction: Transaction): Position {
   let id = event.params.positionId.toString();
@@ -58,6 +59,20 @@ export function create(event: Deposited, transaction: Transaction): Position {
     pair.positionIds = newPositionIds;
     pair.save();
   }
+  return position;
+}
+
+export function setAsEth(event: ConvertedDeposit): Position {
+  let id = event.params.positionId.toString();
+  log.info('[Position] Set as ETH {}', [id]);
+  let from = tokenLibrary.getOrCreate(event.params.originalTokenFrom);
+  let to = tokenLibrary.getOrCreate(event.params.originalTokenTo);
+  let position = getById(id);
+
+  position.from = from.id;
+  position.to = to.id;
+  position.save();
+
   return position;
 }
 
