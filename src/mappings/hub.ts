@@ -37,12 +37,15 @@ export function handleTerminated(event: Terminated): void {
 
 export function handleWithdrew(event: Withdrew): void {
   let transaction = transactionLibrary.getOrCreateFromEvent(event, 'Withdrew');
-  positionLibrary.withdrew(event, transaction);
+  positionLibrary.withdrew(event.params.positionId.toString(), transaction);
 }
 
 export function handleWithdrewMany(event: WithdrewMany): void {
   let transaction = transactionLibrary.getOrCreateFromEvent(event, 'WithdrewMany');
-  // positionLibrary.getOrCreate(event, transaction);
+  let positions = event.params.positions;
+  for (let i: i32 = 0; i < positions.length; i++) {
+    positionLibrary.withdrew(event.params.positions[1].toString(), transaction);
+  }
 }
 
 export function handleSwapped(event: Swapped): void {
