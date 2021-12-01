@@ -20,6 +20,7 @@ export function create(id: string, token0Address: Address, token1Address: Addres
     pair.activePositionIds = new Array<string>();
     pair.activePositionsPerInterval = [ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI];
     pair.nextSwapAvailableAt = MAX_BI;
+    pair.lastSwappedAt = ZERO_BI;
     pair.transaction = transaction.id;
     pair.createdAtBlock = transaction.blockNumber;
     pair.createdAtTimestamp = transaction.timestamp;
@@ -67,7 +68,8 @@ export function swapped(event: Swapped, transaction: Transaction): void {
     }
     pair.activePositionIds = newActivePositionIds;
     pair.activePositionsPerInterval = newactivePositionsPerInterval;
-    pair.nextSwapAvailableAt = transaction.timestamp.plus(closerActiveTimeInterval);
+    pair.lastSwappedAt = transaction.timestamp;
+    pair.nextSwapAvailableAt = transaction.timestamp.div(closerActiveTimeInterval).plus(ONE_BI).times(closerActiveTimeInterval);
     pair.save();
   }
 } // O (n*2m) ?
@@ -90,7 +92,13 @@ export function addActivePosition(position: Position): Pair {
     pair.nextSwapAvailableAt = ZERO_BI;
   } else {
     // If not, then get next swap available at
-    pair.nextSwapAvailableAt = getNextSwapAvailableAtAfterPositionChange(position, activePositionsPerInterval, pair.nextSwapAvailableAt, false);
+    pair.nextSwapAvailableAt = getNextSwapAvailableAtAfterPositionChange(
+      position,
+      activePositionsPerInterval,
+      pair.nextSwapAvailableAt,
+      pair.lastSwappedAt,
+      false
+    );
   }
   pair.save();
   return pair;
@@ -109,7 +117,13 @@ export function removeActivePosition(position: Position): Pair {
   activePositionsPerInterval[indexOfPositionInterval] = activePositionsPerInterval[indexOfPositionInterval].minus(ONE_BI);
   pair.activePositionsPerInterval = activePositionsPerInterval;
   // Get new next swap available at
-  pair.nextSwapAvailableAt = getNextSwapAvailableAtAfterPositionChange(position, activePositionsPerInterval, pair.nextSwapAvailableAt, true);
+  pair.nextSwapAvailableAt = getNextSwapAvailableAtAfterPositionChange(
+    position,
+    activePositionsPerInterval,
+    pair.nextSwapAvailableAt,
+    pair.lastSwappedAt,
+    true
+  );
   pair.save();
   return pair;
 }
@@ -137,6 +151,7 @@ export function getNextSwapAvailableAtAfterPositionChange(
   position: Position,
   activePositionsPerInterval: BigInt[],
   nextSwapAvailableAt: BigInt,
+  lastSwappedAt: BigInt,
   beingRemoved: boolean
 ): BigInt {
   let intervals = getIntervals();
@@ -148,8 +163,10 @@ export function getNextSwapAvailableAtAfterPositionChange(
     i++;
   }
   if (!beingRemoved) {
-    if (indexOfCloserInterval == activePositionsPerInterval.length + 1) return ZERO_BI;
-    if (indexOfPositionInterval < indexOfCloserInterval) return ZERO_BI;
+    if (indexOfCloserInterval == activePositionsPerInterval.length + 1)
+      return lastSwappedAt.div(intervals[indexOfPositionInterval]).plus(ONE_BI).times(intervals[indexOfPositionInterval]);
+    if (indexOfPositionInterval < indexOfCloserInterval)
+      return nextSwapAvailableAt.minus(intervals[indexOfCloserInterval]).plus(intervals[indexOfPositionInterval]);
   } else {
     if (indexOfCloserInterval == activePositionsPerInterval.length + 1) return MAX_BI;
     if (indexOfPositionInterval < indexOfCloserInterval)
