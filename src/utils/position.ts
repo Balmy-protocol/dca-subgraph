@@ -6,7 +6,7 @@ import * as positionStateLibrary from './position-state';
 import * as positionActionLibrary from './position-action';
 import * as tokenLibrary from './token';
 import { ONE_BI, ZERO_BI } from './constants';
-import { intervalsFromBytes } from './intervals';
+import * as intervalsLibrary from './intervals';
 import { ConvertedDeposit } from '../../generated/HubCompanion/HubCompanion';
 
 export function create(event: Deposited, transaction: Transaction): Position {
@@ -17,7 +17,7 @@ export function create(event: Deposited, transaction: Transaction): Position {
   let pairId = pairLibrary.buildId(from.id, to.id);
   let pair = pairLibrary.get(pairId);
   if (pair == null) {
-    pair = pairLibrary.create(pairId, event.params.fromToken, event.params.toToken, transaction);
+    pair = pairLibrary.create(pairId, event.params.fromToken, event.params.toToken, event.params.swapInterval, transaction);
   }
   let position = Position.load(id);
   if (position == null) {
@@ -53,11 +53,7 @@ export function create(event: Deposited, transaction: Transaction): Position {
     position.current = positionState.id;
     position.save();
 
-    // TODO: remove this patch
-    let newPositionIds = pair.positionIds;
-    newPositionIds.push(id);
-    pair.positionIds = newPositionIds;
-    pair.save();
+    pairLibrary.addActivePosition(position);
   }
   return position;
 }
@@ -137,6 +133,11 @@ export function modified(event: Modified, transaction: Transaction): Position {
     );
   }
   //
+  // Remove position from active pairs if modified to have zero remaining swaps (soft termination)
+  if (newPositionState.remainingSwaps.equals(ZERO_BI)) {
+    pairLibrary.removeActivePosition(position);
+  }
+  //
   return position;
 }
 
@@ -156,6 +157,9 @@ export function terminated(event: Terminated, transaction: Transaction): Positio
 
   position.save();
 
+  // Remove position from actives
+  pairLibrary.removeActivePosition(position);
+
   return position;
 }
 
@@ -174,37 +178,43 @@ export function withdrew(positionId: string, transaction: Transaction): Position
   return position;
 }
 
-export function shouldRegister(status: String, remainingSwaps: BigInt, swapInterval: string, intervals: i32[]): boolean {
-  let intervalOfPositionWasSwapped = false;
+export class PositionAndPositionState {
+  _position: Position;
+  _positionState: PositionState;
 
-  for (let i: i32 = 0; i < intervals.length && !intervalOfPositionWasSwapped; i++) {
-    if (BigInt.fromI32(intervals[i]).equals(BigInt.fromString(swapInterval))) {
-      intervalOfPositionWasSwapped = true;
-    }
+  constructor(position: Position, positionState: PositionState) {
+    this._position = position;
+    this._positionState = positionState;
   }
 
-  return status != 'TERMINATED' && remainingSwaps.gt(ZERO_BI) && intervalOfPositionWasSwapped;
+  get position(): Position {
+    return this._position;
+  }
+
+  get positionState(): PositionState {
+    return this._positionState;
+  }
 }
 
-export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairSwap, intervals: i32[], transaction: Transaction): Position {
+export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairSwap, transaction: Transaction): PositionAndPositionState {
   log.info('[Position] Register pair swap for position {}', [positionId]);
   let position = getById(positionId);
   let currentState = positionStateLibrary.get(position.current);
 
-  if (shouldRegister(position.status, currentState.remainingSwaps, position.swapInterval, intervals)) {
-    let rateOfSwap = position.from == pair.tokenA ? pairSwap.ratePerUnitAToBWithFee : pairSwap.ratePerUnitBToAWithFee;
-    let rate = currentState.rate;
-    // Position state
-    let updatedPositionState = positionStateLibrary.registerPairSwap(position.current, position, rateOfSwap);
-    let swapped = updatedPositionState.swapped.minus(currentState.swapped);
-    //
-    // Position action
-    positionActionLibrary.swapped(positionId, swapped, rate, pairSwap, transaction);
-    //
-    position.totalSwapped = position.totalSwapped.plus(swapped);
-    position.save();
-  }
-  return position;
+  let rateOfSwap = position.from == pair.tokenA ? pairSwap.ratePerUnitAToBWithFee : pairSwap.ratePerUnitBToAWithFee;
+  let rate = currentState.rate;
+  // Position state
+  let updatedPositionState = positionStateLibrary.registerPairSwap(position.current, position, rateOfSwap);
+  let swapped = updatedPositionState.swapped.minus(currentState.swapped);
+  //
+  // Position action
+  positionActionLibrary.swapped(positionId, swapped, rate, pairSwap, transaction);
+  //
+  position.current = updatedPositionState.id;
+  position.totalSwapped = position.totalSwapped.plus(swapped);
+  position.save();
+
+  return new PositionAndPositionState(position, updatedPositionState);
 }
 
 // export function transfer(event: Transfer, transaction: Transaction): Position {

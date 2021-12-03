@@ -15,9 +15,15 @@ type Pair @entity {
   "tokenB"
   tokenB: Token!
   "positions ids"
-  positionIds: [String!]!
+  activePositionIds: [String!]!
+  "active positions per interval: 0 index => 0 interval => amount of active positions"
+  activePositionsPerInterval: [BigInt!]!
   "positions"
   positions: [Position!]! @derivedFrom(field: "pair")
+  "when is pair going to be available to swap"
+  nextSwapAvailableAt: BigInt!
+  "last swapped executed at"
+  lastSwappedAt: BigInt!
   "swaps"
   swaps: [PairSwap!]! @derivedFrom(field: "pair")
   "swaps intervals"
