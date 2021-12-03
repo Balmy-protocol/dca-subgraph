@@ -53,7 +53,6 @@ export function swapped(event: Swapped, transaction: Transaction): void {
     let activePositionIds = pair.activePositionIds;
     let newActivePositionsPerInterval = pair.activePositionsPerInterval;
     let newActivePositionIds = pair.activePositionIds;
-    let closerActiveTimeInterval = MAX_BI;
     for (let x: i32 = 0; x < activePositionIds.length; x++) {
       // O(m)
       let positionAndState = positionLibrary.registerPairSwap(activePositionIds[x], pair, pairSwap, transaction); // O(1)
@@ -61,17 +60,12 @@ export function swapped(event: Swapped, transaction: Transaction): void {
         newActivePositionIds.splice(newActivePositionIds.indexOf(positionAndState.position.id), 1); // O(x + x), where worst x scenario x = m
         let indexOfInterval = getIndexOfInterval(BigInt.fromString(positionAndState.position.swapInterval));
         newActivePositionsPerInterval[indexOfInterval] = newActivePositionsPerInterval[indexOfInterval].minus(ONE_BI);
-      } else {
-        let positionTimeInterval = BigInt.fromString(positionAndState.position.swapInterval);
-        if (positionTimeInterval.lt(closerActiveTimeInterval)) closerActiveTimeInterval = positionTimeInterval;
       }
     }
     pair.activePositionIds = newActivePositionIds;
     pair.activePositionsPerInterval = newActivePositionsPerInterval;
     pair.lastSwappedAt = transaction.timestamp;
-    pair.nextSwapAvailableAt = closerActiveTimeInterval.equals(MAX_BI)
-      ? MAX_BI
-      : transaction.timestamp.div(closerActiveTimeInterval).plus(ONE_BI).times(closerActiveTimeInterval);
+    pair.nextSwapAvailableAt = getNextSwapAvailableAt(newActivePositionsPerInterval, pair.lastSwappedAt);
     pair.save();
   }
 } // O (n*2m) ?
@@ -89,19 +83,7 @@ export function addActivePosition(position: Position): Pair {
   activePositionsPerInterval[indexOfPositionInterval] = activePositionsPerInterval[indexOfPositionInterval].plus(ONE_BI);
   pair.activePositionsPerInterval = activePositionsPerInterval;
   // Get new next swap available at
-  if (pair.nextSwapAvailableAt.equals(MAX_BI)) {
-    // If next swap available at == MAX_BI => This is the first position on pair from being stale or newly created
-    pair.nextSwapAvailableAt = ZERO_BI;
-  } else {
-    // If not, then get next swap available at
-    pair.nextSwapAvailableAt = getNextSwapAvailableAtAfterPositionChange(
-      position,
-      activePositionsPerInterval,
-      pair.nextSwapAvailableAt,
-      pair.lastSwappedAt,
-      false
-    );
-  }
+  pair.nextSwapAvailableAt = getNextSwapAvailableAt(activePositionsPerInterval, pair.lastSwappedAt);
   pair.save();
   return pair;
 }
@@ -119,61 +101,19 @@ export function removeActivePosition(position: Position): Pair {
   activePositionsPerInterval[indexOfPositionInterval] = activePositionsPerInterval[indexOfPositionInterval].minus(ONE_BI);
   pair.activePositionsPerInterval = activePositionsPerInterval;
   // Get new next swap available at
-  pair.nextSwapAvailableAt = getNextSwapAvailableAtAfterPositionChange(
-    position,
-    activePositionsPerInterval,
-    pair.nextSwapAvailableAt,
-    pair.lastSwappedAt,
-    true
-  );
+  pair.nextSwapAvailableAt = getNextSwapAvailableAt(activePositionsPerInterval, pair.lastSwappedAt);
   pair.save();
   return pair;
 }
 
-// Used when:
-// - A new position in an old pair is created
-// - A position has its "remaining swaps" set to 0 (informally terminated)
-// - A position is terminated
-// Not used when:
-// - Swaps are registered
-
-// If position is new, and activePositionsPerInterval doesnt have position accounted for
-// indexOfCloserInterval == activePositionsPerInterval.length + 1 => ZERO_BI
-// indexOfCloserInterval > indexOfPositionInterval => ZERO_BI
-// indexOfCloserInterval < indexOfPositionInterval => nextSwapAvailableAt should not be modified
-// indexOfCloserInterval == indexOfPositionInterval => nextSwapAvailableAt should not be modified
-
-// If position is being removed and activePositionsPerInterval doesnt have position accounted for
-// indexOfCloserInterval == activePositionsPerInterval.length + 1 => MAX_BI
-// indexOfCloserInterval > indexOfPositionInterval => nextSwapAvailableAt.minus(intervals[indexOfPositionInterval]).plus(intervals[indexOfCloserInterval]);
-// indexOfCloserInterval < indexOfPositionInterval => nextSwapAvailableAt should not be modified
-// indexOfCloserInterval == indexOfPositionInterval => nextSwapAvailableAt should not be modified
-
-export function getNextSwapAvailableAtAfterPositionChange(
-  position: Position,
-  activePositionsPerInterval: BigInt[],
-  nextSwapAvailableAt: BigInt,
-  lastSwappedAt: BigInt,
-  beingRemoved: boolean
-): BigInt {
+export function getNextSwapAvailableAt(activePositionsPerInterval: BigInt[], lastSwappedAt: BigInt): BigInt {
   let intervals = getIntervals();
-  let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
   let indexOfCloserInterval = activePositionsPerInterval.length + 1;
   let i: i32 = 0;
   while (i < activePositionsPerInterval.length && indexOfCloserInterval == activePositionsPerInterval.length + 1) {
     if (activePositionsPerInterval[i].gt(ZERO_BI)) indexOfCloserInterval = i;
     i++;
   }
-  if (!beingRemoved) {
-    if (indexOfCloserInterval == activePositionsPerInterval.length + 1)
-      return lastSwappedAt.div(intervals[indexOfPositionInterval]).plus(ONE_BI).times(intervals[indexOfPositionInterval]);
-    if (indexOfPositionInterval < indexOfCloserInterval)
-      return nextSwapAvailableAt.minus(intervals[indexOfCloserInterval]).plus(intervals[indexOfPositionInterval]);
-  } else {
-    if (indexOfCloserInterval == activePositionsPerInterval.length + 1) return MAX_BI;
-    if (indexOfPositionInterval < indexOfCloserInterval)
-      return nextSwapAvailableAt.minus(intervals[indexOfPositionInterval]).plus(intervals[indexOfCloserInterval]);
-  }
-  // Removed position is on the same interval as the one signaling next swap available at
-  return nextSwapAvailableAt;
+  if (indexOfCloserInterval == activePositionsPerInterval.length + 1) return MAX_BI;
+  return lastSwappedAt.div(intervals[indexOfCloserInterval]).plus(ONE_BI).times(intervals[indexOfCloserInterval]);
 }
