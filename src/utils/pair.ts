@@ -51,7 +51,7 @@ export function swapped(event: Swapped, transaction: Transaction): void {
     let pair = get(id)!;
     let pairSwap = pairSwapLibrary.create(pair, pairs[i], transaction, fee);
     let activePositionIds = pair.activePositionIds;
-    let newactivePositionsPerInterval = pair.activePositionsPerInterval;
+    let newActivePositionsPerInterval = pair.activePositionsPerInterval;
     let newActivePositionIds = pair.activePositionIds;
     let closerActiveTimeInterval = MAX_BI;
     for (let x: i32 = 0; x < activePositionIds.length; x++) {
@@ -60,16 +60,18 @@ export function swapped(event: Swapped, transaction: Transaction): void {
       if (positionAndState.positionState.remainingSwaps.equals(ZERO_BI)) {
         newActivePositionIds.splice(newActivePositionIds.indexOf(positionAndState.position.id), 1); // O(x + x), where worst x scenario x = m
         let indexOfInterval = getIndexOfInterval(BigInt.fromString(positionAndState.position.swapInterval));
-        newactivePositionsPerInterval[indexOfInterval] = newactivePositionsPerInterval[indexOfInterval].minus(ONE_BI);
+        newActivePositionsPerInterval[indexOfInterval] = newActivePositionsPerInterval[indexOfInterval].minus(ONE_BI);
       } else {
         let positionTimeInterval = BigInt.fromString(positionAndState.position.swapInterval);
         if (positionTimeInterval.lt(closerActiveTimeInterval)) closerActiveTimeInterval = positionTimeInterval;
       }
     }
     pair.activePositionIds = newActivePositionIds;
-    pair.activePositionsPerInterval = newactivePositionsPerInterval;
+    pair.activePositionsPerInterval = newActivePositionsPerInterval;
     pair.lastSwappedAt = transaction.timestamp;
-    pair.nextSwapAvailableAt = transaction.timestamp.div(closerActiveTimeInterval).plus(ONE_BI).times(closerActiveTimeInterval);
+    pair.nextSwapAvailableAt = closerActiveTimeInterval.equals(MAX_BI)
+      ? MAX_BI
+      : transaction.timestamp.div(closerActiveTimeInterval).plus(ONE_BI).times(closerActiveTimeInterval);
     pair.save();
   }
 } // O (n*2m) ?
