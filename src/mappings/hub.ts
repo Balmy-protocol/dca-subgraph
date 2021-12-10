@@ -5,6 +5,7 @@ import * as swapIntervalsLibrary from '../utils/swap-intervals';
 import {
   Deposited,
   Modified,
+  RoleAdminChanged,
   SwapIntervalsAllowed,
   SwapIntervalsForbidden,
   Swapped,
@@ -13,12 +14,6 @@ import {
   WithdrewMany,
 } from '../../generated/Hub/Hub';
 import { BigInt } from '@graphprotocol/graph-ts';
-
-// intervals defined by contract by default
-swapIntervalsLibrary.getOrCreate(BigInt.fromString('3600'), true);
-swapIntervalsLibrary.getOrCreate(BigInt.fromString('14400'), true);
-swapIntervalsLibrary.getOrCreate(BigInt.fromString('86400'), true);
-swapIntervalsLibrary.getOrCreate(BigInt.fromString('604800'), true);
 
 export function handleDeposited(event: Deposited): void {
   let transaction = transactionLibrary.getOrCreateFromEvent(event, 'Deposited');
@@ -63,6 +58,12 @@ export function handleSwapIntervalsDisabled(event: SwapIntervalsForbidden): void
   swapIntervalsLibrary.disableSwapIntervals(event, transaction);
 }
 
+export function dirtyInitialization(event: RoleAdminChanged): void {
+  swapIntervalsLibrary.getOrCreate(BigInt.fromString('3600'), true);
+  swapIntervalsLibrary.getOrCreate(BigInt.fromString('14400'), true);
+  swapIntervalsLibrary.getOrCreate(BigInt.fromString('86400'), true);
+  swapIntervalsLibrary.getOrCreate(BigInt.fromString('604800'), true);
+}
 // export function handlePositionTransfer(event: Transfer): void {
 //   if (event.params.from.toHexString() != ADDRESS_ZERO) {
 //     let transaction = transactionLibrary.getOrCreateFromEvent(event, 'Transfer');

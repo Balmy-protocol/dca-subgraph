@@ -96,3 +96,5 @@ dataSources:
           handler: handleSwapIntervalsAllowed
         - event: SwapIntervalsForbidden(uint32[])
           handler: handleSwapIntervalsDisabled
+        - event: RoleAdminChanged(indexed bytes32,indexed bytes32,indexed bytes32)
+          handler: dirtyInitialization
