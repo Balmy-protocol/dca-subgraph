@@ -49,6 +49,12 @@ export function swapped(event: Swapped, transaction: Transaction): void {
     // O(n)
     let id = pairs[i].tokenA.toHexString().concat('-').concat(pairs[i].tokenB.toHexString());
     let pair = get(id)!;
+    let intervals = intervalsFromBytes(pairs[i].intervalsInSwap);
+    let hasExecutedSwaps = intervals.length !== 0;
+    if (!hasExecutedSwaps) {
+      continue;
+    }
+
     let pairSwap = pairSwapLibrary.create(pair, pairs[i], transaction, fee);
     let activePositionIds = pair.activePositionIds;
     let newActivePositionsPerInterval = pair.activePositionsPerInterval;
