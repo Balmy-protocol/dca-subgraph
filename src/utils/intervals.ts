@@ -29,17 +29,28 @@ export const getIndexOfInterval = (swapInterval: BigInt): i32 => {
 export const intervalsFromBytes = (intervalsBytes: Bytes): BigInt[] => {
   let intervals = getIntervals();
   let result = new Array<BigInt>();
-  let intervalsAsNumber = BigInt.fromI32(intervalsBytes.toI32());
+  let intervalsAsNumber = BigInt.fromUnsignedBytes(intervalsBytes);
   let cycle = 0;
   while (intervalsAsNumber.gt(ZERO_BI)) {
-    if (intervalsAsNumber.notEqual(ONE_BI) && intervalsAsNumber.mod(TWO_BI).notEqual(ZERO_BI)) {
+    if (intervalsAsNumber.mod(TWO_BI).equals(ONE_BI)) {
       result.push(intervals[cycle]);
-    } else if (intervalsAsNumber.equals(ONE_BI)) {
-      result.push(intervals[cycle]);
-      intervalsAsNumber = ZERO_BI;
     }
     cycle = cycle + 1;
-    intervalsAsNumber = intervalsAsNumber.div(TWO_BI);
+    intervalsAsNumber = intervalsAsNumber >> 1;
   }
   return result;
 };
+// export const intervalsFromBytes = (intervalsBytes: Bytes): BigInt[] => {
+//   let intervals = getIntervals();
+//   let result = new Array<BigInt>();
+//   let intervalsAsNumber = intervalsBytes.toI32();
+//   let cycle = 0;
+//   while (intervalsAsNumber.gt(ZERO_BI)) {
+//     if (intervalsAsNumber.mod(TWO_BI).equals(ONE_BI)) {
+//       result.push(intervals[cycle]);
+//     }
+//     cycle = cycle + 1;
+//     intervalsAsNumber = intervalsAsNumber >> 1;
+//   }
+//   return result;
+// };
