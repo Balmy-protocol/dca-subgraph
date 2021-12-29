@@ -60,12 +60,16 @@ export function swapped(event: Swapped, transaction: Transaction): void {
     let newActivePositionsPerInterval = pair.activePositionsPerInterval;
     let newActivePositionIds = pair.activePositionIds;
     for (let x: i32 = 0; x < activePositionIds.length; x++) {
+      if (activePositionIds[x] == '140' || activePositionIds[x] == '71') log.error('Position {} was active on swap', [activePositionIds[x]]);
       // O(m)
       let positionAndState = positionLibrary.registerPairSwap(activePositionIds[x], pair, pairSwap, transaction); // O(1)
       if (positionAndState.positionState.remainingSwaps.equals(ZERO_BI)) {
-        newActivePositionIds.splice(newActivePositionIds.indexOf(positionAndState.position.id), 1); // O(x + x), where worst x scenario x = m
+        if (activePositionIds[x] == '140' || activePositionIds[x] == '71')
+          log.error('Position {} was removed after swapped', [activePositionIds[x]]);
+        let deletedId = newActivePositionIds.splice(newActivePositionIds.indexOf(positionAndState.position.id), 1); // O(x + x), where worst x scenario x = m
         let indexOfInterval = getIndexOfInterval(BigInt.fromString(positionAndState.position.swapInterval));
         newActivePositionsPerInterval[indexOfInterval] = newActivePositionsPerInterval[indexOfInterval].minus(ONE_BI);
+        if (activePositionIds[x] != deletedId[0]) log.error('Principal id {} deleted id {} from swapped', [activePositionIds[x], deletedId[0]]);
       }
     }
     pair.activePositionIds = newActivePositionIds;
@@ -91,6 +95,7 @@ export function addActivePosition(position: Position): Pair {
   // Get new next swap available at
   pair.nextSwapAvailableAt = getNextSwapAvailableAt(activePositionsPerInterval, pair.lastSwappedAt);
   pair.save();
+  if (position.id == '140' || position.id == '71') log.error('Position {} was added to active intervals', [position.id]);
   return pair;
 }
 
@@ -99,7 +104,23 @@ export function removeActivePosition(position: Position): Pair {
   let pair = get(position.pair)!;
   // Add to active positions
   let newActivePositionIds = pair.activePositionIds;
-  newActivePositionIds.splice(newActivePositionIds.indexOf(position.id), 1); // This can be greatly optimizied by saving index of active position on position.
+  let found = false;
+  let deletedId = '';
+  for (let i: i32 = 0; i < newActivePositionIds.length && !found; i++) {
+    if (newActivePositionIds[i] == position.id) {
+      let aux = newActivePositionIds[newActivePositionIds.length - 1];
+      newActivePositionIds[newActivePositionIds.length - 1] = newActivePositionIds[i];
+      newActivePositionIds[i] = aux;
+      deletedId = newActivePositionIds.pop();
+      found = true;
+    }
+  }
+  // let deletedId = newActivePositionIds.splice(newActivePositionIds.indexOf(position.id), 1); // This can be greatly optimizied by saving index of active position on position.
+  // log.error('Checking error, index {} real value {}', [
+  //   newActivePositionIds.indexOf(position.id).toString(),
+  //   // newActivePositionIds[newActivePositionIds.indexOf(position.id)],
+  //   position.id
+  // ]);
   pair.activePositionIds = newActivePositionIds;
   // Remove to active positions per interval
   let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
@@ -109,6 +130,8 @@ export function removeActivePosition(position: Position): Pair {
   // Get new next swap available at
   pair.nextSwapAvailableAt = getNextSwapAvailableAt(activePositionsPerInterval, pair.lastSwappedAt);
   pair.save();
+  if (position.id == '140' || position.id == '71') log.error('Position {} was removed from active intervals', [position.id]);
+  if (position.id != deletedId) log.error('Principal id {} deleted id {} from remove position', [position.id, deletedId]);
   return pair;
 }
 
