@@ -64,9 +64,3 @@ export function dirtyInitialization(event: RoleAdminChanged): void {
   swapIntervalsLibrary.getOrCreate(BigInt.fromString('86400'), true);
   swapIntervalsLibrary.getOrCreate(BigInt.fromString('604800'), true);
 }
-// export function handlePositionTransfer(event: Transfer): void {
-//   if (event.params.from.toHexString() != ADDRESS_ZERO) {
-//     let transaction = transactionLibrary.getOrCreateFromEvent(event, 'Transfer');
-//     positionLibrary.transfer(event, transaction);
-//   }
-// }
