@@ -42,7 +42,7 @@
     "thegraph:deploy:kovan-stable": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v1dot1-kovan",
     "thegraph:deploy:mainnet": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca",
     "thegraph:deploy:mainnet-stable": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v1",
-    "thegraph:deploy:optimism": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ storres93/dca-optimism",
+    "thegraph:deploy:optimism": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ alejoamiras/dca-v2-optimism",
     "thegraph:deploy:optimism-kovan": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ alejoamiras/dca-optimism-kovan",
     "thegraph:deploy:optimism-kovan-stable": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v2-optimism-kovan",
     "thegraph:deploy:optimism-stable": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v2-optimism",
@@ -52,16 +52,16 @@
     "thegraph:deploy:ropsten-stable": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v1-ropsten"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.24.1",
+    "@graphprotocol/graph-cli": "0.25.1",
     "@graphprotocol/graph-ts": "0.24.1",
     "mustache": "4.2.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "15.0.0",
-    "@commitlint/config-conventional": "15.0.0",
+    "@commitlint/cli": "16.0.1",
+    "@commitlint/config-conventional": "16.0.0",
     "husky": "7.0.4",
     "pinst": "2.1.6",
-    "prettier": "2.5.0",
+    "prettier": "2.5.1",
     "sort-package-json": "1.53.1",
     "standard-version": "9.3.2"
   },

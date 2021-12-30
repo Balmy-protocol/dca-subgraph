@@ -97,11 +97,21 @@ export function addActivePosition(position: Position): Pair {
 export function removeActivePosition(position: Position): Pair {
   log.info('[Pair] Remove active position {}', [position.pair]);
   let pair = get(position.pair)!;
-  // Add to active positions
+  // Remove from active positions
   let newActivePositionIds = pair.activePositionIds;
-  newActivePositionIds.splice(newActivePositionIds.indexOf(position.id), 1); // This can be greatly optimizied by saving index of active position on position.
+  let found = false;
+  // This can be greatly optimizied by saving index of active position on position.
+  for (let i: i32 = 0; i < newActivePositionIds.length && !found; i++) {
+    if (newActivePositionIds[i] == position.id) {
+      let aux = newActivePositionIds[newActivePositionIds.length - 1];
+      newActivePositionIds[newActivePositionIds.length - 1] = newActivePositionIds[i];
+      newActivePositionIds[i] = aux;
+      newActivePositionIds.pop();
+      found = true;
+    }
+  }
   pair.activePositionIds = newActivePositionIds;
-  // Remove to active positions per interval
+  // Remove from active positions per interval
   let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
   let activePositionsPerInterval = pair.activePositionsPerInterval;
   activePositionsPerInterval[indexOfPositionInterval] = activePositionsPerInterval[indexOfPositionInterval].minus(ONE_BI);

@@ -3,6 +3,6 @@ import * as positionLibrary from '../utils/position';
 import { ConvertedDeposit } from '../../generated/HubCompanion/HubCompanion';
 
 export function handleConvertedDeposit(event: ConvertedDeposit): void {
-  let transaction = transactionLibrary.getOrCreateFromEvent(event, 'Deposited');
+  transactionLibrary.getOrCreateFromEvent(event, 'Deposited');
   positionLibrary.setAsEth(event);
 }
