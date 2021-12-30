@@ -76,6 +76,14 @@ export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
   return positionState;
 }
 
+export function registerTransfered(id: string): PositionState {
+  log.info('[PositionState] Register transfered {}', [id]);
+  let positionState = get(id);
+
+  positionState.save();
+  return positionState;
+}
+
 export function registerPairSwap(id: string, position: Position, ratio: BigInt): PositionState {
   log.info('[PositionState] Register pair swap {}', [id]);
   let positionState = get(id);
