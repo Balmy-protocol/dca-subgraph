@@ -127,6 +127,7 @@ enum ACTION {
   MODIFIED_RATE_AND_DURATION
   WITHDREW
   SWAPPED
+  TRANSFERED
   CREATED
   TERMINATED
 }
@@ -140,6 +141,10 @@ type PositionAction @entity {
   action: ACTION!
   "actor who executed the action"
   actor: Bytes
+  "when transfering who transfers"
+  from: Bytes
+  "when transfering to whom it transfers"
+  to: Bytes
 
   "rate"
   rate: BigInt

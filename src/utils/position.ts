@@ -1,6 +1,7 @@
 import { log, BigInt, Address, Bytes } from '@graphprotocol/graph-ts';
 import { Transaction, Position, PairSwap, Pair, PositionState } from '../../generated/schema';
 import { Deposited, Modified, Terminated, Withdrew, SwappedSwapInformationPairsStruct } from '../../generated/Hub/Hub';
+import { Transfer } from '../../generated/PermissionsManager/PermissionsManager';
 import * as pairLibrary from './pair';
 import * as positionStateLibrary from './position-state';
 import * as positionActionLibrary from './position-action';
@@ -221,11 +222,14 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   return new PositionAndPositionState(position, updatedPositionState);
 }
 
-// export function transfer(event: Transfer, transaction: Transaction): Position {
-//   let id = getIdByPairAddressAndPositionId(event.address, event.params.tokenId.toString());
-//   log.info('[Position] Transfer {}', [id]);
-//   let position = getById(id);
-//   position.user = event.params.to as Bytes;
-//   position.save();
-//   return position;
-// }
+export function transfer(event: Transfer, transaction: Transaction): void {
+  let id = event.params.tokenId.toString();
+  log.info('[Position] Transfer position {}', [id]);
+  let position = Position.load(id);
+  if (position != null) {
+    position.user = event.params.to as Bytes;
+    positionStateLibrary.registerTransfered(position.current);
+    positionActionLibrary.transfered(id, event.params.from, event.params.to, transaction);
+    position.save();
+  }
+}

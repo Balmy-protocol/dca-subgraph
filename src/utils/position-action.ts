@@ -1,4 +1,4 @@
-import { log, BigInt } from '@graphprotocol/graph-ts';
+import { log, BigInt, Bytes, Address } from '@graphprotocol/graph-ts';
 import { PairSwap, PositionAction, Transaction } from '../../generated/schema';
 import { ONE_BI, ZERO_BI } from './constants';
 
@@ -152,6 +152,26 @@ export function swapped(positionId: string, swapped: BigInt, rate: BigInt, pairS
 
     positionAction.swapped = swapped;
     positionAction.rate = rate;
+
+    positionAction.transaction = transaction.id;
+    positionAction.createdAtBlock = transaction.blockNumber;
+    positionAction.createdAtTimestamp = transaction.timestamp;
+    positionAction.save();
+  }
+  return positionAction;
+}
+
+export function transfered(positionId: string, from: Address, to: Address, transaction: Transaction): PositionAction {
+  let id = positionId.concat('-').concat(transaction.id);
+  log.info('[PositionAction] Transfered {}', [id]);
+  let positionAction = PositionAction.load(id);
+  if (positionAction == null) {
+    positionAction = new PositionAction(id);
+    positionAction.position = positionId;
+    positionAction.action = 'TRANSFERED';
+    positionAction.actor = transaction.from;
+    positionAction.from = from;
+    positionAction.to = to;
 
     positionAction.transaction = transaction.id;
     positionAction.createdAtBlock = transaction.blockNumber;
