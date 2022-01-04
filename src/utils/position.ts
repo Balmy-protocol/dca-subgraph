@@ -200,7 +200,24 @@ export class PositionAndPositionState {
   }
 }
 
-export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairSwap, transaction: Transaction): PositionAndPositionState {
+export function shouldRegisterPairSwap(positionId: string, intervals: BigInt[]): boolean {
+  let position = getById(positionId);
+
+  for (let i: i32 = 0; i < intervals.length; i++) {
+    if (intervals[i].equals(BigInt.fromString(position.swapInterval))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function registerPairSwap(
+  positionId: string,
+  pair: Pair,
+  pairSwap: PairSwap,
+  intervals: BigInt[],
+  transaction: Transaction
+): PositionAndPositionState {
   log.info('[Position] Register pair swap for position {}', [positionId]);
   let position = getById(positionId);
   let currentState = positionStateLibrary.get(position.current);
