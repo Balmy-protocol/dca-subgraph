@@ -61,11 +61,13 @@ export function swapped(event: Swapped, transaction: Transaction): void {
     let newActivePositionIds = pair.activePositionIds;
     for (let x: i32 = 0; x < activePositionIds.length; x++) {
       // O(m)
-      let positionAndState = positionLibrary.registerPairSwap(activePositionIds[x], pair, pairSwap, transaction); // O(1)
-      if (positionAndState.positionState.remainingSwaps.equals(ZERO_BI)) {
-        newActivePositionIds.splice(newActivePositionIds.indexOf(positionAndState.position.id), 1); // O(x + x), where worst x scenario x = m
-        let indexOfInterval = getIndexOfInterval(BigInt.fromString(positionAndState.position.swapInterval));
-        newActivePositionsPerInterval[indexOfInterval] = newActivePositionsPerInterval[indexOfInterval].minus(ONE_BI);
+      if (positionLibrary.shouldRegisterPairSwap(activePositionIds[x], intervals)) {
+        let positionAndState = positionLibrary.registerPairSwap(activePositionIds[x], pair, pairSwap, transaction); // O(1)
+        if (positionAndState.positionState.remainingSwaps.equals(ZERO_BI)) {
+          newActivePositionIds.splice(newActivePositionIds.indexOf(positionAndState.position.id), 1); // O(x + x), where worst x scenario x = m
+          let indexOfInterval = getIndexOfInterval(BigInt.fromString(positionAndState.position.swapInterval));
+          newActivePositionsPerInterval[indexOfInterval] = newActivePositionsPerInterval[indexOfInterval].minus(ONE_BI);
+        }
       }
     }
     pair.activePositionIds = newActivePositionIds;
