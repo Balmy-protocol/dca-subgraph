@@ -200,11 +200,11 @@ export class PositionAndPositionState {
   }
 }
 
-export function shouldRegisterPairSwap(positionId: string, intervals: BigInt[]): boolean {
+export function shouldRegisterPairSwap(positionId: string, intervalsInSwap: BigInt[]): boolean {
   let position = getById(positionId);
 
-  for (let i: i32 = 0; i < intervals.length; i++) {
-    if (intervals[i].equals(BigInt.fromString(position.swapInterval))) {
+  for (let i: i32 = 0; i < intervalsInSwap.length; i++) {
+    if (intervalsInSwap[i].equals(BigInt.fromString(position.swapInterval))) {
       return true;
     }
   }

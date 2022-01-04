@@ -62,7 +62,7 @@ export function swapped(event: Swapped, transaction: Transaction): void {
     for (let x: i32 = 0; x < activePositionIds.length; x++) {
       // O(m)
       if (positionLibrary.shouldRegisterPairSwap(activePositionIds[x], intervals)) {
-        let positionAndState = positionLibrary.registerPairSwap(activePositionIds[x], pair, pairSwap, intervals, transaction); // O(1)
+        let positionAndState = positionLibrary.registerPairSwap(activePositionIds[x], pair, pairSwap, transaction); // O(1)
         if (positionAndState.positionState.remainingSwaps.equals(ZERO_BI)) {
           newActivePositionIds.splice(newActivePositionIds.indexOf(positionAndState.position.id), 1); // O(x + x), where worst x scenario x = m
           let indexOfInterval = getIndexOfInterval(BigInt.fromString(positionAndState.position.swapInterval));
