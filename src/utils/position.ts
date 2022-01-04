@@ -211,13 +211,7 @@ export function shouldRegisterPairSwap(positionId: string, intervalsInSwap: BigI
   return false;
 }
 
-export function registerPairSwap(
-  positionId: string,
-  pair: Pair,
-  pairSwap: PairSwap,
-  intervals: BigInt[],
-  transaction: Transaction
-): PositionAndPositionState {
+export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairSwap, transaction: Transaction): PositionAndPositionState {
   log.info('[Position] Register pair swap for position {}', [positionId]);
   let position = getById(positionId);
   let currentState = positionStateLibrary.get(position.current);
