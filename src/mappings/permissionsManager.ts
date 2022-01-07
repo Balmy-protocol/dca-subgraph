@@ -23,4 +23,5 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
 
 export function handleModified(event: Modified): void {
   let transaction = transactionLibrary.getOrCreateFromEvent(event, 'Modified');
+  positionLibrary.permissionsModified(event, transaction);
 }

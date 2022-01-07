@@ -1,8 +1,10 @@
 import { log, BigInt, Address, Bytes } from '@graphprotocol/graph-ts';
 import { Transaction, Position, PairSwap, Pair, PositionState } from '../../generated/schema';
-import { Deposited, Modified, Terminated, Withdrew, SwappedSwapInformationPairsStruct } from '../../generated/Hub/Hub';
+import { Deposited, Modified, Terminated } from '../../generated/Hub/Hub';
+import { Modified as PermissionsModified } from '../../generated/PermissionsManager/PermissionsManager';
 import { Transfer } from '../../generated/PermissionsManager/PermissionsManager';
 import * as pairLibrary from './pair';
+import * as permissionsLibrary from './permissions';
 import * as positionStateLibrary from './position-state';
 import * as positionActionLibrary from './position-action';
 import * as tokenLibrary from './token';
@@ -44,7 +46,7 @@ export function create(event: Deposited, transaction: Transaction): Position {
       event.params.rate,
       event.params.startingSwap,
       event.params.lastSwap,
-      event.params.permissions,
+      permissionsLibrary.convertDepositedPermissionStructToCommon(event.params.permissions),
       transaction
     );
 
@@ -182,24 +184,6 @@ export function withdrew(positionId: string, transaction: Transaction): Position
   return position;
 }
 
-export class PositionAndPositionState {
-  _position: Position;
-  _positionState: PositionState;
-
-  constructor(position: Position, positionState: PositionState) {
-    this._position = position;
-    this._positionState = positionState;
-  }
-
-  get position(): Position {
-    return this._position;
-  }
-
-  get positionState(): PositionState {
-    return this._positionState;
-  }
-}
-
 export function shouldRegisterPairSwap(positionId: string, intervalsInSwap: BigInt[]): boolean {
   let position = getById(positionId);
 
@@ -242,5 +226,31 @@ export function transfer(event: Transfer, transaction: Transaction): void {
     positionStateLibrary.registerTransfered(position.current);
     positionActionLibrary.transfered(id, event.params.from, event.params.to, transaction);
     position.save();
+  }
+}
+
+export function permissionsModified(event: PermissionsModified, transaction: Transaction): Position {
+  let position = getById(event.params.tokenId.toString());
+  let positionState = positionStateLibrary.permissionsModified(position.current, event, transaction);
+  position.current = positionState.id;
+  position.save();
+  return position;
+}
+
+export class PositionAndPositionState {
+  _position: Position;
+  _positionState: PositionState;
+
+  constructor(position: Position, positionState: PositionState) {
+    this._position = position;
+    this._positionState = positionState;
+  }
+
+  get position(): Position {
+    return this._position;
+  }
+
+  get positionState(): PositionState {
+    return this._positionState;
   }
 }

@@ -1,5 +1,6 @@
-import { Bytes, log } from '@graphprotocol/graph-ts';
+import { Address, Bytes, log } from '@graphprotocol/graph-ts';
 import { DepositedPermissionsStruct } from '../../generated/Hub/Hub';
+import { ModifiedPermissionsStruct } from '../../generated/PermissionsManager/PermissionsManager';
 import { PositionPermission } from '../../generated/schema';
 
 let permissionByIndex = ['INCREASE', 'REDUCE', 'WITHDRAW', 'TERMINATE'];
@@ -11,7 +12,8 @@ export function get(id: string): PositionPermission {
   return positionPermission;
 }
 
-export function createFromDepositedPermissionsStruct(positionStateId: string, permissionSet: DepositedPermissionsStruct[]): string[] {
+// Creates all permissions from deposited permissions struct
+export function createFromCommonPermissionsStruct(positionStateId: string, permissionSet: CommonPermissionsStruct[]): string[] {
   log.info('[Permissions] Create from deposited {}', [positionStateId]);
   let positionPermissionsIds: string[] = [];
   for (let i: i32 = 0; i < permissionSet.length; i++) {
@@ -29,6 +31,7 @@ export function createFromDepositedPermissionsStruct(positionStateId: string, pe
   return positionPermissionsIds;
 }
 
+// It will duplicate all given permissions and create permissions that have on their ids the provided position state
 export function duplicatePermissionsToPositionState(positionStateId: string, permissionsToDuplicate: string[]): string[] {
   let positionPermissionsIds: string[] = [];
   for (let i: i32 = 0; i < permissionsToDuplicate.length; i++) {
@@ -45,4 +48,41 @@ export function duplicatePermissionsToPositionState(positionStateId: string, per
     positionPermissionsIds.push(duplicatedPossitionPermissionId);
   }
   return positionPermissionsIds;
+}
+
+// Since thegraph is pretty limited and we can't cast it when needed, we need this convertion function
+export function convertDepositedPermissionStructToCommon(permissionSet: DepositedPermissionsStruct[]): CommonPermissionsStruct[] {
+  let commonPermissionSet: CommonPermissionsStruct[] = [];
+  for (let i: i32 = 0; i < permissionSet.length; i++) {
+    commonPermissionSet.push(new CommonPermissionsStruct(permissionSet[i].operator, permissionSet[i].permissions));
+  }
+  return commonPermissionSet;
+}
+
+// Since thegraph is pretty limited and we can't cast it when needed, we need this convertion function
+export function convertModifiedPermissionStructToCommon(permissionSet: ModifiedPermissionsStruct[]): CommonPermissionsStruct[] {
+  let commonPermissionSet: CommonPermissionsStruct[] = [];
+  for (let i: i32 = 0; i < permissionSet.length; i++) {
+    commonPermissionSet.push(new CommonPermissionsStruct(permissionSet[i].operator, permissionSet[i].permissions));
+  }
+  return commonPermissionSet;
+}
+
+// We create our own type of permissions struct because thegraph is impossible.
+export class CommonPermissionsStruct {
+  private _operator: Address;
+  private _permissions: i32[];
+
+  constructor(operator: Address, permissions: i32[]) {
+    this._operator = operator;
+    this._permissions = permissions;
+  }
+
+  get operator(): Address {
+    return this._operator;
+  }
+
+  get permissions(): i32[] {
+    return this._permissions;
+  }
 }

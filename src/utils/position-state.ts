@@ -1,16 +1,18 @@
 import { log, BigInt } from '@graphprotocol/graph-ts';
 import { DepositedPermissionsStruct } from '../../generated/Hub/Hub';
 import { Position, PositionState, Transaction } from '../../generated/schema';
+import { Modified as PermissionsModified } from '../../generated/PermissionsManager/PermissionsManager';
 import { ONE_BI, ZERO_BI } from './constants';
 import * as tokenLibrary from './token';
 import * as permissionsLibrary from './permissions';
 
+// Creates position state  with zero-ed values.
 export function createBasic(
   positionId: string,
   rate: BigInt,
   startingSwap: BigInt,
   lastSwap: BigInt,
-  permissions: DepositedPermissionsStruct[],
+  permissions: permissionsLibrary.CommonPermissionsStruct[],
   transaction: Transaction
 ): PositionState {
   let id = positionId.concat('-').concat(transaction.id);
@@ -20,7 +22,8 @@ export function createBasic(
     positionState = new PositionState(id);
     positionState.position = positionId;
 
-    positionState.permissions = permissionsLibrary.createFromDepositedPermissionsStruct(id, permissions);
+    let createdPermissions = permissionsLibrary.createFromCommonPermissionsStruct(id, permissions);
+    positionState.permissions = createdPermissions;
 
     positionState.rate = rate;
     positionState.startingSwap = startingSwap;
@@ -43,6 +46,8 @@ export function createBasic(
   return positionState;
 }
 
+// Creates a position state were all values are zero-ed except for idleSwapped and swappedBeforeModified. Only used when
+// position was modified
 export function createComposed(
   positionId: string,
   rate: BigInt,
@@ -55,6 +60,7 @@ export function createComposed(
   let id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionState] Create composed {}', [id]);
   let positionState = createBasic(positionId, rate, startingSwap, lastSwap, [], transaction);
+  positionState.idleSwapped = swappedBeforeModified;
   positionState.swappedBeforeModified = swappedBeforeModified;
   // duplicate permissions
   let duplicatedPermissions = permissionsLibrary.duplicatePermissionsToPositionState(id, permissions);
@@ -63,12 +69,6 @@ export function createComposed(
   positionState.save();
   return positionState;
 }
-
-// export function clone(positionId: string): PositionState {
-//   let positionState = get(positionId);
-//   positionState.id = '';
-//   return positionState;
-// }
 
 export function get(id: string): PositionState {
   log.info('[PositionState] Get {}', [id]);
@@ -129,4 +129,30 @@ export function registerPairSwap(id: string, position: Position, ratio: BigInt):
   // TODO: lastUpdatedAt
   positionState.save();
   return positionState;
+}
+
+export function permissionsModified(currentPositionStateId: string, event: PermissionsModified, transaction: Transaction): PositionState {
+  log.info('[PositionState] Permissions modified {}', [currentPositionStateId]);
+  let currentPositionState = get(currentPositionStateId);
+  let newPosisitionState = createBasic(
+    currentPositionState.position,
+    currentPositionState.rate,
+    currentPositionState.startingSwap,
+    currentPositionState.lastSwap,
+    permissionsLibrary.convertModifiedPermissionStructToCommon(event.params.permissions),
+    transaction
+  );
+
+  newPosisitionState.remainingSwaps = currentPositionState.remainingSwaps;
+  newPosisitionState.swapped = currentPositionState.swapped;
+  newPosisitionState.idleSwapped = currentPositionState.idleSwapped;
+  newPosisitionState.withdrawn = currentPositionState.withdrawn;
+  newPosisitionState.remainingLiquidity = currentPositionState.remainingLiquidity;
+
+  newPosisitionState.swappedBeforeModified = currentPositionState.swappedBeforeModified;
+  newPosisitionState.rateAccumulator = currentPositionState.rateAccumulator;
+
+  newPosisitionState.save();
+
+  return newPosisitionState;
 }
