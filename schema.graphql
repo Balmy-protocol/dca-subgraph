@@ -89,6 +89,9 @@ type PositionState @entity {
   id: ID!
   "position"
   position: Position!
+  "permissions"
+  permissions: [PositionPermission!]!
+  
   "rate"
   rate: BigInt!
   "starting swap"
@@ -119,6 +122,22 @@ type PositionState @entity {
   createdAtBlock: BigInt!
   "createdAtTimestamp"
   createdAtTimestamp: BigInt!
+}
+
+type PositionPermission @entity {
+  "positionState.id-user.address"
+  id: ID!
+  "operator"
+  operator: Bytes!
+  "permissions"
+  permissions: [PERMISSION!]!
+}
+
+enum PERMISSION {
+  INCREASE,
+  REDUCE,
+  WITHDRAW,
+  TERMINATE
 }
 
 enum ACTION {

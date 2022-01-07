@@ -1,33 +1,38 @@
 import { log, BigInt } from '@graphprotocol/graph-ts';
+import { DepositedPermissionsStruct } from '../../generated/Hub/Hub';
 import { Position, PositionState, Transaction } from '../../generated/schema';
 import { ONE_BI, ZERO_BI } from './constants';
 import * as tokenLibrary from './token';
+import * as permissionsLibrary from './permissions';
 
-export function create(
+export function createBasic(
   positionId: string,
   rate: BigInt,
   startingSwap: BigInt,
   lastSwap: BigInt,
-  swappedBeforeModified: BigInt,
+  permissions: DepositedPermissionsStruct[],
   transaction: Transaction
 ): PositionState {
   let id = positionId.concat('-').concat(transaction.id);
-  log.info('[PositionState] Create {}', [id]);
+  log.info('[PositionState] Create basic {}', [id]);
   let positionState = PositionState.load(id);
   if (positionState == null) {
     positionState = new PositionState(id);
     positionState.position = positionId;
+
+    positionState.permissions = permissionsLibrary.createFromDepositedPermissionsStruct(id, permissions);
+
     positionState.rate = rate;
     positionState.startingSwap = startingSwap;
     positionState.lastSwap = lastSwap;
 
     positionState.remainingSwaps = lastSwap.minus(startingSwap).plus(ONE_BI);
     positionState.swapped = ZERO_BI;
-    positionState.idleSwapped = swappedBeforeModified;
+    positionState.idleSwapped = ZERO_BI;
     positionState.withdrawn = ZERO_BI;
     positionState.remainingLiquidity = rate.times(positionState.remainingSwaps);
 
-    positionState.swappedBeforeModified = swappedBeforeModified;
+    positionState.swappedBeforeModified = ZERO_BI;
     positionState.rateAccumulator = ZERO_BI;
 
     positionState.transaction = transaction.id;
@@ -35,6 +40,27 @@ export function create(
     positionState.createdAtTimestamp = transaction.timestamp;
     positionState.save();
   }
+  return positionState;
+}
+
+export function createComposed(
+  positionId: string,
+  rate: BigInt,
+  startingSwap: BigInt,
+  lastSwap: BigInt,
+  swappedBeforeModified: BigInt,
+  permissions: string[],
+  transaction: Transaction
+): PositionState {
+  let id = positionId.concat('-').concat(transaction.id);
+  log.info('[PositionState] Create composed {}', [id]);
+  let positionState = createBasic(positionId, rate, startingSwap, lastSwap, [], transaction);
+  positionState.swappedBeforeModified = swappedBeforeModified;
+  // duplicate permissions
+  let duplicatedPermissions = permissionsLibrary.duplicatePermissionsToPositionState(id, permissions);
+  positionState.permissions = duplicatedPermissions;
+  //
+  positionState.save();
   return positionState;
 }
 
@@ -79,7 +105,7 @@ export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
 export function registerTransfered(id: string): PositionState {
   log.info('[PositionState] Register transfered {}', [id]);
   let positionState = get(id);
-
+  positionState.permissions = [];
   positionState.save();
   return positionState;
 }

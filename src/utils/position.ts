@@ -6,8 +6,7 @@ import * as pairLibrary from './pair';
 import * as positionStateLibrary from './position-state';
 import * as positionActionLibrary from './position-action';
 import * as tokenLibrary from './token';
-import { ONE_BI, ZERO_BI } from './constants';
-import * as intervalsLibrary from './intervals';
+import { ZERO_BI } from './constants';
 import { ConvertedDeposit } from '../../generated/HubCompanion/HubCompanion';
 
 const ETH_ADDRESS = Address.fromString('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee').toHexString();
@@ -40,12 +39,12 @@ export function create(event: Deposited, transaction: Transaction): Position {
     position.createdAtTimestamp = transaction.timestamp;
 
     // Create position state
-    let positionState = positionStateLibrary.create(
+    let positionState = positionStateLibrary.createBasic(
       id,
       event.params.rate,
       event.params.startingSwap,
       event.params.lastSwap,
-      ZERO_BI,
+      event.params.permissions,
       transaction
     );
 
@@ -89,12 +88,13 @@ export function modified(event: Modified, transaction: Transaction): Position {
   log.info('[Position] Modified {}', [id]);
   // Position state
   let previousPositionState = positionStateLibrary.get(position.current);
-  let newPositionState = positionStateLibrary.create(
+  let newPositionState = positionStateLibrary.createComposed(
     id,
     event.params.rate,
     event.params.startingSwap,
     event.params.lastSwap,
     previousPositionState.idleSwapped,
+    previousPositionState.permissions,
     transaction
   );
   let oldPositionRate = previousPositionState.rate;
