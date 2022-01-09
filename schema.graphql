@@ -141,6 +141,7 @@ enum PERMISSION {
 }
 
 enum ACTION {
+  PERMISSIONS_MODIFIED
   MODIFIED_RATE
   MODIFIED_DURATION
   MODIFIED_RATE_AND_DURATION
@@ -164,6 +165,9 @@ type PositionAction @entity {
   from: Bytes
   "when transfering to whom it transfers"
   to: Bytes
+
+  "new permissions set"
+  permissions: [PositionPermission!]
 
   "rate"
   rate: BigInt
