@@ -2,7 +2,14 @@ import { log, BigInt, Bytes, Address } from '@graphprotocol/graph-ts';
 import { PairSwap, PositionAction, PositionPermission, Transaction } from '../../generated/schema';
 import { ONE_BI, ZERO_BI } from './constants';
 
-export function create(positionId: string, rate: BigInt, startingSwap: BigInt, lastSwap: BigInt, transaction: Transaction): PositionAction {
+export function create(
+  positionId: string,
+  rate: BigInt,
+  startingSwap: BigInt,
+  lastSwap: BigInt,
+  permissions: string[],
+  transaction: Transaction
+): PositionAction {
   let id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Create {}', [id]);
   let positionAction = PositionAction.load(id);
@@ -14,6 +21,7 @@ export function create(positionId: string, rate: BigInt, startingSwap: BigInt, l
 
     positionAction.rate = rate;
     positionAction.remainingSwaps = lastSwap.minus(startingSwap).plus(ONE_BI);
+    positionAction.permissions = permissions;
 
     positionAction.transaction = transaction.id;
     positionAction.createdAtBlock = transaction.blockNumber;

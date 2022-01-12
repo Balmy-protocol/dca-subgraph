@@ -51,7 +51,14 @@ export function create(event: Deposited, transaction: Transaction): Position {
     );
 
     // Create position action
-    positionActionLibrary.create(id, event.params.rate, event.params.startingSwap, event.params.lastSwap, transaction);
+    positionActionLibrary.create(
+      id,
+      event.params.rate,
+      event.params.startingSwap,
+      event.params.lastSwap,
+      positionState.permissions,
+      transaction
+    );
 
     position.totalDeposits = event.params.rate.times(positionState.remainingSwaps);
     position.totalSwaps = positionState.remainingSwaps;
