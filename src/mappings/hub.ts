@@ -39,7 +39,10 @@ export function handleWithdrewMany(event: WithdrewMany): void {
   let transaction = transactionLibrary.getOrCreateFromEvent(event, 'WithdrewMany');
   let positions = event.params.positions;
   for (let i: i32 = 0; i < positions.length; i++) {
-    positionLibrary.withdrew(event.params.positions[1].toString(), transaction);
+    let positionIds = positions[i].positionIds;
+    for (let j: i32 = 0; j < positionIds.length; j++) {
+      positionLibrary.withdrew(event.params.positions[i].positionIds[j].toString(), transaction);
+    }
   }
 }
 
