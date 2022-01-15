@@ -3,7 +3,7 @@ import { DepositedPermissionsStruct } from '../../generated/Hub/Hub';
 import { ModifiedPermissionsStruct } from '../../generated/PermissionsManager/PermissionsManager';
 import { PositionPermission } from '../../generated/schema';
 
-let permissionByIndex = ['INCREASE', 'REDUCE', 'WITHDRAW', 'TERMINATE'];
+export let permissionByIndex = ['INCREASE', 'REDUCE', 'WITHDRAW', 'TERMINATE'];
 
 export function get(id: string): PositionPermission {
   log.info('[PositionPermission] Get {}', [id]);
@@ -32,7 +32,8 @@ export function createFromCommonPermissionsStruct(positionStateId: string, permi
 }
 
 // It will duplicate all given permissions and create permissions that have on their ids the provided position state
-export function duplicatePermissionsToPositionState(positionStateId: string, permissionsToDuplicate: string[]): string[] {
+export function duplicatePermissionsToPositionState(positionStateId: string, permissionsToDuplicate: string[]): PermissionsAndIds {
+  let positionPermissions: PositionPermission[] = [];
   let positionPermissionsIds: string[] = [];
   for (let i: i32 = 0; i < permissionsToDuplicate.length; i++) {
     let permission = get(permissionsToDuplicate[i]);
@@ -46,8 +47,9 @@ export function duplicatePermissionsToPositionState(positionStateId: string, per
     duplicatedPossitionPermission.permissions = permissions;
     duplicatedPossitionPermission.save();
     positionPermissionsIds.push(duplicatedPossitionPermissionId);
+    positionPermissions.push(duplicatedPossitionPermission);
   }
-  return positionPermissionsIds;
+  return new PermissionsAndIds(positionPermissions, positionPermissionsIds);
 }
 
 // Since thegraph is pretty limited and we can't cast it when needed, we need this convertion function
@@ -84,5 +86,23 @@ export class CommonPermissionsStruct {
 
   get permissions(): i32[] {
     return this._permissions;
+  }
+}
+
+export class PermissionsAndIds {
+  private _permissions: PositionPermission[];
+  private _permissionsIds: string[];
+
+  constructor(permissions: PositionPermission[], permissionsIds: string[]) {
+    this._permissions = permissions;
+    this._permissionsIds = permissionsIds;
+  }
+
+  get permissions(): PositionPermission[] {
+    return this._permissions;
+  }
+
+  get permissionsIds(): string[] {
+    return this._permissionsIds;
   }
 }

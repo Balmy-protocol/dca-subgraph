@@ -1,6 +1,6 @@
-import { log, BigInt } from '@graphprotocol/graph-ts';
+import { log, BigInt, Bytes, store } from '@graphprotocol/graph-ts';
 import { DepositedPermissionsStruct } from '../../generated/Hub/Hub';
-import { Position, PositionState, Transaction } from '../../generated/schema';
+import { Position, PositionPermission, PositionState, Transaction } from '../../generated/schema';
 import { Modified as PermissionsModified } from '../../generated/PermissionsManager/PermissionsManager';
 import { ONE_BI, ZERO_BI } from './constants';
 import * as tokenLibrary from './token';
@@ -63,7 +63,7 @@ export function createComposed(
   positionState.idleSwapped = swappedBeforeModified;
   positionState.swappedBeforeModified = swappedBeforeModified;
   // duplicate permissions
-  let duplicatedPermissions = permissionsLibrary.duplicatePermissionsToPositionState(id, permissions);
+  let duplicatedPermissions = permissionsLibrary.duplicatePermissionsToPositionState(id, permissions).permissionsIds;
   positionState.permissions = duplicatedPermissions;
   //
   positionState.save();
@@ -134,25 +134,67 @@ export function registerPairSwap(id: string, position: Position, ratio: BigInt):
 export function permissionsModified(currentPositionStateId: string, event: PermissionsModified, transaction: Transaction): PositionState {
   log.info('[PositionState] Permissions modified {}', [currentPositionStateId]);
   let currentPositionState = get(currentPositionStateId);
-  let newPosisitionState = createBasic(
+  let newPositionState = createBasic(
     currentPositionState.position,
     currentPositionState.rate,
     currentPositionState.startingSwap,
     currentPositionState.lastSwap,
-    permissionsLibrary.convertModifiedPermissionStructToCommon(event.params.permissions),
+    [],
     transaction
   );
 
-  newPosisitionState.remainingSwaps = currentPositionState.remainingSwaps;
-  newPosisitionState.swapped = currentPositionState.swapped;
-  newPosisitionState.idleSwapped = currentPositionState.idleSwapped;
-  newPosisitionState.withdrawn = currentPositionState.withdrawn;
-  newPosisitionState.remainingLiquidity = currentPositionState.remainingLiquidity;
+  let duplicatedPermissions = permissionsLibrary.duplicatePermissionsToPositionState(newPositionState.id, currentPositionState.permissions);
+  let duplicatedPermissionsIds = duplicatedPermissions.permissionsIds;
 
-  newPosisitionState.swappedBeforeModified = currentPositionState.swappedBeforeModified;
-  newPosisitionState.rateAccumulator = currentPositionState.rateAccumulator;
+  // We iterate over every modification
+  for (let i: i32 = 0; i < event.params.permissions.length; i++) {
+    // O(n)
+    let foundPermission = false;
+    // We iterate over every "previous" permissions
+    for (let j: i32 = 0; j < duplicatedPermissions.permissions.length && !foundPermission; j++) {
+      // O(m)
+      if (event.params.permissions[i].operator == (duplicatedPermissions.permissions[j].operator as Bytes)) {
+        // We find a modification in a current permission
+        foundPermission = true;
+        if (event.params.permissions[i].permissions.length > 0) {
+          // If new permissions.length > 0 => we update that operators permissions
+          let permissions: string[] = [];
+          for (let k: i32 = 0; k < event.params.permissions[i].permissions.length; k++) {
+            // O(1)
+            permissions.push(permissionsLibrary.permissionByIndex[event.params.permissions[i].permissions[k]]);
+          }
+          duplicatedPermissions.permissions[j].permissions = permissions;
+          duplicatedPermissions.permissions[j].save();
+        } else {
+          // If new permission.length == 0 => Operator has no permissions => Remove position from permissions array and store
+          store.remove('PositionPermission', duplicatedPermissions.permissionsIds[j]);
+          duplicatedPermissionsIds.splice(duplicatedPermissionsIds.indexOf(duplicatedPermissions.permissionsIds[j]), 1);
+        }
+      }
+    }
 
-  newPosisitionState.save();
+    // If we have iterated over all previous position and we didn't find anything to modify, then its a new permission
+    if (!foundPermission) {
+      // create permission
+      let permission = permissionsLibrary.createFromCommonPermissionsStruct(
+        newPositionState.id,
+        permissionsLibrary.convertModifiedPermissionStructToCommon([event.params.permissions[i]])
+      );
+      duplicatedPermissionsIds.push(permission[0]);
+    }
+  }
 
-  return newPosisitionState;
+  newPositionState.permissions = duplicatedPermissionsIds;
+  newPositionState.remainingSwaps = currentPositionState.remainingSwaps;
+  newPositionState.swapped = currentPositionState.swapped;
+  newPositionState.idleSwapped = currentPositionState.idleSwapped;
+  newPositionState.withdrawn = currentPositionState.withdrawn;
+  newPositionState.remainingLiquidity = currentPositionState.remainingLiquidity;
+
+  newPositionState.swappedBeforeModified = currentPositionState.swappedBeforeModified;
+  newPositionState.rateAccumulator = currentPositionState.rateAccumulator;
+
+  newPositionState.save();
+
+  return newPositionState;
 }
