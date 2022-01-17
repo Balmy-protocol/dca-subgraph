@@ -147,35 +147,35 @@ export function permissionsModified(currentPositionStateId: string, event: Permi
   let duplicatedPermissionsIds = duplicatedPermissions.permissionsIds;
 
   // We iterate over every modification
+  // O(n)
   for (let i: i32 = 0; i < event.params.permissions.length; i++) {
-    // O(n)
-    let foundPermission = false;
-    // We iterate over every "previous" permissions
-    for (let j: i32 = 0; j < duplicatedPermissions.permissions.length && !foundPermission; j++) {
-      // O(m)
-      if (event.params.permissions[i].operator == (duplicatedPermissions.permissions[j].operator as Bytes)) {
-        // We find a modification in a current permission
-        foundPermission = true;
-        if (event.params.permissions[i].permissions.length > 0) {
-          // If new permissions.length > 0 => we update that operators permissions
-          let permissions: string[] = [];
-          for (let k: i32 = 0; k < event.params.permissions[i].permissions.length; k++) {
-            // O(1)
-            permissions.push(permissionsLibrary.permissionByIndex[event.params.permissions[i].permissions[k]]);
-          }
-          duplicatedPermissions.permissions[j].permissions = permissions;
-          duplicatedPermissions.permissions[j].save();
-        } else {
-          // If new permission.length == 0 => Operator has no permissions => Remove position from permissions array and store
-          store.remove('PositionPermission', duplicatedPermissions.permissionsIds[j]);
-          duplicatedPermissionsIds.splice(duplicatedPermissionsIds.indexOf(duplicatedPermissions.permissionsIds[j]), 1);
-        }
-      }
+    // Find modified permission in previous permissions
+    let j = 0;
+    while (
+      j < duplicatedPermissions.permissions.length &&
+      event.params.permissions[i].operator != (duplicatedPermissions.permissions[j].operator as Bytes)
+    ) {
+      j++;
     }
 
-    // If we have iterated over all previous position and we didn't find anything to modify, then its a new permission
-    if (!foundPermission) {
-      // create permission
+    let foundPermission = j < duplicatedPermissions.permissions.length;
+    if (foundPermission) {
+      if (event.params.permissions[i].permissions.length > 0) {
+        // If new permissions.length > 0 => we update that operators permissions
+        let permissions: string[] = [];
+        for (let k: i32 = 0; k < event.params.permissions[i].permissions.length; k++) {
+          // O(1)
+          permissions.push(permissionsLibrary.permissionByIndex[event.params.permissions[i].permissions[k]]);
+        }
+        duplicatedPermissions.permissions[j].permissions = permissions;
+        duplicatedPermissions.permissions[j].save();
+      } else {
+        // If new permission.length == 0 => Operator has no permissions => Remove position from permissions array and store
+        store.remove('PositionPermission', duplicatedPermissions.permissionsIds[j]);
+        duplicatedPermissionsIds.splice(duplicatedPermissionsIds.indexOf(duplicatedPermissions.permissionsIds[j]), 1);
+      }
+    } else {
+      // If emitted modification is not on a already created permission => create permission
       let permission = permissionsLibrary.createFromCommonPermissionsStruct(
         newPositionState.id,
         permissionsLibrary.convertModifiedPermissionStructToCommon([event.params.permissions[i]])
