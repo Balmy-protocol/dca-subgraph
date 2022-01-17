@@ -89,6 +89,9 @@ type PositionState @entity {
   id: ID!
   "position"
   position: Position!
+  "permissions"
+  permissions: [PositionPermission!]!
+  
   "rate"
   rate: BigInt!
   "starting swap"
@@ -121,7 +124,24 @@ type PositionState @entity {
   createdAtTimestamp: BigInt!
 }
 
+type PositionPermission @entity {
+  "positionState.id-user.address"
+  id: ID!
+  "operator"
+  operator: Bytes!
+  "permissions"
+  permissions: [PERMISSION!]!
+}
+
+enum PERMISSION {
+  INCREASE,
+  REDUCE,
+  WITHDRAW,
+  TERMINATE
+}
+
 enum ACTION {
+  PERMISSIONS_MODIFIED
   MODIFIED_RATE
   MODIFIED_DURATION
   MODIFIED_RATE_AND_DURATION
@@ -145,6 +165,9 @@ type PositionAction @entity {
   from: Bytes
   "when transfering to whom it transfers"
   to: Bytes
+
+  "new permissions set"
+  permissions: [PositionPermission!]
 
   "rate"
   rate: BigInt

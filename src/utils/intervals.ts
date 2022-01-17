@@ -1,5 +1,4 @@
-import { SwapInterval } from '../../generated/schema';
-import { BigInt, ByteArray, Bytes, log } from '@graphprotocol/graph-ts';
+import { BigInt, Bytes } from '@graphprotocol/graph-ts';
 import { ONE_BI, TWO_BI, ZERO_BI } from './constants';
 
 let ONE_MINUTE = BigInt.fromI32(60);

@@ -11,7 +11,7 @@ dataSources:
       abi: PermissionsManager
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       file: ./src/mappings/permissionsManager.ts
       entities:
@@ -38,7 +38,7 @@ dataSources:
       abi: HubCompanion
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       file: ./src/mappings/hubCompanion.ts
       entities:
@@ -60,7 +60,7 @@ dataSources:
       abi: Hub
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       file: ./src/mappings/hub.ts
       entities:
