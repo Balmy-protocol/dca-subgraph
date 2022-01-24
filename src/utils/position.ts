@@ -117,6 +117,7 @@ export function modified(event: Modified, transaction: Transaction): Position {
     position.status = 'COMPLETED';
   } else {
     position.status = 'ACTIVE';
+    pairLibrary.addActivePosition(position);
   }
   position.save();
   //
