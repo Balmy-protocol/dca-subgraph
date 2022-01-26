@@ -111,6 +111,14 @@ export function modified(event: Modified, transaction: Transaction): Position {
   position.totalDeposits = position.totalDeposits.minus(previousPositionState.remainingLiquidity).plus(newPositionState.remainingLiquidity);
   position.totalSwaps = position.totalSwaps.minus(previousPositionState.remainingSwaps).plus(newPositionState.remainingSwaps);
   position.current = newPositionState.id;
+  // Remove position from active pairs if modified to have zero remaining swaps (soft termination)
+  if (newPositionState.remainingSwaps.equals(ZERO_BI)) {
+    pairLibrary.removeActivePosition(position);
+    position.status = 'COMPLETED';
+  } else {
+    position.status = 'ACTIVE';
+    pairLibrary.addActivePosition(position);
+  }
   position.save();
   //
   // Position action
@@ -145,12 +153,6 @@ export function modified(event: Modified, transaction: Transaction): Position {
       transaction
     );
   }
-  //
-  // Remove position from active pairs if modified to have zero remaining swaps (soft termination)
-  if (newPositionState.remainingSwaps.equals(ZERO_BI)) {
-    pairLibrary.removeActivePosition(position);
-  }
-  //
   return position;
 }
 
@@ -219,6 +221,10 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   //
   position.current = updatedPositionState.id;
   position.totalSwapped = position.totalSwapped.plus(swapped);
+
+  if (updatedPositionState.remainingSwaps.equals(ZERO_BI)) {
+    position.status = 'COMPLETED';
+  }
   position.save();
 
   return new PositionAndPositionState(position, updatedPositionState);

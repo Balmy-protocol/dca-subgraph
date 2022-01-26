@@ -81,18 +81,28 @@ export function swapped(event: Swapped, transaction: Transaction): void {
 export function addActivePosition(position: Position): Pair {
   log.info('[Pair] Add active position {}', [position.pair]);
   let pair = get(position.pair)!;
+  let found = false;
   // Add to active positions
   let newActivePositionIds = pair.activePositionIds;
-  newActivePositionIds.push(position.id);
-  pair.activePositionIds = newActivePositionIds;
-  // Add to active positions per interval
-  let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
-  let activePositionsPerInterval = pair.activePositionsPerInterval;
-  activePositionsPerInterval[indexOfPositionInterval] = activePositionsPerInterval[indexOfPositionInterval].plus(ONE_BI);
-  pair.activePositionsPerInterval = activePositionsPerInterval;
-  // Get new next swap available at
-  pair.nextSwapAvailableAt = getNextSwapAvailableAt(activePositionsPerInterval, pair.lastSwappedAt);
-  pair.save();
+  // This can be greatly optimizied by saving index of active position on position.
+  for (let i: i32 = 0; i < newActivePositionIds.length && !found; i++) {
+    if (newActivePositionIds[i] == position.id) {
+      found = true;
+    }
+  }
+  if (!found) {
+    newActivePositionIds.push(position.id);
+    pair.activePositionIds = newActivePositionIds;
+    // Add to active positions per interval
+    let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
+    let activePositionsPerInterval = pair.activePositionsPerInterval;
+    activePositionsPerInterval[indexOfPositionInterval] = activePositionsPerInterval[indexOfPositionInterval].plus(ONE_BI);
+    pair.activePositionsPerInterval = activePositionsPerInterval;
+    // Get new next swap available at
+    pair.nextSwapAvailableAt = getNextSwapAvailableAt(activePositionsPerInterval, pair.lastSwappedAt);
+    pair.save();
+  }
+
   return pair;
 }
 

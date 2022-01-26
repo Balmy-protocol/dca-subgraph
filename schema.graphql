@@ -39,6 +39,7 @@ type Pair @entity {
 enum POSITION_STATUS {
   ACTIVE
   TERMINATED
+  COMPLETED
 }
 
 type Position @entity {
@@ -91,7 +92,7 @@ type PositionState @entity {
   position: Position!
   "permissions"
   permissions: [PositionPermission!]!
-  
+
   "rate"
   rate: BigInt!
   "starting swap"
