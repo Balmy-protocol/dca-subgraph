@@ -30,28 +30,6 @@ dataSources:
         - event: Modified(uint256,(address,uint8[])[])
           handler: handleModified
   - kind: ethereum/contract
-    name: HubCompanion
-    network: {{network}}
-    source:
-      startBlock: {{hubCompanionStartBlock}}
-      address: '{{hubCompanion}}'
-      abi: HubCompanion
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.6
-      language: wasm/assemblyscript
-      file: ./src/mappings/hubCompanion.ts
-      entities:
-        - Position
-        - Pair
-        - PositionState
-      abis:
-        - name: HubCompanion
-          file: ./abis/HubCompanion.json
-      eventHandlers:
-        - event: ConvertedDeposit(uint256,address,address,address,address)
-          handler: handleConvertedDeposit
-  - kind: ethereum/contract
     name: Hub
     network: {{network}}
     source:
