@@ -131,7 +131,11 @@ export function registerPairSwap(id: string, position: Position, ratio: BigInt):
   return positionState;
 }
 
-export function permissionsModified(currentPositionStateId: string, event: PermissionsModified, transaction: Transaction): PositionState {
+export function permissionsModified(
+  currentPositionStateId: string,
+  event: PermissionsModified,
+  transaction: Transaction
+): PositionStateAndModifiedPermissions {
   log.info('[PositionState] Permissions modified {}', [currentPositionStateId]);
   let currentPositionState = get(currentPositionStateId);
   let newPositionState = createBasic(
@@ -145,6 +149,7 @@ export function permissionsModified(currentPositionStateId: string, event: Permi
 
   let duplicatedPermissions = permissionsLibrary.duplicatePermissionsToPositionState(newPositionState.id, currentPositionState.permissions);
   let duplicatedPermissionsIds = duplicatedPermissions.permissionsIds;
+  let modifiedPermissions: string[] = [];
 
   // We iterate over every modification
   // O(n)
@@ -160,6 +165,7 @@ export function permissionsModified(currentPositionStateId: string, event: Permi
 
     let foundPermission = j < duplicatedPermissions.permissions.length;
     if (foundPermission) {
+      modifiedPermissions.push(duplicatedPermissions.permissions[j].id);
       if (event.params.permissions[i].permissions.length > 0) {
         // If new permissions.length > 0 => we update that operators permissions
         let permissions: string[] = [];
@@ -170,8 +176,10 @@ export function permissionsModified(currentPositionStateId: string, event: Permi
         duplicatedPermissions.permissions[j].permissions = permissions;
         duplicatedPermissions.permissions[j].save();
       } else {
-        // If new permission.length == 0 => Operator has no permissions => Remove position from permissions array and store
-        store.remove('PositionPermission', duplicatedPermissions.permissionsIds[j]);
+        // If new permission.length == 0 => Operator has no permissions => Remove position from permissions array and set it empty
+        // so position action can read from it
+        duplicatedPermissions.permissions[j].permissions = [];
+        duplicatedPermissions.permissions[j].save();
         duplicatedPermissionsIds.splice(duplicatedPermissionsIds.indexOf(duplicatedPermissions.permissionsIds[j]), 1);
       }
     } else {
@@ -180,6 +188,7 @@ export function permissionsModified(currentPositionStateId: string, event: Permi
         newPositionState.id,
         permissionsLibrary.convertModifiedPermissionStructToCommon([event.params.permissions[i]])
       );
+      modifiedPermissions.push(permission[0]);
       duplicatedPermissionsIds.push(permission[0]);
     }
   }
@@ -196,5 +205,23 @@ export function permissionsModified(currentPositionStateId: string, event: Permi
 
   newPositionState.save();
 
-  return newPositionState;
+  return new PositionStateAndModifiedPermissions(newPositionState, modifiedPermissions);
+}
+
+export class PositionStateAndModifiedPermissions {
+  _positionState: PositionState;
+  _modifiedPermissions: string[];
+
+  constructor(positionState: PositionState, modifiedPermissions: string[]) {
+    this._positionState = positionState;
+    this._modifiedPermissions = modifiedPermissions;
+  }
+
+  get positionState(): PositionState {
+    return this._positionState;
+  }
+
+  get modifiedPermissions(): string[] {
+    return this._modifiedPermissions;
+  }
 }

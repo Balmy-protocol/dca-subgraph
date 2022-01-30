@@ -229,9 +229,9 @@ export function transfer(event: Transfer, transaction: Transaction): void {
 
 export function permissionsModified(event: PermissionsModified, transaction: Transaction): Position {
   let position = getById(event.params.tokenId.toString());
-  let positionState = positionStateLibrary.permissionsModified(position.current, event, transaction);
-  positionActionLibrary.permissionsModified(position.id, positionState.permissions, transaction);
-  position.current = positionState.id;
+  let positionStateAndModifiedPermissions = positionStateLibrary.permissionsModified(position.current, event, transaction);
+  positionActionLibrary.permissionsModified(position.id, positionStateAndModifiedPermissions.modifiedPermissions, transaction);
+  position.current = positionStateAndModifiedPermissions.positionState.id;
   position.save();
   return position;
 }
