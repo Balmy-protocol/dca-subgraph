@@ -62,6 +62,14 @@ export function create(event: Deposited, transaction: Transaction): Position {
     position.totalDeposits = event.params.rate.times(positionState.remainingSwaps);
     position.totalSwaps = positionState.remainingSwaps;
     position.current = positionState.id;
+
+    // Naive check for WETH or ETH deposit. Why naive ? Because multicall with multiple deposits might break this heuristic.
+    // worst case scenario: it shows WETH instead of ETH.
+    if (event.params.fromToken.toHexString() == WETH_ADDRESS && transaction.value.equals(position.totalDeposits)) {
+      from = tokenLibrary.getOrCreate(Address.fromString(ETH_ADDRESS));
+      position.from = from.id;
+    }
+
     position.save();
 
     pairLibrary.addActivePosition(position);
