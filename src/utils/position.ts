@@ -9,6 +9,7 @@ import * as positionStateLibrary from './position-state';
 import * as positionActionLibrary from './position-action';
 import * as tokenLibrary from './token';
 import { ZERO_BI } from './constants';
+import { ConvertedDeposit } from '../../generated/HubCompanion/HubCompanion';
 
 const ETH_ADDRESS = Address.fromString('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee').toHexString();
 const WETH_ADDRESS = Address.fromString('0x4200000000000000000000000000000000000006').toHexString();
@@ -66,6 +67,20 @@ export function create(event: Deposited, transaction: Transaction): Position {
 
     pairLibrary.addActivePosition(position);
   }
+  return position;
+}
+
+export function setAsEth(event: ConvertedDeposit): Position {
+  let id = event.params.positionId.toString();
+  log.info('[Position] Set as ETH {}', [id]);
+  let from = tokenLibrary.getOrCreate(event.params.originalTokenFrom);
+  let to = tokenLibrary.getOrCreate(event.params.originalTokenTo);
+  let position = getById(id);
+
+  position.from = from.id;
+  position.to = to.id;
+  position.save();
+
   return position;
 }
 

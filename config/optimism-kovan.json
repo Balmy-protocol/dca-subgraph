@@ -1,9 +1,9 @@
 {
   "network": "optimism-kovan",
-  "hubStartBlock": "1021913",
-  "hub": "0xB1EDC6ea9011bCC5318e2b36954008357b59292F",
-  "permissionsManagerStartBlock": "1021905",
-  "permissionsManager": "0xE0af2abE284771Bb73071f4f373Fb5DC1AFF1849",
-  "hubCompanionStartBlock": "1057763",
-  "hubCompanion": "0xFEf5273501db0cc5113858dE749443E055c38096"
+  "hubStartBlock": "196300",
+  "hub": "0x19BB8c1130649BD2a114c2f2d4C3a6AFa3Bd4944",
+  "permissionsManagerStartBlock": "196298",
+  "permissionsManager": "0x0100a1c3020fE97051cBB18636C0f91abCc603cE",
+  "hubCompanionStartBlock": "196378",
+  "hubCompanion": "0x2e2e175406109c2E5Df16a59f615Ee6E7CA87b5c"
 }

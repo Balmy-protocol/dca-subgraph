@@ -46,7 +46,7 @@
     "thegraph:deploy:optimism-kovan": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ alejoamiras/dca-optimism-kovan",
     "thegraph:deploy:optimism-kovan-alejoamiras": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ alejoamiras/dca-v2-optimism-kovan",
     "thegraph:deploy:optimism-kovan-stable": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v2-optimism-kovan",
-    "thegraph:deploy:optimism-kovan-storres": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ storres93/mean-optimism-kovan-beta",
+    "thegraph:deploy:optimism-kovan-storres": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ storres93/mean-optimism-kovan",
     "thegraph:deploy:optimism-stable": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v2-optimism",
     "thegraph:deploy:optimism-storres": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ storres93/dca-optimism",
     "thegraph:deploy:rinkeby": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ alejoamiras/dca-rinkeby",
