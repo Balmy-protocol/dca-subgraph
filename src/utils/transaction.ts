@@ -1,8 +1,8 @@
 import { log, ethereum, BigInt, Bytes } from '@graphprotocol/graph-ts';
 import { Transaction } from '../../generated/schema';
 
-export function createIdFromHashAndIndex(hash: Bytes, index: BigInt): string {
-  return hash.toHexString().concat('-').concat(index.toString());
+export function createIdFromHashAndIndexAndAction(hash: Bytes, index: BigInt, action: string): string {
+  return hash.toHexString().concat('-').concat(index.toString()).concat('-').concat(action);
 }
 
 export function getOrCreateFromEvent(event: ethereum.Event, action: string): Transaction {
@@ -18,7 +18,7 @@ export function getOrCreateFromCall(call: ethereum.Call, action: string): Transa
 }
 
 function _getOrCreate(ethTransaction: ethereum.Transaction, block: ethereum.Block, action: string): Transaction {
-  let id = createIdFromHashAndIndex(ethTransaction.hash, ethTransaction.index);
+  let id = createIdFromHashAndIndexAndAction(ethTransaction.hash, ethTransaction.index, action);
   log.info('[Transaction] Get or create {}', [id]);
   let transaction = Transaction.load(id);
   if (transaction == null) {
