@@ -1,9 +1,9 @@
 {
   "network": "optimism",
-  "hubStartBlock": "860725",
-  "hub": "0x24F85583FAa9F8BD0B8Aa7B1D1f4f53F0F450038",
-  "permissionsManagerStartBlock": "860711",
-  "permissionsManager": "0x09AdE44D2E60fCa2270fF32Af5a189f40D29837b",
-  "hubCompanionStartBlock": "861275",
-  "hubCompanion": "0x1eD2957bA1F14c17E01424DD93a258dd2E04cAAC"
+  "hubStartBlock": "3028283",
+  "hub": "0x230C63702D1B5034461ab2ca889a30E343D81349",
+  "permissionsManagerStartBlock": "3028278",
+  "permissionsManager": "0xB4Edfb45446C6A207643Ea846BFA42021cE5ae11",
+  "hubCompanionStartBlock": "3029387",
+  "hubCompanion": "0x749Fc5a81B2Fe1470e54E1bF452b71a4fb0e1BBf"
 }
