@@ -1,7 +1,0 @@
-{
-  "network": "ropsten",
-  "factoryStartBlock": "10762150",
-  "factory": "0xaC4a40a995f236E081424D966F1dFE014Fe0e98A",
-  "globalParametersStartBlock": "10762146",
-  "globalParameters": "0x0dBCcA406b622ed1f455abC9560d51Aa0C81560F"
-}

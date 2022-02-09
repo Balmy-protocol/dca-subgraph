@@ -1,7 +1,0 @@
-{
-  "network": "rinkeby",
-  "factoryStartBlock": "9047352",
-  "factory": "0xaC4a40a995f236E081424D966F1dFE014Fe0e98A",
-  "globalParametersStartBlock": "9047350",
-  "globalParameters": "0x0dBCcA406b622ed1f455abC9560d51Aa0C81560F"
-}
