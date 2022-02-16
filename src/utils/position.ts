@@ -8,7 +8,7 @@ import * as permissionsLibrary from './permissions';
 import * as positionStateLibrary from './position-state';
 import * as positionActionLibrary from './position-action';
 import * as tokenLibrary from './token';
-import { ZERO_BI } from './constants';
+import { ONE_BI, ZERO_BI } from './constants';
 
 const ETH_ADDRESS = Address.fromString('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee').toHexString();
 const WETH_ADDRESS = Address.fromString('0x4200000000000000000000000000000000000006').toHexString();
@@ -34,6 +34,7 @@ export function create(event: Deposited, transaction: Transaction): Position {
     position.startedAtSwap = event.params.startingSwap;
     position.totalWithdrawn = ZERO_BI;
     position.totalSwapped = ZERO_BI;
+    position.executedSwaps = ZERO_BI;
     position.status = 'ACTIVE';
     position.transaction = transaction.id;
     position.createdAtBlock = transaction.blockNumber;
@@ -206,6 +207,7 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   //
   position.current = updatedPositionState.id;
   position.totalSwapped = position.totalSwapped.plus(swapped);
+  position.executedSwaps = position.executedSwaps.plus(ONE_BI);
 
   if (updatedPositionState.remainingSwaps.equals(ZERO_BI)) {
     position.status = 'COMPLETED';
