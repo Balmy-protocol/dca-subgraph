@@ -15,9 +15,12 @@
     }
   ],
   "scripts": {
+    "build:mumbai": "yarn prepare:mumbai && graph build",
     "build:optimism": "yarn prepare:optimism && graph build",
     "build:optimism-kovan": "yarn prepare:optimism-kovan && graph build",
     "codegen": "rm -rf generated && graph codegen",
+    "deploy:mumbai:mainnet": "yarn build:mumbai && graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ storres93/dca-v2-mumbai",
+    "deploy:mumbai:mainnet:stable": "yarn build:mumbai && graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v2-optimism",
     "deploy:optimism:kovan": "yarn build:optimism-kovan && graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v2-optimism-kovan-canary",
     "deploy:optimism:kovan:stable": "yarn build:optimism-kovan && graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v2-optimism-kovan",
     "deploy:optimism:mainnet": "yarn build:optimism && graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v2-optimism-canary",
@@ -25,6 +28,7 @@
     "lint:check": "prettier --check './**'",
     "lint:fix": "sort-package-json && prettier --write './**'",
     "prepare": "husky install",
+    "prepare:mumbai": "mustache config/mumbai.json subgraph.template.yaml > subgraph.yaml",
     "prepare:optimism": "mustache config/optimism.json subgraph.template.yaml > subgraph.yaml",
     "prepare:optimism-kovan": "mustache config/optimism-kovan.json subgraph.template.yaml > subgraph.yaml",
     "release": "standard-version"

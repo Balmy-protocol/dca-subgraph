@@ -1,0 +1,9 @@
+{
+  "network": "mumbai",
+  "hubStartBlock": "24866376",
+  "hub": "0x898D220C7cd30bf2DCacc9178ca3463e39cbB803",
+  "permissionsManagerStartBlock": "24866368",
+  "permissionsManager": "0x8CC0Df843610cefF7f4AFa01100B6abf6756Bdf2",
+  "hubCompanionStartBlock": "24866579",
+  "hubCompanion": "0x8847480C34C7DceEf73647c57766f28c3A07596B"
+}
