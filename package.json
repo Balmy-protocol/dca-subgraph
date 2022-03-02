@@ -15,10 +15,13 @@
     }
   ],
   "scripts": {
+    "build:mainnet": "yarn prepare:mainnet && graph build",
     "build:optimism": "yarn prepare:optimism && graph build",
     "build:optimism-kovan": "yarn prepare:optimism-kovan && graph build",
     "build:polygon": "yarn prepare:polygon && graph build",
     "codegen": "rm -rf generated && graph codegen",
+    "deploy:mainnet": "yarn build:mainnet && graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v2-mainnet-canary",
+    "deploy:mainnet:stable": "yarn build:mainnet && graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v2-mainnet",
     "deploy:optimism:kovan": "yarn build:optimism-kovan && graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v2-optimism-kovan-canary",
     "deploy:optimism:kovan:stable": "yarn build:optimism-kovan && graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v2-optimism-kovan",
     "deploy:optimism:mainnet": "yarn build:optimism && graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ mean-finance/dca-v2-optimism-canary",
@@ -28,6 +31,7 @@
     "lint:check": "prettier --check './**'",
     "lint:fix": "sort-package-json && prettier --write './**'",
     "prepare": "husky install",
+    "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml",
     "prepare:optimism": "mustache config/optimism.json subgraph.template.yaml > subgraph.yaml",
     "prepare:optimism-kovan": "mustache config/optimism-kovan.json subgraph.template.yaml > subgraph.yaml",
     "prepare:polygon": "mustache config/polygon.json subgraph.template.yaml > subgraph.yaml",
