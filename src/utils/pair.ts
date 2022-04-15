@@ -64,8 +64,6 @@ export function swapped(event: Swapped, transaction: Transaction): void {
       if (positionLibrary.shouldRegisterPairSwap(activePositionIds[x], intervals)) {
         let positionAndState = positionLibrary.registerPairSwap(activePositionIds[x], pair, pairSwap, transaction); // O(1)
         if (positionAndState.positionState.remainingSwaps.equals(ZERO_BI)) {
-          if (['156', '210', '215', '22'].includes(positionAndState.position.id))
-            log.error('Through swapped {}', [positionAndState.position.id]);
           newActivePositionIds.splice(newActivePositionIds.indexOf(positionAndState.position.id), 1); // O(x + x), where worst x scenario x = m
           let indexOfInterval = getIndexOfInterval(BigInt.fromString(positionAndState.position.swapInterval));
           newActivePositionsPerInterval[indexOfInterval] = newActivePositionsPerInterval[indexOfInterval].minus(ONE_BI);
@@ -83,28 +81,18 @@ export function swapped(event: Swapped, transaction: Transaction): void {
 export function addActivePosition(position: Position): Pair {
   log.info('[Pair] Add active position {} to pair {}', [position.id, position.pair]);
   let pair = get(position.pair)!;
-  let found = false;
   // Add to active positions
   let newActivePositionIds = pair.activePositionIds;
-  // This can be greatly optimizied by saving index of active position on position.
-  for (let i: i32 = 0; i < newActivePositionIds.length && !found; i++) {
-    if (newActivePositionIds[i] == position.id) {
-      found = true;
-    }
-  }
-  if (!found) {
-    newActivePositionIds.push(position.id);
-    pair.activePositionIds = newActivePositionIds;
-    // Add to active positions per interval
-    let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
-    let activePositionsPerInterval = pair.activePositionsPerInterval;
-    activePositionsPerInterval[indexOfPositionInterval] = activePositionsPerInterval[indexOfPositionInterval].plus(ONE_BI);
-    pair.activePositionsPerInterval = activePositionsPerInterval;
-    // Get new next swap available at
-    pair.nextSwapAvailableAt = getNextSwapAvailableAt(activePositionsPerInterval, pair.lastSwappedAt);
-    pair.save();
-  }
-
+  newActivePositionIds.push(position.id);
+  pair.activePositionIds = newActivePositionIds;
+  // Add to active positions per interval
+  let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
+  let activePositionsPerInterval = pair.activePositionsPerInterval;
+  activePositionsPerInterval[indexOfPositionInterval] = activePositionsPerInterval[indexOfPositionInterval].plus(ONE_BI);
+  pair.activePositionsPerInterval = activePositionsPerInterval;
+  // Get new next swap available at
+  pair.nextSwapAvailableAt = getNextSwapAvailableAt(activePositionsPerInterval, pair.lastSwappedAt);
+  pair.save();
   return pair;
 }
 
@@ -113,17 +101,7 @@ export function removeActivePosition(position: Position): Pair {
   let pair = get(position.pair)!;
   // Remove from active positions
   let newActivePositionIds = pair.activePositionIds;
-  let found = false;
-  // This can be greatly optimizied by saving index of active position on position.
-  for (let i: i32 = 0; i < newActivePositionIds.length && !found; i++) {
-    if (newActivePositionIds[i] == position.id) {
-      let aux = newActivePositionIds[newActivePositionIds.length - 1];
-      newActivePositionIds[newActivePositionIds.length - 1] = newActivePositionIds[i];
-      newActivePositionIds[i] = aux;
-      newActivePositionIds.pop();
-      found = true;
-    }
-  }
+  newActivePositionIds.splice(newActivePositionIds.indexOf(position.id), 1);
   pair.activePositionIds = newActivePositionIds;
   // Remove from active positions per interval
   let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
