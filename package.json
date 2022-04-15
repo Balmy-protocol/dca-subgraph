@@ -34,17 +34,17 @@
     "release": "standard-version"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.25.1",
-    "@graphprotocol/graph-ts": "0.24.1",
+    "@graphprotocol/graph-cli": "0.29.0",
+    "@graphprotocol/graph-ts": "0.26.0",
     "mustache": "4.2.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "16.0.1",
-    "@commitlint/config-conventional": "16.0.0",
+    "@commitlint/cli": "16.2.3",
+    "@commitlint/config-conventional": "16.2.1",
     "husky": "7.0.4",
-    "pinst": "2.1.6",
-    "prettier": "2.5.1",
-    "sort-package-json": "1.53.1",
+    "pinst": "3.0.0",
+    "prettier": "2.6.2",
+    "sort-package-json": "1.55.0",
     "standard-version": "9.3.2"
   }
 }
