@@ -67,6 +67,7 @@ export function create(event: Deposited, transaction: Transaction): Position {
 
     pairLibrary.addActivePosition(position);
   }
+  if (['156', '210', '215', '22'].includes(position.id)) log.error('Creation of {}', [position.id]);
   return position;
 }
 
@@ -98,6 +99,7 @@ export function modified(event: Modified, transaction: Transaction): Position {
   position.totalSwaps = position.totalSwaps.minus(previousPositionState.remainingSwaps).plus(newPositionState.remainingSwaps);
   position.current = newPositionState.id;
   // Remove position from active pairs if modified to have zero remaining swaps (soft termination)
+  if (['156', '210', '215', '22'].includes(position.id)) log.error('Through modified {}', [position.id]);
   if (newPositionState.remainingSwaps.equals(ZERO_BI)) {
     pairLibrary.removeActivePosition(position);
     position.status = 'COMPLETED';
@@ -159,6 +161,7 @@ export function terminated(event: Terminated, transaction: Transaction): Positio
   position.save();
 
   // Remove position from actives
+  if (['156', '210', '215', '22'].includes(position.id)) log.error('Through terminated {}', [position.id]);
   pairLibrary.removeActivePosition(position);
 
   return position;

@@ -64,6 +64,8 @@ export function swapped(event: Swapped, transaction: Transaction): void {
       if (positionLibrary.shouldRegisterPairSwap(activePositionIds[x], intervals)) {
         let positionAndState = positionLibrary.registerPairSwap(activePositionIds[x], pair, pairSwap, transaction); // O(1)
         if (positionAndState.positionState.remainingSwaps.equals(ZERO_BI)) {
+          if (['156', '210', '215', '22'].includes(positionAndState.position.id))
+            log.error('Through swapped {}', [positionAndState.position.id]);
           newActivePositionIds.splice(newActivePositionIds.indexOf(positionAndState.position.id), 1); // O(x + x), where worst x scenario x = m
           let indexOfInterval = getIndexOfInterval(BigInt.fromString(positionAndState.position.swapInterval));
           newActivePositionsPerInterval[indexOfInterval] = newActivePositionsPerInterval[indexOfInterval].minus(ONE_BI);
@@ -79,7 +81,7 @@ export function swapped(event: Swapped, transaction: Transaction): void {
 } // O (n*2m) ?
 
 export function addActivePosition(position: Position): Pair {
-  log.info('[Pair] Add active position {}', [position.pair]);
+  log.info('[Pair] Add active position {} to pair {}', [position.id, position.pair]);
   let pair = get(position.pair)!;
   let found = false;
   // Add to active positions
@@ -107,7 +109,7 @@ export function addActivePosition(position: Position): Pair {
 }
 
 export function removeActivePosition(position: Position): Pair {
-  log.info('[Pair] Remove active position {}', [position.pair]);
+  log.info('[Pair] Remove active position {} from pair {}', [position.id, position.pair]);
   let pair = get(position.pair)!;
   // Remove from active positions
   let newActivePositionIds = pair.activePositionIds;
@@ -136,12 +138,14 @@ export function removeActivePosition(position: Position): Pair {
 
 export function getNextSwapAvailableAt(activePositionsPerInterval: BigInt[], lastSwappedAt: BigInt): BigInt {
   let intervals = getIntervals();
-  let indexOfCloserInterval = activePositionsPerInterval.length + 1;
+  // We set the smaller interval as the maximum possible (amountOfIntervals + 1)
+  let indexOfSmallerInterval = activePositionsPerInterval.length + 1;
   let i: i32 = 0;
-  while (i < activePositionsPerInterval.length && indexOfCloserInterval == activePositionsPerInterval.length + 1) {
-    if (activePositionsPerInterval[i].gt(ZERO_BI)) indexOfCloserInterval = i;
+  while (i < activePositionsPerInterval.length && indexOfSmallerInterval == activePositionsPerInterval.length + 1) {
+    if (activePositionsPerInterval[i].gt(ZERO_BI)) indexOfSmallerInterval = i;
     i++;
   }
-  if (indexOfCloserInterval == activePositionsPerInterval.length + 1) return MAX_BI;
-  return lastSwappedAt.div(intervals[indexOfCloserInterval]).plus(ONE_BI).times(intervals[indexOfCloserInterval]);
+  // No position in any interval => there is no next swap available.
+  if (indexOfSmallerInterval == activePositionsPerInterval.length + 1) return MAX_BI;
+  return lastSwappedAt.div(intervals[indexOfSmallerInterval]).plus(ONE_BI).times(intervals[indexOfSmallerInterval]);
 }
