@@ -10,9 +10,6 @@ import * as positionActionLibrary from './position-action';
 import * as tokenLibrary from './token';
 import { ONE_BI, ZERO_BI } from './constants';
 
-const ETH_ADDRESS = Address.fromString('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee').toHexString();
-const WETH_ADDRESS = Address.fromString('0x4200000000000000000000000000000000000006').toHexString();
-
 export function create(event: Deposited, transaction: Transaction): Position {
   let id = event.params.positionId.toString();
   log.info('[Position] Create {}', [id]);
@@ -194,9 +191,8 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   log.info('[Position] Register pair swap for position {}', [positionId]);
   let position = getById(positionId);
   let currentState = positionStateLibrary.get(position.current);
-  let fromToUse = position.from == ETH_ADDRESS ? WETH_ADDRESS : position.from;
 
-  let rateOfSwap = fromToUse == pair.tokenA ? pairSwap.ratePerUnitAToBWithFee : pairSwap.ratePerUnitBToAWithFee;
+  let rateOfSwap = position.from == pair.tokenA ? pairSwap.ratePerUnitAToBWithFee : pairSwap.ratePerUnitBToAWithFee;
   let rate = currentState.rate;
   // Position state
   let updatedPositionState = positionStateLibrary.registerPairSwap(position.current, position, rateOfSwap);
