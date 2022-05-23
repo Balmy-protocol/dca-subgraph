@@ -3,7 +3,5 @@
   "hubStartBlock": "25304333",
   "hub": "0x230C63702D1B5034461ab2ca889a30E343D81349",
   "permissionsManagerStartBlock": "25304079",
-  "permissionsManager": "0xB4Edfb45446C6A207643Ea846BFA42021cE5ae11",
-  "hubCompanionStartBlock": "25326929",
-  "hubCompanion": "0x9BA4B15f833c70a74e0fCc18f36d3C6157dcf687"
+  "permissionsManager": "0xB4Edfb45446C6A207643Ea846BFA42021cE5ae11"
 }
