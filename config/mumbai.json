@@ -1,7 +1,7 @@
 {
-  "network": "matic",
-  "hubStartBlock": "28724155",
+  "network": "mumbai",
+  "hubStartBlock": "26394544",
   "hub": "0x059d306A25c4cE8D7437D25743a8B94520536BD5",
-  "permissionsManagerStartBlock": "28724151",
+  "permissionsManagerStartBlock": "26394342",
   "permissionsManager": "0x6f54391fE0386D506b51d69Deeb8b04E0544E088"
 }
