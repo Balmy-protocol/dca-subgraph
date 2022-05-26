@@ -7,6 +7,7 @@ CHANGELOG.md
 # The graph
 generated
 build
+tests/.bin
 schema.graphql
 subgraph.template.yaml
 subgraph.yaml

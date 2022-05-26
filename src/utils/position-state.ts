@@ -113,12 +113,12 @@ export function registerTransfered(id: string): PositionState {
 export function registerPairSwap(id: string, position: Position, ratio: BigInt): PositionState {
   log.info('[PositionState] Register pair swap {}', [id]);
   let positionState = get(id);
-  let magnitude = tokenLibrary.getMagnitudeOf(position.from);
+  let from = tokenLibrary.get(position.from);
 
   positionState.rateAccumulator = positionState.rateAccumulator.plus(ratio);
 
   let augmentedSwapped = positionState.rateAccumulator.times(positionState.rate);
-  let totalSwapped = augmentedSwapped.div(magnitude);
+  let totalSwapped = augmentedSwapped.div(from.magnitude);
 
   positionState.swapped = positionState.swappedBeforeModified.plus(totalSwapped);
   positionState.idleSwapped = positionState.swapped.minus(positionState.withdrawn);

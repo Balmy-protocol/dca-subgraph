@@ -1,46 +1,34 @@
 import { Address, log, BigInt } from '@graphprotocol/graph-ts';
 import { Token } from '../../generated/schema';
 import { ERC20 } from '../../generated/Hub/ERC20';
-import { ONE_BI, ZERO_BI } from './constants';
 
 const DEFAULT_DECIMALS = 18;
 
-const ETH_ADDRESS = Address.fromString('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee').toHexString();
-
-export function getOrCreate(address: Address): Token {
-  let id = address.toHexString();
-  log.info('[Token] Get or create {}', [id]);
+export function get(id: string): Token {
+  log.info('[Token] Get {}', [id]);
   let token = Token.load(id);
-  if (token === null) {
-    token = new Token(id);
-
-    if (id == ETH_ADDRESS) {
-      token.decimals = DEFAULT_DECIMALS;
-      token.name = 'Ethereum';
-      token.symbol = 'ETH';
-    } else {
-      let erc20Contract = ERC20.bind(address);
-      let decimals = erc20Contract.try_decimals();
-      let name = erc20Contract.try_name();
-      let symbol = erc20Contract.try_symbol();
-
-      token.decimals = decimals.reverted ? DEFAULT_DECIMALS : decimals.value;
-      token.name = name.reverted ? 'TBD' : name.value;
-      token.symbol = symbol.reverted ? 'TBD' : symbol.value;
-
-      if (decimals.reverted || name.reverted || symbol.reverted) {
-        log.warning('[Token] Decimals, name or symbol not found for token with address {}', [address.toHexString()]);
-      }
-    }
-
-    token.save();
-  }
-
+  if (token == null) throw Error('Token not found');
   return token;
 }
 
-export function getMagnitudeOf(id: string): BigInt {
-  log.info('[Token] Get magnitude of {}', [id]);
-  let token = getOrCreate(Address.fromString(id));
-  return BigInt.fromI32(10).pow(token.decimals as u8);
+export function getOrCreate(address: Address, allowed: boolean): Token {
+  let id = address.toHexString();
+  log.info('[Tokens] Get or create {}', [id]);
+  let token = Token.load(id);
+  if (token === null) {
+    token = new Token(id);
+    let erc20Contract = ERC20.bind(address);
+    token.name = erc20Contract.name();
+    token.symbol = erc20Contract.symbol();
+    token.allowed = allowed;
+    token.magnitude = BigInt.fromI32(10).pow(erc20Contract.decimals() as u8);
+    token.save();
+  } else {
+    if (allowed != token.allowed) {
+      token.allowed = allowed;
+      token.save();
+    }
+  }
+
+  return token;
 }

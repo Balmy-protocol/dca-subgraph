@@ -103,6 +103,9 @@ dist
 # TernJS port file
 .tern-port
 
+# Matchstick
+tests/.bin
+
 build
 subgraph.yaml
 package-lock.json

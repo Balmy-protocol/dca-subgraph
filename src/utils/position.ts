@@ -199,9 +199,9 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   let swapped = updatedPositionState.swapped.minus(currentState.swapped);
   //
   // Position action
-  let magnitude = tokenLibrary.getMagnitudeOf(position.from);
+  let from = tokenLibrary.get(position.from);
 
-  positionActionLibrary.swapped(positionId, magnitude, rateOfSwap, rate, pairSwap, transaction);
+  positionActionLibrary.swapped(positionId, from.magnitude, rateOfSwap, rate, pairSwap, transaction);
   //
   position.current = updatedPositionState.id;
   position.totalSwapped = position.totalSwapped.plus(swapped);

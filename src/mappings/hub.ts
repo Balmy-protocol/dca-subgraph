@@ -1,8 +1,10 @@
 import * as transactionLibrary from '../utils/transaction';
 import * as pairLibrary from '../utils/pair';
 import * as positionLibrary from '../utils/position';
+import * as tokenLibrary from '../utils/token';
 import * as swapIntervalsLibrary from '../utils/swap-intervals';
 import {
+  TokensAllowedUpdated,
   Deposited,
   Modified,
   RoleAdminChanged,
@@ -14,6 +16,15 @@ import {
   WithdrewMany,
 } from '../../generated/Hub/Hub';
 import { BigInt } from '@graphprotocol/graph-ts';
+
+export function handleSetAllowedTokens(event: TokensAllowedUpdated): void {
+  transactionLibrary.getOrCreateFromEvent(event, 'Hub-TokensAllowedUpdated');
+  let tokens = event.params._tokens;
+  let allowed = event.params._allowed;
+  for (let i: i32 = 0; i < tokens.length; i++) {
+    tokenLibrary.getOrCreate(tokens[i], allowed[i]);
+  }
+}
 
 export function handleDeposited(event: Deposited): void {
   let transaction = transactionLibrary.getOrCreateFromEvent(event, 'Hub-Deposited');

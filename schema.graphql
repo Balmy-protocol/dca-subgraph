@@ -285,10 +285,12 @@ type Transaction @entity {
 type Token @entity {
   "Token address"
   id: ID!
-  "Number of decimals for this Token"
-  decimals: Int!
   "Name of the Token"
   name: String!
   "Symbol of the Token"
   symbol: String!
+  "Allowed"
+  allowed: Boolean!
+  "Magnitude"
+  magnitude: BigInt!
 }
