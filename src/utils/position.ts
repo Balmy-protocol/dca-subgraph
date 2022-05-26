@@ -13,8 +13,8 @@ import { ONE_BI, ZERO_BI } from './constants';
 export function create(event: Deposited, transaction: Transaction): Position {
   let id = event.params.positionId.toString();
   log.info('[Position] Create {}', [id]);
-  let from = tokenLibrary.getOrCreate(event.params.fromToken);
-  let to = tokenLibrary.getOrCreate(event.params.toToken);
+  let from = tokenLibrary.getByAddress(event.params.fromToken);
+  let to = tokenLibrary.getByAddress(event.params.toToken);
   let pairId = pairLibrary.buildId(from.id, to.id);
   let pair = pairLibrary.get(pairId);
   if (pair == null) {
@@ -199,7 +199,7 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   let swapped = updatedPositionState.swapped.minus(currentState.swapped);
   //
   // Position action
-  let from = tokenLibrary.get(position.from);
+  let from = tokenLibrary.getById(position.from);
 
   positionActionLibrary.swapped(positionId, from.magnitude, rateOfSwap, rate, pairSwap, transaction);
   //

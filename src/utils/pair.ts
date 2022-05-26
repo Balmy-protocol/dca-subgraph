@@ -10,8 +10,8 @@ import { getIndexOfInterval, getIntervals, intervalsFromBytes } from './interval
 export function create(id: string, token0Address: Address, token1Address: Address, swapInterval: BigInt, transaction: Transaction): Pair {
   log.info('[Pair] Create {}', [id]);
   let pair = Pair.load(id);
-  let token0 = tokenLibrary.getOrCreate(token0Address);
-  let token1 = tokenLibrary.getOrCreate(token1Address);
+  let token0 = tokenLibrary.getByAddress(token0Address);
+  let token1 = tokenLibrary.getByAddress(token1Address);
   let token0ComesFirst = token1.id > token0.id;
   if (pair == null) {
     pair = new Pair(id);

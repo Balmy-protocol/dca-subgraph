@@ -113,7 +113,7 @@ export function registerTransfered(id: string): PositionState {
 export function registerPairSwap(id: string, position: Position, ratio: BigInt): PositionState {
   log.info('[PositionState] Register pair swap {}', [id]);
   let positionState = get(id);
-  let from = tokenLibrary.get(position.from);
+  let from = tokenLibrary.getById(position.from);
 
   positionState.rateAccumulator = positionState.rateAccumulator.plus(ratio);
 

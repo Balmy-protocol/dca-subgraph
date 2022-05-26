@@ -4,11 +4,15 @@ import { ERC20 } from '../../generated/Hub/ERC20';
 
 const DEFAULT_DECIMALS = 18;
 
-export function get(id: string): Token {
+export function getById(id: string): Token {
   log.info('[Token] Get {}', [id]);
   let token = Token.load(id);
   if (token == null) throw Error('Token not found');
   return token;
+}
+
+export function getByAddress(address: Address): Token {
+  return getById(address.toHexString());
 }
 
 export function getOrCreate(address: Address, allowed: boolean): Token {
