@@ -30,6 +30,7 @@ test('First time tokens are updated', () => {
   assert.stringEquals(token.name, 'Token 1');
   assert.stringEquals(token.symbol, 'T1');
   assert.assertTrue(token.allowed);
+  assert.i32Equals(token.decimals, 15);
   assert.bigIntEquals(token.magnitude, BigInt.fromI32(10).pow(15));
 });
 

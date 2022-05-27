@@ -291,6 +291,8 @@ type Token @entity {
   symbol: String!
   "Allowed"
   allowed: Boolean!
+  "Decimals"
+  decimals: Int!
   "Magnitude"
   magnitude: BigInt!
 }

@@ -24,6 +24,7 @@ export function getOrCreate(address: Address, allowed: boolean): Token {
     let erc20Contract = ERC20.bind(address);
     token.name = erc20Contract.name();
     token.symbol = erc20Contract.symbol();
+    token.decimals = erc20Contract.decimals();
     token.allowed = allowed;
     token.magnitude = BigInt.fromI32(10).pow(erc20Contract.decimals() as u8);
     token.save();
