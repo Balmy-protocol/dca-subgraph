@@ -30,7 +30,7 @@ export function create(event: Deposited, transaction: Transaction): Position {
     position.swapInterval = event.params.swapInterval.toString();
     position.totalWithdrawn = ZERO_BI;
     position.totalSwapped = ZERO_BI;
-    position.executedSwaps = ZERO_BI;
+    position.totalExecutedSwaps = ZERO_BI;
     position.status = 'ACTIVE';
     position.transaction = transaction.id;
     position.createdAtBlock = transaction.blockNumber;
@@ -204,7 +204,7 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   //
   position.current = updatedPositionState.id;
   position.totalSwapped = position.totalSwapped.plus(swapped);
-  position.executedSwaps = position.executedSwaps.plus(ONE_BI);
+  position.totalExecutedSwaps = position.totalExecutedSwaps.plus(ONE_BI);
 
   if (updatedPositionState.remainingSwaps.equals(ZERO_BI)) {
     position.status = 'COMPLETED';
