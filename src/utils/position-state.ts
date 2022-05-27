@@ -131,24 +131,17 @@ export function registerPairSwap(id: string, position: Position, ratio: BigInt):
   return positionState;
 }
 
-export function permissionsModified(
-  currentPositionStateId: string,
-  event: PermissionsModified,
-  transaction: Transaction
-): PositionStateAndModifiedPermissions {
+export function permissionsModified(currentPositionStateId: string, event: PermissionsModified, transaction: Transaction): string[] {
   log.info('[PositionState] Permissions modified {}', [currentPositionStateId]);
   let currentPositionState = get(currentPositionStateId);
-  let newPositionState = createBasic(
-    currentPositionState.position,
-    currentPositionState.rate,
-    currentPositionState.startingSwap,
-    currentPositionState.lastSwap,
-    [],
-    transaction
-  );
 
-  let duplicatedPermissions = permissionsLibrary.duplicatePermissionsToPositionState(newPositionState.id, currentPositionState.permissions);
-  let duplicatedPermissionsIds = duplicatedPermissions.permissionsIds;
+  let newPositionPermissionsIds: string[] = currentPositionState.permissions;
+  let positionPermissions: PositionPermission[] = [];
+  for (let i: i32 = 0; i < currentPositionState.permissions.length; i++) {
+    let permission = permissionsLibrary.get(currentPositionState.permissions[i]);
+    positionPermissions.push(permission);
+  }
+
   let modifiedPermissions: string[] = [];
 
   // We iterate over every modification
@@ -156,16 +149,13 @@ export function permissionsModified(
   for (let i: i32 = 0; i < event.params.permissions.length; i++) {
     // Find modified permission in previous permissions
     let j = 0;
-    while (
-      j < duplicatedPermissions.permissions.length &&
-      event.params.permissions[i].operator != (duplicatedPermissions.permissions[j].operator as Bytes)
-    ) {
+    while (j < currentPositionState.permissions.length && event.params.permissions[i].operator != (positionPermissions[j].operator as Bytes)) {
       j++;
     }
 
-    let foundPermission = j < duplicatedPermissions.permissions.length;
+    let foundPermission = j < positionPermissions.length;
     if (foundPermission) {
-      modifiedPermissions.push(duplicatedPermissions.permissions[j].id);
+      modifiedPermissions.push(positionPermissions[j].id);
       if (event.params.permissions[i].permissions.length > 0) {
         // If new permissions.length > 0 => we update that operators permissions
         let permissions: string[] = [];
@@ -173,39 +163,31 @@ export function permissionsModified(
           // O(1)
           permissions.push(permissionsLibrary.permissionByIndex[event.params.permissions[i].permissions[k]]);
         }
-        duplicatedPermissions.permissions[j].permissions = permissions;
-        duplicatedPermissions.permissions[j].save();
+        positionPermissions[j].permissions = permissions;
+        positionPermissions[j].save();
       } else {
         // If new permission.length == 0 => Operator has no permissions => Remove position from permissions array and set it empty
         // so position action can read from it
-        duplicatedPermissions.permissions[j].permissions = [];
-        duplicatedPermissions.permissions[j].save();
-        duplicatedPermissionsIds.splice(duplicatedPermissionsIds.indexOf(duplicatedPermissions.permissionsIds[j]), 1);
+        // TODO: Delete positionPermissions[i] from storage of subgraph
+        positionPermissions[j].permissions = [];
+        positionPermissions[j].save();
+        newPositionPermissionsIds.splice(newPositionPermissionsIds.indexOf(positionPermissions[j].id), 1);
       }
     } else {
       // If emitted modification is not on a already created permission => create permission
       let permission = permissionsLibrary.createFromCommonPermissionsStruct(
-        newPositionState.id,
+        currentPositionState.id,
         permissionsLibrary.convertModifiedPermissionStructToCommon([event.params.permissions[i]])
       );
       modifiedPermissions.push(permission[0]);
-      duplicatedPermissionsIds.push(permission[0]);
+      newPositionPermissionsIds.push(permission[0]);
     }
   }
 
-  newPositionState.permissions = duplicatedPermissionsIds;
-  newPositionState.remainingSwaps = currentPositionState.remainingSwaps;
-  newPositionState.swapped = currentPositionState.swapped;
-  newPositionState.idleSwapped = currentPositionState.idleSwapped;
-  newPositionState.withdrawn = currentPositionState.withdrawn;
-  newPositionState.remainingLiquidity = currentPositionState.remainingLiquidity;
+  currentPositionState.permissions = newPositionPermissionsIds;
+  currentPositionState.save();
 
-  newPositionState.swappedBeforeModified = currentPositionState.swappedBeforeModified;
-  newPositionState.rateAccumulator = currentPositionState.rateAccumulator;
-
-  newPositionState.save();
-
-  return new PositionStateAndModifiedPermissions(newPositionState, modifiedPermissions);
+  return modifiedPermissions;
 }
 
 export class PositionStateAndModifiedPermissions {
