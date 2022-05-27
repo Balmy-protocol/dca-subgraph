@@ -39,7 +39,8 @@
     "prepare:optimism": "mustache config/optimism.json subgraph.template.yaml > subgraph.yaml",
     "prepare:optimism-kovan": "mustache config/optimism-kovan.json subgraph.template.yaml > subgraph.yaml",
     "prepare:polygon": "mustache config/polygon.json subgraph.template.yaml > subgraph.yaml",
-    "release": "standard-version"
+    "release": "standard-version",
+    "test": "graph test"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.30.1",
