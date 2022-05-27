@@ -28,7 +28,6 @@ export function create(event: Deposited, transaction: Transaction): Position {
     position.to = to.id;
     position.pair = pair.id;
     position.swapInterval = event.params.swapInterval.toString();
-    position.startedAtSwap = event.params.startingSwap;
     position.totalWithdrawn = ZERO_BI;
     position.totalSwapped = ZERO_BI;
     position.executedSwaps = ZERO_BI;
