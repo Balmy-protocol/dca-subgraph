@@ -1,29 +1,16 @@
-import { log, BigInt, Bytes, store } from '@graphprotocol/graph-ts';
-import { DepositedPermissionsStruct } from '../../generated/Hub/Hub';
-import { Position, PositionPermission, PositionState, Transaction } from '../../generated/schema';
-import { Modified as PermissionsModified } from '../../generated/PermissionsManager/PermissionsManager';
+import { log, BigInt } from '@graphprotocol/graph-ts';
+import { Position, PositionState, Transaction } from '../../generated/schema';
 import { ONE_BI, ZERO_BI } from './constants';
 import * as tokenLibrary from './token';
-import * as permissionsLibrary from './permissions';
 
 // Creates position state  with zero-ed values.
-export function createBasic(
-  positionId: string,
-  rate: BigInt,
-  startingSwap: BigInt,
-  lastSwap: BigInt,
-  permissions: permissionsLibrary.CommonPermissionsStruct[],
-  transaction: Transaction
-): PositionState {
+export function createBasic(positionId: string, rate: BigInt, startingSwap: BigInt, lastSwap: BigInt, transaction: Transaction): PositionState {
   let id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionState] Create basic {}', [id]);
   let positionState = PositionState.load(id);
   if (positionState == null) {
     positionState = new PositionState(id);
     positionState.position = positionId;
-
-    let createdPermissions = permissionsLibrary.createFromCommonPermissionsStruct(id, permissions);
-    positionState.permissions = createdPermissions;
 
     positionState.rate = rate;
     positionState.startingSwap = startingSwap;
@@ -54,18 +41,13 @@ export function createComposed(
   startingSwap: BigInt,
   lastSwap: BigInt,
   swappedBeforeModified: BigInt,
-  permissions: string[],
   transaction: Transaction
 ): PositionState {
   let id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionState] Create composed {}', [id]);
-  let positionState = createBasic(positionId, rate, startingSwap, lastSwap, [], transaction);
+  let positionState = createBasic(positionId, rate, startingSwap, lastSwap, transaction);
   positionState.idleSwapped = swappedBeforeModified;
   positionState.swappedBeforeModified = swappedBeforeModified;
-  // duplicate permissions
-  let duplicatedPermissions = permissionsLibrary.duplicatePermissionsToPositionState(id, permissions).permissionsIds;
-  positionState.permissions = duplicatedPermissions;
-  //
   positionState.save();
   return positionState;
 }
@@ -102,14 +84,6 @@ export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
   return positionState;
 }
 
-export function registerTransfered(id: string): PositionState {
-  log.info('[PositionState] Register transfered {}', [id]);
-  let positionState = get(id);
-  positionState.permissions = [];
-  positionState.save();
-  return positionState;
-}
-
 export function registerPairSwap(id: string, position: Position, ratio: BigInt): PositionState {
   log.info('[PositionState] Register pair swap {}', [id]);
   let positionState = get(id);
@@ -129,65 +103,6 @@ export function registerPairSwap(id: string, position: Position, ratio: BigInt):
   // TODO: lastUpdatedAt
   positionState.save();
   return positionState;
-}
-
-export function permissionsModified(currentPositionStateId: string, event: PermissionsModified, transaction: Transaction): string[] {
-  log.info('[PositionState] Permissions modified {}', [currentPositionStateId]);
-  let currentPositionState = get(currentPositionStateId);
-
-  let newPositionPermissionsIds: string[] = currentPositionState.permissions;
-  let positionPermissions: PositionPermission[] = [];
-  for (let i: i32 = 0; i < currentPositionState.permissions.length; i++) {
-    let permission = permissionsLibrary.get(currentPositionState.permissions[i]);
-    positionPermissions.push(permission);
-  }
-
-  let modifiedPermissions: string[] = [];
-
-  // We iterate over every modification
-  // O(n)
-  for (let i: i32 = 0; i < event.params.permissions.length; i++) {
-    // Find modified permission in previous permissions
-    let j = 0;
-    while (j < currentPositionState.permissions.length && event.params.permissions[i].operator != (positionPermissions[j].operator as Bytes)) {
-      j++;
-    }
-
-    let foundPermission = j < positionPermissions.length;
-    if (foundPermission) {
-      modifiedPermissions.push(positionPermissions[j].id);
-      if (event.params.permissions[i].permissions.length > 0) {
-        // If new permissions.length > 0 => we update that operators permissions
-        let permissions: string[] = [];
-        for (let k: i32 = 0; k < event.params.permissions[i].permissions.length; k++) {
-          // O(1)
-          permissions.push(permissionsLibrary.permissionByIndex[event.params.permissions[i].permissions[k]]);
-        }
-        positionPermissions[j].permissions = permissions;
-        positionPermissions[j].save();
-      } else {
-        // If new permission.length == 0 => Operator has no permissions => Remove position from permissions array and set it empty
-        // so position action can read from it
-        // TODO: Delete positionPermissions[i] from storage of subgraph
-        positionPermissions[j].permissions = [];
-        positionPermissions[j].save();
-        newPositionPermissionsIds.splice(newPositionPermissionsIds.indexOf(positionPermissions[j].id), 1);
-      }
-    } else {
-      // If emitted modification is not on a already created permission => create permission
-      let permission = permissionsLibrary.createFromCommonPermissionsStruct(
-        currentPositionState.id,
-        permissionsLibrary.convertModifiedPermissionStructToCommon([event.params.permissions[i]])
-      );
-      modifiedPermissions.push(permission[0]);
-      newPositionPermissionsIds.push(permission[0]);
-    }
-  }
-
-  currentPositionState.permissions = newPositionPermissionsIds;
-  currentPositionState.save();
-
-  return modifiedPermissions;
 }
 
 export class PositionStateAndModifiedPermissions {
