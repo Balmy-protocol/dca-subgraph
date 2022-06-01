@@ -1,4 +1,4 @@
-import { log, BigInt, Address, Bytes } from '@graphprotocol/graph-ts';
+import { log, BigInt, Address, Bytes, store } from '@graphprotocol/graph-ts';
 import { Transaction, Position, PairSwap, Pair, PositionState } from '../../generated/schema';
 import { Deposited, Modified, Terminated } from '../../generated/Hub/Hub';
 import { Modified as PermissionsModified } from '../../generated/PermissionsManager/PermissionsManager';
@@ -28,33 +28,26 @@ export function create(event: Deposited, transaction: Transaction): Position {
     position.to = to.id;
     position.pair = pair.id;
     position.swapInterval = event.params.swapInterval.toString();
+
+    position.status = 'ACTIVE';
+    position.permissions = permissionsLibrary.createFromCommonPermissionsStruct(
+      id,
+      permissionsLibrary.convertDepositedPermissionStructToCommon(event.params.permissions)
+    );
+
     position.totalWithdrawn = ZERO_BI;
     position.totalSwapped = ZERO_BI;
-    position.executedSwaps = ZERO_BI;
-    position.status = 'ACTIVE';
+    position.totalExecutedSwaps = ZERO_BI;
+
     position.transaction = transaction.id;
     position.createdAtBlock = transaction.blockNumber;
     position.createdAtTimestamp = transaction.timestamp;
 
     // Create position state
-    let positionState = positionStateLibrary.createBasic(
-      id,
-      event.params.rate,
-      event.params.startingSwap,
-      event.params.lastSwap,
-      permissionsLibrary.convertDepositedPermissionStructToCommon(event.params.permissions),
-      transaction
-    );
+    let positionState = positionStateLibrary.createBasic(id, event.params.rate, event.params.startingSwap, event.params.lastSwap, transaction);
 
     // Create position action
-    positionActionLibrary.create(
-      id,
-      event.params.rate,
-      event.params.startingSwap,
-      event.params.lastSwap,
-      positionState.permissions,
-      transaction
-    );
+    positionActionLibrary.create(id, event.params.rate, event.params.startingSwap, event.params.lastSwap, position.permissions, transaction);
 
     position.totalDeposits = event.params.rate.times(positionState.remainingSwaps);
     position.totalSwaps = positionState.remainingSwaps;
@@ -85,7 +78,6 @@ export function modified(event: Modified, transaction: Transaction): Position {
     event.params.startingSwap,
     event.params.lastSwap,
     previousPositionState.idleSwapped,
-    previousPositionState.permissions,
     transaction
   );
   let oldPositionRate = previousPositionState.rate;
@@ -204,7 +196,7 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   //
   position.current = updatedPositionState.id;
   position.totalSwapped = position.totalSwapped.plus(swapped);
-  position.executedSwaps = position.executedSwaps.plus(ONE_BI);
+  position.totalExecutedSwaps = position.totalExecutedSwaps.plus(ONE_BI);
 
   if (updatedPositionState.remainingSwaps.equals(ZERO_BI)) {
     position.status = 'COMPLETED';
@@ -220,17 +212,18 @@ export function transfer(event: Transfer, transaction: Transaction): void {
   let position = Position.load(id);
   if (position != null) {
     position.user = event.params.to as Bytes;
-    positionStateLibrary.registerTransfered(position.current);
+    permissionsLibrary.deleteAll(position.permissions);
     positionActionLibrary.transfered(id, event.params.from, event.params.to, transaction);
+    position.permissions = [];
     position.save();
   }
 }
 
 export function permissionsModified(event: PermissionsModified, transaction: Transaction): Position {
   let position = getById(event.params.tokenId.toString());
-  let positionStateAndModifiedPermissions = positionStateLibrary.permissionsModified(position.current, event, transaction);
-  positionActionLibrary.permissionsModified(position.id, positionStateAndModifiedPermissions.modifiedPermissions, transaction);
-  position.current = positionStateAndModifiedPermissions.positionState.id;
+  let newAndModifiedPermissionsIds = permissionsLibrary.permissionsModified(position.id, event);
+  position.permissions = newAndModifiedPermissionsIds.newPermissions;
+  positionActionLibrary.permissionsModified(position.id, newAndModifiedPermissionsIds.modified, transaction);
   position.save();
   return position;
 }
