@@ -1,21 +1,16 @@
-name: Canary deployment
+name: Deploy to all canary subgraphs
 
 on:
   workflow_dispatch:
-    inputs:
-      network:
-        description: "The subgraph's network to update"
-        required: true
-        type: choice
-        options:
-          - "arbitrum:mainnet"
-          - "mumbai"
-          - "optimism:mainnet"
-          - "polygon"
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        network-name: ["arbtrium", "mumbai", "optimism", "polygon"]
+        network-deploy-script:
+          ["arbitrum:mainnet", "mumbai", "optimism:mainnet", "polygon"]
     steps:
       - name: Check out github repository
         uses: actions/checkout@v2
@@ -47,5 +42,5 @@ jobs:
       - name: Generating code
         run: yarn codegen
 
-      - name: Deploy subgraph
-        run: yarn deploy:${{ github.event.inputs.network }}
+      - name: Deploying subgraph to ${{ matrix.network-name }}
+        run: yarn deploy:${{ matrix.network-deploy-script }}
