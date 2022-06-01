@@ -114,15 +114,17 @@ export function removeActivePosition(position: Position): Pair {
     let newActivePositionIds = pair.activePositionIds;
     newActivePositionIds.splice(newActivePositionIds.indexOf(position.id), 1);
     pair.activePositionIds = newActivePositionIds;
+
+    // Remove from active positions per interval
+    let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
+    let activePositionsPerInterval = pair.activePositionsPerInterval;
+    activePositionsPerInterval[indexOfPositionInterval] = activePositionsPerInterval[indexOfPositionInterval].minus(ONE_BI);
+    pair.activePositionsPerInterval = activePositionsPerInterval;
+
+    // Get new next swap available at
+    pair.nextSwapAvailableAt = getNextSwapAvailableAt(activePositionsPerInterval, pair.lastSwappedAt);
+    pair.save();
   }
-  // Remove from active positions per interval
-  let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
-  let activePositionsPerInterval = pair.activePositionsPerInterval;
-  activePositionsPerInterval[indexOfPositionInterval] = activePositionsPerInterval[indexOfPositionInterval].minus(ONE_BI);
-  pair.activePositionsPerInterval = activePositionsPerInterval;
-  // Get new next swap available at
-  pair.nextSwapAvailableAt = getNextSwapAvailableAt(activePositionsPerInterval, pair.lastSwappedAt);
-  pair.save();
   return pair;
 }
 
