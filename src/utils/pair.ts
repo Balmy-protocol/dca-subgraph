@@ -110,27 +110,21 @@ export function removeActivePosition(position: Position): Pair {
   log.info('[Pair] Remove active position {}', [position.pair]);
   let pair = get(position.pair)!;
   // Remove from active positions
-  let newActivePositionIds = pair.activePositionIds;
-  let found = false;
-  // This can be greatly optimizied by saving index of active position on position.
-  for (let i: i32 = 0; i < newActivePositionIds.length && !found; i++) {
-    if (newActivePositionIds[i] == position.id) {
-      let aux = newActivePositionIds[newActivePositionIds.length - 1];
-      newActivePositionIds[newActivePositionIds.length - 1] = newActivePositionIds[i];
-      newActivePositionIds[i] = aux;
-      newActivePositionIds.pop();
-      found = true;
-    }
+  if (pair.activePositionIds.includes(position.id)) {
+    let newActivePositionIds = pair.activePositionIds;
+    newActivePositionIds.splice(newActivePositionIds.indexOf(position.id), 1);
+    pair.activePositionIds = newActivePositionIds;
+
+    // Remove from active positions per interval
+    let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
+    let activePositionsPerInterval = pair.activePositionsPerInterval;
+    activePositionsPerInterval[indexOfPositionInterval] = activePositionsPerInterval[indexOfPositionInterval].minus(ONE_BI);
+    pair.activePositionsPerInterval = activePositionsPerInterval;
+
+    // Get new next swap available at
+    pair.nextSwapAvailableAt = getNextSwapAvailableAt(activePositionsPerInterval, pair.lastSwappedAt);
+    pair.save();
   }
-  pair.activePositionIds = newActivePositionIds;
-  // Remove from active positions per interval
-  let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
-  let activePositionsPerInterval = pair.activePositionsPerInterval;
-  activePositionsPerInterval[indexOfPositionInterval] = activePositionsPerInterval[indexOfPositionInterval].minus(ONE_BI);
-  pair.activePositionsPerInterval = activePositionsPerInterval;
-  // Get new next swap available at
-  pair.nextSwapAvailableAt = getNextSwapAvailableAt(activePositionsPerInterval, pair.lastSwappedAt);
-  pair.save();
   return pair;
 }
 
