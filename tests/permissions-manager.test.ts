@@ -68,8 +68,8 @@ test('Deposit with permissions creates the correct permissions', () => {
   assert.stringEquals(permission.permissions[0], 'INCREASE');
 });
 
-test('Adds permission to already existing one, doesnt create new entity', () => {});
+// test('Adds permission to already existing one, doesnt create new entity', () => {});
 
-test('Deleting all permissions of a user from a position, deletes entity', () => {});
+// test('Deleting all permissions of a user from a position, deletes entity', () => {});
 
-test('Transferring a position resets all their permissions', () => {});
+// test('Transferring a position resets all their permissions', () => {});

@@ -43,16 +43,3 @@ export function createDepositedEvent(
   );
   return newDepositedEvent;
 }
-
-// event Deposited(
-//   address indexed depositor,
-//   address indexed owner,
-//   uint256 positionId,
-//   address fromToken,
-//   address toToken,
-//   uint32 swapInterval,
-//   uint120 rate,
-//   uint32 startingSwap,
-//   uint32 lastSwap,
-//   IDCAPermissionManager.PermissionSet[] permissions
-// );

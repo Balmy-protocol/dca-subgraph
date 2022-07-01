@@ -73,11 +73,11 @@ export function permissionsModified(positionId: string, event: Modified): NewAnd
 }
 
 // Creates all permissions from deposited permissions struct
-export function createFromCommonPermissionsStruct(position: string, permissionSet: CommonPermissionsStruct[]): string[] {
-  log.info('[Permissions] Create from deposited {}', [position]);
+export function createFromCommonPermissionsStruct(positionId: string, permissionSet: CommonPermissionsStruct[]): string[] {
+  log.info('[Permissions] Create from deposited {}', [positionId]);
   let positionPermissionsIds: string[] = [];
   for (let i: i32 = 0; i < permissionSet.length; i++) {
-    let positionPermissionId = position.concat('-').concat(permissionSet[i].operator.toHexString());
+    let positionPermissionId = positionId.concat('-').concat(permissionSet[i].operator.toHexString());
     let positionPermission = new PositionPermission(positionPermissionId);
     positionPermission.operator = permissionSet[i].operator as Bytes;
     let permissions: string[] = [];
