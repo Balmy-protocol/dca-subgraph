@@ -63,13 +63,21 @@ export function permissionsModified(positionId: string, event: Modified): NewAnd
       }
     } else {
       // If emitted modification is not on a already created permission => create permission
-      let permission = createFromCommonPermissionsStruct(position.id, convertModifiedPermissionStructToCommon([event.params.permissions[i]]));
+      let permission = createFromModifiedPermissionsStruct(position.id, [event.params.permissions[i]]);
       modifiedPermissions.push(permission[0]);
       newPositionPermissionsIds.push(permission[0]);
     }
   }
 
   return new NewAndModifiedPermissionsIds(newPositionPermissionsIds, modifiedPermissions);
+}
+
+export function createFromDepositedPermissionsStruct(positionId: string, permissionSet: DepositedPermissionsStruct[]): string[] {
+  return createFromCommonPermissionsStruct(positionId, convertDepositedPermissionStructToCommon(permissionSet));
+}
+
+export function createFromModifiedPermissionsStruct(positionId: string, permissionSet: ModifiedPermissionsStruct[]): string[] {
+  return createFromCommonPermissionsStruct(positionId, convertModifiedPermissionStructToCommon(permissionSet));
 }
 
 // Creates all permissions from deposited permissions struct

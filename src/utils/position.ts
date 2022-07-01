@@ -30,10 +30,7 @@ export function create(event: Deposited, transaction: Transaction): Position {
     position.swapInterval = event.params.swapInterval.toString();
 
     position.status = 'ACTIVE';
-    position.permissions = permissionsLibrary.createFromCommonPermissionsStruct(
-      id,
-      permissionsLibrary.convertDepositedPermissionStructToCommon(event.params.permissions)
-    );
+    position.permissions = permissionsLibrary.createFromDepositedPermissionsStruct(id, event.params.permissions);
 
     position.totalWithdrawn = ZERO_BI;
     position.totalSwapped = ZERO_BI;
