@@ -22,7 +22,7 @@ export function create(id: string, token0Address: Address, token1Address: Addres
     pair.amountToSwapTokenA = [ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI];
     pair.amountToSwapTokenB = [ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI];
     pair.nextSwapAvailableAt = MAX_BI;
-    pair.lastSwappedAt = ZERO_BI;
+    pair.lastSwappedAt = [ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI];
     pair.transaction = transaction.id;
     pair.createdAtBlock = transaction.blockNumber;
     pair.createdAtTimestamp = transaction.timestamp;
@@ -52,6 +52,7 @@ export function swapped(event: Swapped, transaction: Transaction): void {
     let id = pairs[i].tokenA.toHexString().concat('-').concat(pairs[i].tokenB.toHexString());
     let pair = get(id)!;
     let intervals = intervalsFromBytes(pairs[i].intervalsInSwap);
+    // Check if there was any interval in the swap
     let hasExecutedSwaps = intervals.length !== 0;
     if (!hasExecutedSwaps) {
       continue;
@@ -61,16 +62,31 @@ export function swapped(event: Swapped, transaction: Transaction): void {
     let activePositionIds = pair.activePositionIds;
     let newActivePositionsPerInterval = pair.activePositionsPerInterval;
     let newActivePositionIds = pair.activePositionIds;
+    let newLastSwappedAt = pair.lastSwappedAt;
     let amountToSwapTokenA = pair.amountToSwapTokenA;
     let amountToSwapTokenB = pair.amountToSwapTokenB;
+    // Update all last swaped at by interval
+    for (let x: i32 = 0; x < intervals.length; x++) {
+      let indexOfInterval = getIndexOfInterval(intervals[x]);
+      if (newActivePositionsPerInterval[indexOfInterval].gt(ZERO_BI)) {
+        newLastSwappedAt[indexOfInterval] = transaction.timestamp;
+      }
+    }
+    // Iterate all pairs active position
     for (let x: i32 = 0; x < activePositionIds.length; x++) {
       // O(m)
+      // Check if we are executing the interval that the position has
       if (positionLibrary.shouldRegisterPairSwap(activePositionIds[x], intervals)) {
+        // Applies swap to position.
         let positionAndState = positionLibrary.registerPairSwap(activePositionIds[x], pair, pairSwap, transaction); // O(1)
+        // If remaining swap is zero, we need to do some further modifications
         if (positionAndState.positionState.remainingSwaps.equals(ZERO_BI)) {
+          // Take position from active positions
           newActivePositionIds.splice(newActivePositionIds.indexOf(positionAndState.position.id), 1); // O(x + x), where worst x scenario x = m
           let indexOfInterval = getIndexOfInterval(BigInt.fromString(positionAndState.position.swapInterval));
+          // Reduce active positions per interval
           newActivePositionsPerInterval[indexOfInterval] = newActivePositionsPerInterval[indexOfInterval].minus(ONE_BI);
+          // Reduce the amount to swap from token A or B by the rate of this position.
           if (positionAndState.position.from == pair.tokenA) {
             amountToSwapTokenA[indexOfInterval] = amountToSwapTokenA[indexOfInterval].minus(positionAndState.positionState.rate);
           } else {
@@ -79,9 +95,10 @@ export function swapped(event: Swapped, transaction: Transaction): void {
         }
       }
     }
+    // Update all pair's information
     pair.activePositionIds = newActivePositionIds;
     pair.activePositionsPerInterval = newActivePositionsPerInterval;
-    pair.lastSwappedAt = transaction.timestamp;
+    pair.lastSwappedAt = newLastSwappedAt;
     pair.nextSwapAvailableAt = getNextSwapAvailableAt(newActivePositionsPerInterval, pair.lastSwappedAt);
     pair.amountToSwapTokenA = amountToSwapTokenA;
     pair.amountToSwapTokenB = amountToSwapTokenB;
@@ -183,14 +200,14 @@ export function substractAmountToSwap(position: Position, rateToSubstract: BigIn
   return pair;
 }
 
-export function getNextSwapAvailableAt(activePositionsPerInterval: BigInt[], lastSwappedAt: BigInt): BigInt {
+export function getNextSwapAvailableAt(activePositionsPerInterval: BigInt[], lastSwappedAt: BigInt[]): BigInt {
   let intervals = getIntervals();
-  let indexOfCloserInterval = activePositionsPerInterval.length + 1;
+  let indexOfSmallerInterval = activePositionsPerInterval.length + 1;
   let i: i32 = 0;
-  while (i < activePositionsPerInterval.length && indexOfCloserInterval == activePositionsPerInterval.length + 1) {
-    if (activePositionsPerInterval[i].gt(ZERO_BI)) indexOfCloserInterval = i;
+  while (i < activePositionsPerInterval.length && indexOfSmallerInterval == activePositionsPerInterval.length + 1) {
+    if (activePositionsPerInterval[i].gt(ZERO_BI)) indexOfSmallerInterval = i;
     i++;
   }
-  if (indexOfCloserInterval == activePositionsPerInterval.length + 1) return MAX_BI;
-  return lastSwappedAt.div(intervals[indexOfCloserInterval]).plus(ONE_BI).times(intervals[indexOfCloserInterval]);
+  if (indexOfSmallerInterval == activePositionsPerInterval.length + 1) return MAX_BI;
+  return lastSwappedAt[indexOfSmallerInterval].div(intervals[indexOfSmallerInterval]).plus(ONE_BI).times(intervals[indexOfSmallerInterval]);
 }

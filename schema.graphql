@@ -27,7 +27,7 @@ type Pair @entity {
   "how much token B is going to be swapped per interval"
   amountToSwapTokenB: [BigInt!]!
   "last swapped executed at"
-  lastSwappedAt: BigInt!
+  lastSwappedAt: [BigInt!]!
   "swaps"
   swaps: [PairSwap!]! @derivedFrom(field: "pair")
   "swaps intervals"
