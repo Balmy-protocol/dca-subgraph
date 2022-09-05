@@ -19,8 +19,6 @@ export function create(id: string, token0Address: Address, token1Address: Addres
     pair.tokenB = token0ComesFirst ? token1.id : token0.id;
     pair.activePositionIds = new Array<string>();
     pair.activePositionsPerInterval = [ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI];
-    pair.amountToSwapTokenA = [ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI];
-    pair.amountToSwapTokenB = [ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI];
     pair.nextSwapAvailableAt = MAX_BI;
     pair.lastSwappedAt = [ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI];
     pair.transaction = transaction.id;
@@ -63,8 +61,6 @@ export function swapped(event: Swapped, transaction: Transaction): void {
     let newActivePositionsPerInterval = pair.activePositionsPerInterval;
     let newActivePositionIds = pair.activePositionIds;
     let newLastSwappedAt = pair.lastSwappedAt;
-    let amountToSwapTokenA = pair.amountToSwapTokenA;
-    let amountToSwapTokenB = pair.amountToSwapTokenB;
     // Update all last swaped at by interval
     for (let x: i32 = 0; x < intervals.length; x++) {
       let indexOfInterval = getIndexOfInterval(intervals[x]);
@@ -86,12 +82,6 @@ export function swapped(event: Swapped, transaction: Transaction): void {
           let indexOfInterval = getIndexOfInterval(BigInt.fromString(positionAndState.position.swapInterval));
           // Reduce active positions per interval
           newActivePositionsPerInterval[indexOfInterval] = newActivePositionsPerInterval[indexOfInterval].minus(ONE_BI);
-          // Reduce the amount to swap from token A or B by the rate of this position.
-          if (positionAndState.position.from == pair.tokenA) {
-            amountToSwapTokenA[indexOfInterval] = amountToSwapTokenA[indexOfInterval].minus(positionAndState.positionState.rate);
-          } else {
-            amountToSwapTokenB[indexOfInterval] = amountToSwapTokenB[indexOfInterval].minus(positionAndState.positionState.rate);
-          }
         }
       }
     }
@@ -100,8 +90,6 @@ export function swapped(event: Swapped, transaction: Transaction): void {
     pair.activePositionsPerInterval = newActivePositionsPerInterval;
     pair.lastSwappedAt = newLastSwappedAt;
     pair.nextSwapAvailableAt = getNextSwapAvailableAt(newActivePositionsPerInterval, pair.lastSwappedAt);
-    pair.amountToSwapTokenA = amountToSwapTokenA;
-    pair.amountToSwapTokenB = amountToSwapTokenB;
     pair.save();
   }
 } // O (n*2m) ?
@@ -155,48 +143,6 @@ export function removeActivePosition(position: Position): Pair {
 
     pair.save();
   }
-  return pair;
-}
-
-export function addAmountToSwap(position: Position, rateToAdd: BigInt): Pair {
-  log.info('[Pair] Add amount to swap {}', [position.pair]);
-  let pair = get(position.pair)!;
-
-  let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
-
-  let amountToSwapTokenA = pair.amountToSwapTokenA;
-  let amountToSwapTokenB = pair.amountToSwapTokenB;
-  if (position.from == pair.tokenA) {
-    amountToSwapTokenA[indexOfPositionInterval] = amountToSwapTokenA[indexOfPositionInterval].plus(rateToAdd);
-  } else {
-    amountToSwapTokenB[indexOfPositionInterval] = amountToSwapTokenB[indexOfPositionInterval].plus(rateToAdd);
-  }
-  pair.amountToSwapTokenA = amountToSwapTokenA;
-  pair.amountToSwapTokenB = amountToSwapTokenB;
-
-  pair.save();
-
-  return pair;
-}
-
-export function substractAmountToSwap(position: Position, rateToSubstract: BigInt): Pair {
-  log.info('[Pair] Remove amount to swap {}', [position.pair]);
-  let pair = get(position.pair)!;
-
-  let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
-
-  let amountToSwapTokenA = pair.amountToSwapTokenA;
-  let amountToSwapTokenB = pair.amountToSwapTokenB;
-  if (position.from == pair.tokenA) {
-    amountToSwapTokenA[indexOfPositionInterval] = amountToSwapTokenA[indexOfPositionInterval].minus(rateToSubstract);
-  } else {
-    amountToSwapTokenB[indexOfPositionInterval] = amountToSwapTokenB[indexOfPositionInterval].minus(rateToSubstract);
-  }
-  pair.amountToSwapTokenA = amountToSwapTokenA;
-  pair.amountToSwapTokenB = amountToSwapTokenB;
-
-  pair.save();
-
   return pair;
 }
 

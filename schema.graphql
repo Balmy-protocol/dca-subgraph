@@ -22,10 +22,6 @@ type Pair @entity {
   positions: [Position!]! @derivedFrom(field: "pair")
   "when is pair going to be available to swap"
   nextSwapAvailableAt: BigInt!
-  "how much token A is going to be swapped per interval"
-  amountToSwapTokenA: [BigInt!]!
-  "how much token B is going to be swapped per interval"
-  amountToSwapTokenB: [BigInt!]!
   "last swapped executed at"
   lastSwappedAt: [BigInt!]!
   "swaps"
