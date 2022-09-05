@@ -96,10 +96,6 @@ type PositionState @entity {
 
   "rate"
   rate: BigInt!
-  "starting swap"
-  startingSwap: BigInt!
-  "last swap"
-  lastSwap: BigInt!
 
   "remaining swaps"
   remainingSwaps: BigInt!

@@ -13,8 +13,6 @@ export function createBasic(positionId: string, rate: BigInt, startingSwap: BigI
     positionState.position = positionId;
 
     positionState.rate = rate;
-    positionState.startingSwap = startingSwap;
-    positionState.lastSwap = lastSwap;
 
     positionState.remainingSwaps = lastSwap.minus(startingSwap).plus(ONE_BI);
     positionState.swapped = ZERO_BI;

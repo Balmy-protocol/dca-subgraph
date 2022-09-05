@@ -82,7 +82,6 @@ export function modified(event: Modified, transaction: Transaction): Position {
   position.totalDeposited = position.totalDeposited.minus(previousPositionState.remainingLiquidity).plus(newPositionState.remainingLiquidity);
   position.totalSwaps = position.totalSwaps.minus(previousPositionState.remainingSwaps).plus(newPositionState.remainingSwaps);
   position.current = newPositionState.id;
-  let oldPositionStatus = position.status;
   // Remove position from active pairs if modified to have zero remaining swaps (soft termination)
   if (newPositionState.remainingSwaps.equals(ZERO_BI)) {
     pairLibrary.removeActivePosition(position);
@@ -94,7 +93,7 @@ export function modified(event: Modified, transaction: Transaction): Position {
   position.save();
   //
   // Position action
-  if (!previousPositionState.rate.equals(event.params.rate) && !previousPositionState.lastSwap.equals(event.params.lastSwap)) {
+  if (!previousPositionState.rate.equals(event.params.rate) && !newPositionState.remainingSwaps.equals(oldRemainingSwaps)) {
     positionActionLibrary.modifiedRateAndDuration(
       id,
       event.params.rate,
