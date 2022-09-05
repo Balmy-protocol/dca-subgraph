@@ -69,7 +69,6 @@ export function registerTerminated(id: string): PositionState {
   positionState.withdrawn = positionState.withdrawn.plus(positionState.idleSwapped);
   positionState.remainingLiquidity = ZERO_BI;
 
-  // TODO: lastUpdatedAt
   positionState.save();
   return positionState;
 }
@@ -79,7 +78,6 @@ export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
   let positionState = get(id);
   positionState.idleSwapped = positionState.idleSwapped.minus(withdrawn);
   positionState.withdrawn = positionState.withdrawn.plus(withdrawn);
-  // TODO: lastUpdatedAt
   positionState.save();
   return positionState;
 }
@@ -100,7 +98,6 @@ export function registerPairSwap(id: string, position: Position, ratio: BigInt):
   positionState.remainingSwaps = positionState.remainingSwaps.minus(ONE_BI);
   positionState.remainingLiquidity = positionState.remainingLiquidity.minus(positionState.rate);
 
-  // TODO: lastUpdatedAt
   positionState.save();
   return positionState;
 }
