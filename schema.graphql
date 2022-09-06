@@ -96,17 +96,13 @@ type PositionState @entity {
 
   "rate"
   rate: BigInt!
-  "starting swap"
-  startingSwap: BigInt!
-  "last swap"
-  lastSwap: BigInt!
 
   "remaining swaps"
   remainingSwaps: BigInt!
   "total swapped from -> to (expressed in TO token)"
   swapped: BigInt!
-  "to be withdrawn (swapped, not withrawn, expressed in TO token)"
-  idleSwapped: BigInt!
+  "to be withdrawn (swapped not withrawn. previously named as idleSwapped. expressed in TO token)"
+  toWithdraw: BigInt!
   "withdrawn (expressed in TO token)"
   withdrawn: BigInt!
   "remaining liquidity (expressed in FROM token)"
@@ -115,8 +111,8 @@ type PositionState @entity {
   # Mimic on-chain swapped amounts
   "swapped before modified"
   swappedBeforeModified: BigInt!
-  "rates accumulator"
-  rateAccumulator: BigInt!
+  "ratio accumulator. refers to on-chain rate accumulator"
+  ratioAccumulator: BigInt!
 
   "transaction"
   transaction: Transaction!
@@ -151,14 +147,14 @@ type PairSwap @entity {
   swapper: Bytes!
   "pair swap intervals"
   pairSwapsIntervals: [PairSwapInterval!]! @derivedFrom(field: "pairSwap")
-  "rate per unit b to a"
-  ratePerUnitBToA: BigInt!
-  "rate per unit b to a with fee subtracted"
-  ratePerUnitBToAWithFee: BigInt!
-  "rate per unit a to b"
-  ratePerUnitAToB: BigInt!
-  "rate per unit a to b with fee subtracted"
-  ratePerUnitAToBWithFee: BigInt!
+  "ratio unit b to a"
+  ratioPerUnitBToA: BigInt!
+  "ratio unit b to a with fee subtracted"
+  ratioPerUnitBToAWithFee: BigInt!
+  "ratio unit a to b"
+  ratioPerUnitAToB: BigInt!
+  "ratio unit a to b with fee subtracted"
+  ratioPerUnitAToBWithFee: BigInt!
   "executed with transaction"
   transaction: Transaction!
   "executed at block number"
@@ -337,10 +333,10 @@ type SwappedAction implements PositionActionInterface @entity {
   "rate (expressed in from)"
   rate: BigInt
 
-  "rate per unit b to a with fee subtracted"
-  ratePerUnitBToAWithFee: BigInt
-  "rate per unit a to b with fee subtracted"
-  ratePerUnitAToBWithFee: BigInt
+  "ratio unit b to a with fee subtracted"
+  ratioPerUnitBToAWithFee: BigInt
+  "ratio unit a to b with fee subtracted"
+  ratioPerUnitAToBWithFee: BigInt
 
   "transaction"
   transaction: Transaction!
@@ -365,7 +361,6 @@ type TransferedAction implements PositionActionInterface @entity {
   "to whom it transfers"
   to: Bytes!
 
-  "transaction"
   transaction: Transaction!
   "createdAtBlock"
   createdAtBlock: BigInt!

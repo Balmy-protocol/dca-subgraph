@@ -13,17 +13,15 @@ export function createBasic(positionId: string, rate: BigInt, startingSwap: BigI
     positionState.position = positionId;
 
     positionState.rate = rate;
-    positionState.startingSwap = startingSwap;
-    positionState.lastSwap = lastSwap;
 
     positionState.remainingSwaps = lastSwap.minus(startingSwap).plus(ONE_BI);
     positionState.swapped = ZERO_BI;
-    positionState.idleSwapped = ZERO_BI;
+    positionState.toWithdraw = ZERO_BI;
     positionState.withdrawn = ZERO_BI;
     positionState.remainingLiquidity = rate.times(positionState.remainingSwaps);
 
     positionState.swappedBeforeModified = ZERO_BI;
-    positionState.rateAccumulator = ZERO_BI;
+    positionState.ratioAccumulator = ZERO_BI;
 
     positionState.transaction = transaction.id;
     positionState.createdAtBlock = transaction.blockNumber;
@@ -33,7 +31,7 @@ export function createBasic(positionId: string, rate: BigInt, startingSwap: BigI
   return positionState;
 }
 
-// Creates a position state were all values are zero-ed except for idleSwapped and swappedBeforeModified. Only used when
+// Creates a position state were all values are zero-ed except for toWithdraw and swappedBeforeModified. Only used when
 // position was modified
 export function createComposed(
   positionId: string,
@@ -46,7 +44,7 @@ export function createComposed(
   let id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionState] Create composed {}', [id]);
   let positionState = createBasic(positionId, rate, startingSwap, lastSwap, transaction);
-  positionState.idleSwapped = swappedBeforeModified;
+  positionState.toWithdraw = swappedBeforeModified;
   positionState.swappedBeforeModified = swappedBeforeModified;
   positionState.save();
   return positionState;
@@ -65,8 +63,8 @@ export function registerTerminated(id: string): PositionState {
   positionState.rate = ZERO_BI;
 
   positionState.remainingSwaps = ZERO_BI;
-  positionState.idleSwapped = ZERO_BI;
-  positionState.withdrawn = positionState.withdrawn.plus(positionState.idleSwapped);
+  positionState.toWithdraw = ZERO_BI;
+  positionState.withdrawn = positionState.withdrawn.plus(positionState.toWithdraw);
   positionState.remainingLiquidity = ZERO_BI;
 
   positionState.save();
@@ -76,7 +74,7 @@ export function registerTerminated(id: string): PositionState {
 export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
   log.info('[PositionState] Register withdrew {}', [id]);
   let positionState = get(id);
-  positionState.idleSwapped = positionState.idleSwapped.minus(withdrawn);
+  positionState.toWithdraw = positionState.toWithdraw.minus(withdrawn);
   positionState.withdrawn = positionState.withdrawn.plus(withdrawn);
   positionState.save();
   return positionState;
@@ -87,13 +85,13 @@ export function registerPairSwap(id: string, position: Position, ratio: BigInt):
   let positionState = get(id);
   let from = tokenLibrary.getById(position.from);
 
-  positionState.rateAccumulator = positionState.rateAccumulator.plus(ratio);
+  positionState.ratioAccumulator = positionState.ratioAccumulator.plus(ratio);
 
-  let augmentedSwapped = positionState.rateAccumulator.times(positionState.rate);
+  let augmentedSwapped = positionState.ratioAccumulator.times(positionState.rate);
   let totalSwapped = augmentedSwapped.div(from.magnitude);
 
   positionState.swapped = positionState.swappedBeforeModified.plus(totalSwapped);
-  positionState.idleSwapped = positionState.swapped.minus(positionState.withdrawn);
+  positionState.toWithdraw = positionState.swapped.minus(positionState.withdrawn);
 
   positionState.remainingSwaps = positionState.remainingSwaps.minus(ONE_BI);
   positionState.remainingLiquidity = positionState.remainingLiquidity.minus(positionState.rate);

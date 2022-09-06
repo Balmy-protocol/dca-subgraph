@@ -74,7 +74,7 @@ export function modified(event: Modified, transaction: Transaction): Position {
     event.params.rate,
     event.params.startingSwap,
     event.params.lastSwap,
-    previousPositionState.idleSwapped,
+    previousPositionState.toWithdraw,
     transaction
   );
   let oldPositionRate = previousPositionState.rate;
@@ -82,7 +82,6 @@ export function modified(event: Modified, transaction: Transaction): Position {
   position.totalDeposited = position.totalDeposited.minus(previousPositionState.remainingLiquidity).plus(newPositionState.remainingLiquidity);
   position.totalSwaps = position.totalSwaps.minus(previousPositionState.remainingSwaps).plus(newPositionState.remainingSwaps);
   position.current = newPositionState.id;
-  let oldPositionStatus = position.status;
   // Remove position from active pairs if modified to have zero remaining swaps (soft termination)
   if (newPositionState.remainingSwaps.equals(ZERO_BI)) {
     pairLibrary.removeActivePosition(position);
@@ -94,7 +93,7 @@ export function modified(event: Modified, transaction: Transaction): Position {
   position.save();
   //
   // Position action
-  if (!previousPositionState.rate.equals(event.params.rate) && !previousPositionState.lastSwap.equals(event.params.lastSwap)) {
+  if (!previousPositionState.rate.equals(event.params.rate) && !newPositionState.remainingSwaps.equals(oldRemainingSwaps)) {
     positionActionLibrary.modifiedRateAndDuration(
       id,
       event.params.rate,
@@ -140,12 +139,12 @@ export function withdrew(positionId: string, transaction: Transaction): Position
   let position = getById(positionId);
   let currentState = positionStateLibrary.get(position.current);
   // Position state
-  positionStateLibrary.registerWithdrew(position.current, currentState.idleSwapped);
-  position.totalWithdrawn = position.totalWithdrawn.plus(currentState.idleSwapped);
+  positionStateLibrary.registerWithdrew(position.current, currentState.toWithdraw);
+  position.totalWithdrawn = position.totalWithdrawn.plus(currentState.toWithdraw);
   position.save();
   //
   // Position action
-  positionActionLibrary.withdrew(positionId, currentState.idleSwapped, transaction);
+  positionActionLibrary.withdrew(positionId, currentState.toWithdraw, transaction);
   //
   return position;
 }
@@ -166,7 +165,8 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   let position = getById(positionId);
   let currentState = positionStateLibrary.get(position.current);
 
-  let ratioFromTo = position.from == pair.tokenA ? pairSwap.ratePerUnitAToBWithFee : pairSwap.ratePerUnitBToAWithFee;
+  let ratioFromTo = position.from == pair.tokenA ? pairSwap.ratioPerUnitAToBWithFee : pairSwap.ratioPerUnitBToAWithFee;
+
   let rate = currentState.rate;
   // Position state
   let updatedPositionState = positionStateLibrary.registerPairSwap(position.current, position, ratioFromTo);
