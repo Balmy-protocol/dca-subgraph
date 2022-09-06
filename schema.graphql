@@ -115,8 +115,8 @@ type PositionState @entity {
   # Mimic on-chain swapped amounts
   "swapped before modified"
   swappedBeforeModified: BigInt!
-  "rates accumulator"
-  rateAccumulator: BigInt!
+  "ratio accumulator. refers to rate accumulator"
+  ratioAccumulator: BigInt!
 
   "transaction"
   transaction: Transaction!
@@ -186,9 +186,9 @@ type PositionAction @entity {
   withdrawn: BigInt
 
   "rate per unit b to a with fee subtracted"
-  ratePerUnitBToAWithFee: BigInt
+  ratioPerUnitBToAWithFee: BigInt
   "rate per unit a to b with fee subtracted"
-  ratePerUnitAToBWithFee: BigInt
+  ratioPerUnitAToBWithFee: BigInt
 
   "transaction"
   transaction: Transaction!
@@ -208,13 +208,13 @@ type PairSwap @entity {
   "pair swap intervals"
   pairSwapsIntervals: [PairSwapInterval!]! @derivedFrom(field: "pairSwap")
   "rate per unit b to a"
-  ratePerUnitBToA: BigInt!
+  ratioPerUnitBToA: BigInt!
   "rate per unit b to a with fee subtracted"
-  ratePerUnitBToAWithFee: BigInt!
+  ratioPerUnitBToAWithFee: BigInt!
   "rate per unit a to b"
-  ratePerUnitAToB: BigInt!
+  ratioPerUnitAToB: BigInt!
   "rate per unit a to b with fee subtracted"
-  ratePerUnitAToBWithFee: BigInt!
+  ratioPerUnitAToBWithFee: BigInt!
   "executed with transaction"
   transaction: Transaction!
   "executed at block number"

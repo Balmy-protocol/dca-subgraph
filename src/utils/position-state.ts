@@ -23,7 +23,7 @@ export function createBasic(positionId: string, rate: BigInt, startingSwap: BigI
     positionState.remainingLiquidity = rate.times(positionState.remainingSwaps);
 
     positionState.swappedBeforeModified = ZERO_BI;
-    positionState.rateAccumulator = ZERO_BI;
+    positionState.ratioAccumulator = ZERO_BI;
 
     positionState.transaction = transaction.id;
     positionState.createdAtBlock = transaction.blockNumber;
@@ -87,9 +87,9 @@ export function registerPairSwap(id: string, position: Position, ratio: BigInt):
   let positionState = get(id);
   let from = tokenLibrary.getById(position.from);
 
-  positionState.rateAccumulator = positionState.rateAccumulator.plus(ratio);
+  positionState.ratioAccumulator = positionState.ratioAccumulator.plus(ratio);
 
-  let augmentedSwapped = positionState.rateAccumulator.times(positionState.rate);
+  let augmentedSwapped = positionState.ratioAccumulator.times(positionState.rate);
   let totalSwapped = augmentedSwapped.div(from.magnitude);
 
   positionState.swapped = positionState.swappedBeforeModified.plus(totalSwapped);

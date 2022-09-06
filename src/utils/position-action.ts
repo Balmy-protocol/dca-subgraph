@@ -163,8 +163,8 @@ export function swapped(
     positionAction.position = positionId;
     positionAction.action = 'SWAPPED';
     positionAction.actor = transaction.from;
-    positionAction.ratePerUnitAToBWithFee = pairSwap.ratePerUnitAToBWithFee;
-    positionAction.ratePerUnitBToAWithFee = pairSwap.ratePerUnitBToAWithFee;
+    positionAction.ratioPerUnitAToBWithFee = pairSwap.ratioPerUnitAToBWithFee;
+    positionAction.ratioPerUnitBToAWithFee = pairSwap.ratioPerUnitBToAWithFee;
 
     positionAction.swapped = swapped;
     positionAction.rate = rate;

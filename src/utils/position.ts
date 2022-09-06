@@ -182,7 +182,7 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   let position = getById(positionId);
   let currentState = positionStateLibrary.get(position.current);
 
-  let rateOfSwap = position.from == pair.tokenA ? pairSwap.ratePerUnitAToBWithFee : pairSwap.ratePerUnitBToAWithFee;
+  let rateOfSwap = position.from == pair.tokenA ? pairSwap.ratioPerUnitAToBWithFee : pairSwap.ratioPerUnitBToAWithFee;
   let rate = currentState.rate;
   // Position state
   let updatedPositionState = positionStateLibrary.registerPairSwap(position.current, position, rateOfSwap);
