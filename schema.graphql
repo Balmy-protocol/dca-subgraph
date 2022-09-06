@@ -444,5 +444,9 @@ type Token @entity {
   decimals: Int!
   "Magnitude"
   magnitude: BigInt!
+  "Dependent tokens"
+  dependant: Token
+  "Underlying tokens"
+  underlyingTokens: [Token!] @derivedFrom(field: "dependant")
 }
 
