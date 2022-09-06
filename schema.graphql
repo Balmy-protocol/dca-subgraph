@@ -74,7 +74,7 @@ type Position @entity {
   "state"
   current: PositionState!
   "actions"
-  history: [PositionAction!]! @derivedFrom(field: "position")
+  history: [PositionActionInterface!]! @derivedFrom(field: "position")
   
   "transaction"
   transaction: Transaction!
@@ -399,23 +399,6 @@ type CreatedAction implements PositionActionInterface @entity {
 }
 
 type TerminatedAction implements PositionActionInterface @entity {
-  "position.id-tx.hash-tx.index"
-  id: ID!
-  "position"
-  position: Position!
-  "action that caused the modification"
-  action: ACTION!
-  "actor who executed the action"
-  actor: Bytes!
-  "transaction"
-  transaction: Transaction!
-  "createdAtBlock"
-  createdAtBlock: BigInt!
-  "createdAtTimestamp"
-  createdAtTimestamp: BigInt!
-}
-
-type PositionAction implements PositionActionInterface @entity {
   "position.id-tx.hash-tx.index"
   id: ID!
   "position"
