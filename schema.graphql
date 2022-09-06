@@ -105,8 +105,8 @@ type PositionState @entity {
   remainingSwaps: BigInt!
   "total swapped from -> to (expressed in TO token)"
   swapped: BigInt!
-  "to be withdrawn (swapped, not withrawn, expressed in TO token)"
-  idleSwapped: BigInt!
+  "to be withdrawn (swapped not withrawn. previously named as idleSwapped. expressed in TO token)"
+  toWithdraw: BigInt!
   "withdrawn (expressed in TO token)"
   withdrawn: BigInt!
   "remaining liquidity (expressed in FROM token)"
