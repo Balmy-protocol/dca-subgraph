@@ -105,25 +105,9 @@ export function modified(event: Modified, transaction: Transaction): Position {
       transaction
     );
   } else if (!previousPositionState.rate.equals(event.params.rate)) {
-    positionActionLibrary.modifiedRate(
-      id,
-      event.params.rate,
-      event.params.startingSwap,
-      event.params.lastSwap,
-      oldPositionRate,
-      oldRemainingSwaps,
-      transaction
-    );
+    positionActionLibrary.modifiedRate(id, event.params.rate, oldPositionRate, transaction);
   } else {
-    positionActionLibrary.modifiedDuration(
-      id,
-      event.params.rate,
-      event.params.startingSwap,
-      event.params.lastSwap,
-      oldPositionRate,
-      oldRemainingSwaps,
-      transaction
-    );
+    positionActionLibrary.modifiedDuration(id, event.params.startingSwap, event.params.lastSwap, oldRemainingSwaps, transaction);
   }
   return position;
 }
@@ -182,15 +166,15 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   let position = getById(positionId);
   let currentState = positionStateLibrary.get(position.current);
 
-  let rateOfSwap = position.from == pair.tokenA ? pairSwap.ratePerUnitAToBWithFee : pairSwap.ratePerUnitBToAWithFee;
+  let ratioFromTo = position.from == pair.tokenA ? pairSwap.ratePerUnitAToBWithFee : pairSwap.ratePerUnitBToAWithFee;
   let rate = currentState.rate;
   // Position state
-  let updatedPositionState = positionStateLibrary.registerPairSwap(position.current, position, rateOfSwap);
+  let updatedPositionState = positionStateLibrary.registerPairSwap(position.current, position, ratioFromTo);
   let from = tokenLibrary.getById(position.from);
-  let swapped = rateOfSwap.times(rate).div(from.magnitude);
+  let swapped = ratioFromTo.times(rate).div(from.magnitude);
 
   // Position action
-  positionActionLibrary.swapped(positionId, from.magnitude, rateOfSwap, rate, pairSwap, transaction);
+  positionActionLibrary.swapped(positionId, swapped, rate, pairSwap, transaction);
   //
   position.current = updatedPositionState.id;
   position.totalSwapped = position.totalSwapped.plus(swapped);

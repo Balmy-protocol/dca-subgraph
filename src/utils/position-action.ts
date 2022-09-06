@@ -1,5 +1,18 @@
 import { log, BigInt, Bytes, Address } from '@graphprotocol/graph-ts';
-import { PairSwap, PositionAction, PositionPermission, Transaction } from '../../generated/schema';
+import {
+  PairSwap,
+  PositionAction,
+  PermissionsModifiedAction,
+  TransferedAction,
+  Transaction,
+  SwappedAction,
+  TerminatedAction,
+  WithdrewAction,
+  CreatedAction,
+  ModifiedRateAction,
+  ModifiedDurationAction,
+  ModifiedRateAndDurationAction,
+} from '../../generated/schema';
 import { ONE_BI, ZERO_BI } from './constants';
 
 export function create(
@@ -9,50 +22,52 @@ export function create(
   lastSwap: BigInt,
   permissions: string[],
   transaction: Transaction
-): PositionAction {
+): CreatedAction {
   let id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Create {}', [id]);
-  let positionAction = PositionAction.load(id);
+  let positionAction = CreatedAction.load(id);
   if (positionAction == null) {
-    positionAction = new PositionAction(id);
-    positionAction.position = positionId;
-    positionAction.action = 'CREATED';
-    positionAction.actor = transaction.from;
-
+    positionAction = changetype<CreatedAction>(createPositionActions(id, 'CREATED', positionId, transaction)) as CreatedAction;
     positionAction.rate = rate;
     positionAction.remainingSwaps = lastSwap.minus(startingSwap).plus(ONE_BI);
     positionAction.permissions = permissions;
-
-    positionAction.transaction = transaction.id;
-    positionAction.createdAtBlock = transaction.blockNumber;
-    positionAction.createdAtTimestamp = transaction.timestamp;
     positionAction.save();
   }
   return positionAction;
 }
 
-export function modifiedRate(
-  positionId: string,
-  rate: BigInt,
-  startingSwap: BigInt,
-  lastSwap: BigInt,
-  oldRate: BigInt,
-  oldRemainingSwaps: BigInt,
-  transaction: Transaction
-): PositionAction {
-  return handleModifiedRateOrDuration('MODIFIED_RATE', positionId, rate, startingSwap, lastSwap, oldRate, oldRemainingSwaps, transaction);
+export function modifiedRate(positionId: string, rate: BigInt, oldRate: BigInt, transaction: Transaction): ModifiedRateAction {
+  let id = positionId.concat('-').concat(transaction.id);
+  log.info('[PositionAction] Modified rate {}', [id]);
+  let positionAction = ModifiedRateAction.load(id);
+  if (positionAction == null) {
+    positionAction = changetype<ModifiedRateAction>(createPositionActions(id, 'MODIFIED_RATE', positionId, transaction)) as ModifiedRateAction;
+    positionAction.rate = rate;
+    positionAction.oldRate = oldRate;
+    positionAction.save();
+  }
+  return positionAction;
 }
 
 export function modifiedDuration(
   positionId: string,
-  rate: BigInt,
   startingSwap: BigInt,
   lastSwap: BigInt,
-  oldRate: BigInt,
   oldRemainingSwaps: BigInt,
   transaction: Transaction
-): PositionAction {
-  return handleModifiedRateOrDuration('MODIFIED_DURATION', positionId, rate, startingSwap, lastSwap, oldRate, oldRemainingSwaps, transaction);
+): ModifiedDurationAction {
+  let id = positionId.concat('-').concat(transaction.id);
+  log.info('[PositionAction] Modified duration {}', [id]);
+  let positionAction = ModifiedDurationAction.load(id);
+  if (positionAction == null) {
+    positionAction = changetype<ModifiedDurationAction>(
+      createPositionActions(id, 'MODIFIED_DURATION', positionId, transaction)
+    ) as ModifiedDurationAction;
+    positionAction.remainingSwaps = lastSwap.minus(startingSwap).plus(ONE_BI);
+    positionAction.oldRemainingSwaps = oldRemainingSwaps;
+    positionAction.save();
+  }
+  return positionAction;
 }
 
 export function modifiedRateAndDuration(
@@ -63,154 +78,97 @@ export function modifiedRateAndDuration(
   oldRate: BigInt,
   oldRemainingSwaps: BigInt,
   transaction: Transaction
-): PositionAction {
-  return handleModifiedRateOrDuration(
-    'MODIFIED_RATE_AND_DURATION',
-    positionId,
-    rate,
-    startingSwap,
-    lastSwap,
-    oldRate,
-    oldRemainingSwaps,
-    transaction
-  );
-}
-
-function handleModifiedRateOrDuration(
-  action: string,
-  positionId: string,
-  rate: BigInt,
-  startingSwap: BigInt,
-  lastSwap: BigInt,
-  oldRate: BigInt,
-  oldRemainingSwaps: BigInt,
-  transaction: Transaction
-): PositionAction {
+): ModifiedRateAndDurationAction {
   let id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Modified rate and duration {}', [id]);
-  let positionAction = PositionAction.load(id);
+  let positionAction = ModifiedRateAndDurationAction.load(id);
   if (positionAction == null) {
-    positionAction = new PositionAction(id);
-    positionAction.position = positionId;
-    positionAction.action = action;
-    positionAction.actor = transaction.from;
-
+    positionAction = changetype<ModifiedRateAndDurationAction>(
+      createPositionActions(id, 'MODIFIED_RATE_AND_DURATION', positionId, transaction)
+    ) as ModifiedRateAndDurationAction;
     positionAction.rate = rate;
     positionAction.remainingSwaps = lastSwap.minus(startingSwap).plus(ONE_BI);
-    positionAction.oldRate = oldRate;
     positionAction.oldRemainingSwaps = oldRemainingSwaps;
-
-    positionAction.transaction = transaction.id;
-    positionAction.createdAtBlock = transaction.blockNumber;
-    positionAction.createdAtTimestamp = transaction.timestamp;
+    positionAction.oldRate = oldRate;
     positionAction.save();
   }
   return positionAction;
 }
 
-export function withdrew(positionId: string, withdrawn: BigInt, transaction: Transaction): PositionAction {
+export function withdrew(positionId: string, withdrawn: BigInt, transaction: Transaction): WithdrewAction {
   let id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Withdrew {}', [id]);
-  let positionAction = PositionAction.load(id);
+  let positionAction = WithdrewAction.load(id);
   if (positionAction == null) {
-    positionAction = new PositionAction(id);
-    positionAction.position = positionId;
-    positionAction.action = 'WITHDREW';
-    positionAction.actor = transaction.from;
-
+    positionAction = changetype<WithdrewAction>(createPositionActions(id, 'WITHDREW', positionId, transaction)) as WithdrewAction;
     positionAction.withdrawn = withdrawn;
-
-    positionAction.transaction = transaction.id;
-    positionAction.createdAtBlock = transaction.blockNumber;
-    positionAction.createdAtTimestamp = transaction.timestamp;
     positionAction.save();
   }
   return positionAction;
 }
 
-export function terminated(positionId: string, transaction: Transaction): PositionAction {
+export function terminated(positionId: string, transaction: Transaction): TerminatedAction {
   let id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Withdrew {}', [id]);
-  let positionAction = PositionAction.load(id);
+  let positionAction = TerminatedAction.load(id);
   if (positionAction == null) {
-    positionAction = new PositionAction(id);
-    positionAction.position = positionId;
-    positionAction.action = 'TERMINATED';
-    positionAction.actor = transaction.from;
-
-    positionAction.transaction = transaction.id;
-    positionAction.createdAtBlock = transaction.blockNumber;
-    positionAction.createdAtTimestamp = transaction.timestamp;
+    positionAction = changetype<TerminatedAction>(createPositionActions(id, 'TERMINATED', positionId, transaction)) as TerminatedAction;
     positionAction.save();
   }
   return positionAction;
 }
 
-export function swapped(
-  positionId: string,
-  magnitude: BigInt,
-  rateOfSwap: BigInt,
-  rate: BigInt,
-  pairSwap: PairSwap,
-  transaction: Transaction
-): PositionAction {
+export function swapped(positionId: string, swapped: BigInt, rate: BigInt, pairSwap: PairSwap, transaction: Transaction): SwappedAction {
   let id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Swapped {}', [id]);
-  let positionAction = PositionAction.load(id);
-  let swapped = rateOfSwap.times(rate).div(magnitude);
+  let positionAction = SwappedAction.load(id);
   if (positionAction == null) {
-    positionAction = new PositionAction(id);
-    positionAction.position = positionId;
-    positionAction.action = 'SWAPPED';
-    positionAction.actor = transaction.from;
+    positionAction = changetype<SwappedAction>(createPositionActions(id, 'SWAPPED', positionId, transaction)) as SwappedAction;
     positionAction.ratePerUnitAToBWithFee = pairSwap.ratePerUnitAToBWithFee;
     positionAction.ratePerUnitBToAWithFee = pairSwap.ratePerUnitBToAWithFee;
-
     positionAction.swapped = swapped;
     positionAction.rate = rate;
-
-    positionAction.transaction = transaction.id;
-    positionAction.createdAtBlock = transaction.blockNumber;
-    positionAction.createdAtTimestamp = transaction.timestamp;
     positionAction.save();
   }
   return positionAction;
 }
 
-export function transfered(positionId: string, from: Address, to: Address, transaction: Transaction): PositionAction {
+export function transfered(positionId: string, from: Address, to: Address, transaction: Transaction): TransferedAction {
   let id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Transfered {}', [id]);
-  let positionAction = PositionAction.load(id);
+  let positionAction = TransferedAction.load(id);
   if (positionAction == null) {
-    positionAction = new PositionAction(id);
-    positionAction.position = positionId;
-    positionAction.action = 'TRANSFERED';
-    positionAction.actor = transaction.from;
+    positionAction = changetype<TransferedAction>(createPositionActions(id, 'TRANSFERED', positionId, transaction)) as TransferedAction;
     positionAction.from = from;
     positionAction.to = to;
-
-    positionAction.transaction = transaction.id;
-    positionAction.createdAtBlock = transaction.blockNumber;
-    positionAction.createdAtTimestamp = transaction.timestamp;
     positionAction.save();
   }
   return positionAction;
 }
 
-export function permissionsModified(positionId: string, permissions: string[], transaction: Transaction): PositionAction {
+export function permissionsModified(positionId: string, permissions: string[], transaction: Transaction): PermissionsModifiedAction {
   let id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Permissions modified {}', [id]);
-  let positionAction = PositionAction.load(id);
+  let positionAction = PermissionsModifiedAction.load(id);
   if (positionAction == null) {
-    positionAction = new PositionAction(id);
-    positionAction.position = positionId;
-    positionAction.action = 'PERMISSIONS_MODIFIED';
+    positionAction = changetype<PermissionsModifiedAction>(
+      createPositionActions(id, 'PERMISSIONS_MODIFIED', positionId, transaction)
+    ) as PermissionsModifiedAction;
     positionAction.permissions = permissions;
-
-    positionAction.transaction = transaction.id;
-    positionAction.createdAtBlock = transaction.blockNumber;
-    positionAction.createdAtTimestamp = transaction.timestamp;
     positionAction.save();
   }
+  return positionAction;
+}
+
+function createPositionActions(id: string, positionId: string, action: string, transaction: Transaction): PositionAction {
+  log.debug('[PositionAction] Create basic position action {}', [id]);
+  let positionAction = new PositionAction(id);
+  positionAction.position = positionId;
+  positionAction.action = action;
+  positionAction.actor = transaction.from;
+
+  positionAction.transaction = transaction.id;
+  positionAction.createdAtBlock = transaction.blockNumber;
+  positionAction.createdAtTimestamp = transaction.timestamp;
   return positionAction;
 }
