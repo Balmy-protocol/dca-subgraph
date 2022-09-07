@@ -46,9 +46,9 @@ dataSources:
         - Pair
         - PairSwap
         - PairSwapInterval
-        - PositionPairSwap
         - Position
         - PositionState
+        - PositionPairSwap
         - SwapInterval
         - Transaction
         - Token
@@ -57,6 +57,10 @@ dataSources:
           file: ./abis/Hub.json
         - name: ERC20
           file: ./abis/ERC20Detailed.json
+        - name: TransformerRegistry
+          file: ./abis/TransformerRegistry.json
+        - name: Transformer
+          file: ./abis/Transformer.json
       eventHandlers:
         - event: TokensAllowedUpdated(address[],bool[])
           handler: handleSetAllowedTokens

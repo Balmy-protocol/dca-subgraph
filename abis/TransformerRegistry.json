@@ -1,0 +1,737 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "TransformerRegistry",
+  "sourceName": "solidity/contracts/TransformerRegistry.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_governor",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        }
+      ],
+      "name": "DustSent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "PendingGovernorAccepted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "newPendingGovernor",
+          "type": "address"
+        }
+      ],
+      "name": "PendingGovernorSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "transformer",
+              "type": "address"
+            },
+            {
+              "internalType": "address[]",
+              "name": "dependents",
+              "type": "address[]"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct ITransformerRegistry.TransformerRegistration[]",
+          "name": "registrations",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "TransformersRegistered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address[]",
+          "name": "dependents",
+          "type": "address[]"
+        }
+      ],
+      "name": "TransformersRemoved",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "PROTOCOL_TOKEN",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "acceptPendingGovernor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_dependent",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_expectedDependent",
+          "type": "uint256"
+        }
+      ],
+      "name": "calculateNeededToTransformToDependent",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "underlying",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ITransformer.UnderlyingAmount[]",
+          "name": "_neededUnderlying",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_dependent",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "underlying",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ITransformer.UnderlyingAmount[]",
+          "name": "_expectedUnderlying",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "calculateNeededToTransformToUnderlying",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "_neededDependent",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_dependent",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "underlying",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ITransformer.UnderlyingAmount[]",
+          "name": "_underlying",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "calculateTransformToDependent",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "_amountDependent",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_dependent",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amountDependent",
+          "type": "uint256"
+        }
+      ],
+      "name": "calculateTransformToUnderlying",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "underlying",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ITransformer.UnderlyingAmount[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "_tokens",
+          "type": "address[]"
+        }
+      ],
+      "name": "getBalances",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "balance",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ICollectableDust.TokenBalance[]",
+          "name": "_balances",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_dependent",
+          "type": "address"
+        }
+      ],
+      "name": "getUnderlying",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "governor",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        }
+      ],
+      "name": "isGovernor",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        }
+      ],
+      "name": "isPendingGovernor",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes[]",
+          "name": "data",
+          "type": "bytes[]"
+        }
+      ],
+      "name": "multicall",
+      "outputs": [
+        {
+          "internalType": "bytes[]",
+          "name": "results",
+          "type": "bytes[]"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pendingGovernor",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "transformer",
+              "type": "address"
+            },
+            {
+              "internalType": "address[]",
+              "name": "dependents",
+              "type": "address[]"
+            }
+          ],
+          "internalType": "struct ITransformerRegistry.TransformerRegistration[]",
+          "name": "_registrations",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "registerTransformers",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "_dependents",
+          "type": "address[]"
+        }
+      ],
+      "name": "removeTransformers",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_recipient",
+          "type": "address"
+        }
+      ],
+      "name": "sendDust",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_pendingGovernor",
+          "type": "address"
+        }
+      ],
+      "name": "setPendingGovernor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes4",
+          "name": "_interfaceId",
+          "type": "bytes4"
+        }
+      ],
+      "name": "supportsInterface",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_dependent",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_recipient",
+          "type": "address"
+        }
+      ],
+      "name": "transformAllToDependent",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_dependent",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_recipient",
+          "type": "address"
+        }
+      ],
+      "name": "transformAllToUnderlying",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "underlying",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ITransformer.UnderlyingAmount[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_dependent",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "underlying",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ITransformer.UnderlyingAmount[]",
+          "name": "_underlying",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_recipient",
+          "type": "address"
+        }
+      ],
+      "name": "transformToDependent",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "_amountDependent",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_dependent",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_expectedDependent",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_recipient",
+          "type": "address"
+        }
+      ],
+      "name": "transformToExpectedDependent",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "underlying",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ITransformer.UnderlyingAmount[]",
+          "name": "_spentUnderlying",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_dependent",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "underlying",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ITransformer.UnderlyingAmount[]",
+          "name": "_expectedUnderlying",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_recipient",
+          "type": "address"
+        }
+      ],
+      "name": "transformToExpectedUnderlying",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "_spentDependent",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_dependent",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amountDependent",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_recipient",
+          "type": "address"
+        }
+      ],
+      "name": "transformToUnderlying",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "underlying",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ITransformer.UnderlyingAmount[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "_dependents",
+          "type": "address[]"
+        }
+      ],
+      "name": "transformers",
+      "outputs": [
+        {
+          "internalType": "contract ITransformer[]",
+          "name": "_transformers",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ]
+}

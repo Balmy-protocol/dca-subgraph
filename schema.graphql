@@ -431,6 +431,12 @@ type Transaction @entity {
   blockNumber: BigInt!
 }
 
+enum TOKEN_TYPE {
+  BASE
+  WRAPPED_PROTOCOL_TOKEN
+  FORTY_SIX_TWENTY_SIX
+}
+
 type Token @entity {
   "Token address"
   id: ID!
@@ -444,9 +450,9 @@ type Token @entity {
   decimals: Int!
   "Magnitude"
   magnitude: BigInt!
-  "Dependent tokens"
-  dependant: Token
+  "Type of token"
+  type: TOKEN_TYPE!
   "Underlying tokens"
-  underlyingTokens: [Token!] @derivedFrom(field: "dependant")
+  underlyingTokens: [Token!]
 }
 
