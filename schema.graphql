@@ -434,7 +434,7 @@ type Transaction @entity {
 enum TOKEN_TYPE {
   BASE
   WRAPPED_PROTOCOL_TOKEN
-  FORTY_SIX_TWENTY_SIX
+  YIELD_BEARING_SHARE
 }
 
 type Token @entity {

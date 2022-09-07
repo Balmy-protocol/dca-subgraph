@@ -1,6 +1,6 @@
 import { BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts';
 
-export const ADDRESS_ZERO = Address.fromString('0x0000000000000000000000000000000000000000').toHexString();
+export const ADDRESS_ZERO = Address.fromString('0x0000000000000000000000000000000000000000');
 export const PROTOCOL_TOKEN_ADDRESS = Address.fromString('0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE');
 
 export let ZERO_BI = BigInt.fromI32(0);

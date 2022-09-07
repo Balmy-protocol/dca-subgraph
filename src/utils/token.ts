@@ -5,9 +5,11 @@ import { Transformer } from '../../generated/Hub/Transformer';
 import { TransformerRegistry } from '../../generated/Hub/TransformerRegistry';
 import { PROTOCOL_TOKEN_ADDRESS } from './constants';
 
-const TRANSFORMER_REGISTRY_ADDRESS = Address.fromString('0xa57C9aCD776d8f96Fcf99fA9559B5d2f1c022925');
-const PROTOCOL_TOKEN_WRAPPER_TRANSFORMER_ADDRESS = Address.fromString('0x70fB4b2f99d22dB5B7D1691c4430EEAaE3bB166D');
-const FORTY_SIX_TWENTY_SIX_TRANSFORMER_ADDRESS = Address.fromString('0xe073b2a7736E581A5ea33152D64Adc374d707F97');
+export const TRANSFORMER_REGISTRY_ADDRESS = Address.fromString('0xa57C9aCD776d8f96Fcf99fA9559B5d2f1c022925');
+// WETH / WMATIC / ETC
+export const PROTOCOL_TOKEN_WRAPPER_TRANSFORMER_ADDRESS = Address.fromString('0x70fB4b2f99d22dB5B7D1691c4430EEAaE3bB166D');
+// Yield bearing shares is a more human way of referring to 4626 transformer.
+export const YIELD_BEARING_SHARE_TRANSFORMER_ADDRESS = Address.fromString('0xe073b2a7736E581A5ea33152D64Adc374d707F97');
 
 export function getById(id: string): Token {
   log.info('[Token] Get {}', [id]);
@@ -33,8 +35,8 @@ export function getOrCreate(tokenAddress: Address, allowed: boolean): Token {
       token.name = erc20Contract.name();
       token.symbol = erc20Contract.symbol();
       token.decimals = erc20Contract.decimals();
-      token.allowed = allowed;
       token.magnitude = BigInt.fromI32(10).pow(erc20Contract.decimals() as u8);
+      token.allowed = allowed;
 
       let tokenTypeAndTransformerAddress = getTokenTypeAndTransformerAddress(tokenAddress);
       token.type = tokenTypeAndTransformerAddress.tokenType;
@@ -55,7 +57,7 @@ export function getOrCreate(tokenAddress: Address, allowed: boolean): Token {
   return token;
 }
 
-function createProtocolToken(): Token {
+export function createProtocolToken(): Token {
   let token = new Token(PROTOCOL_TOKEN_ADDRESS.toHexString());
   if (
     dataSource.network() == 'mainnet' ||
@@ -64,7 +66,7 @@ function createProtocolToken(): Token {
     dataSource.network() == 'arbitrum-one' ||
     dataSource.network() == 'arbitrum-rinkeby'
   ) {
-    token.name = 'Etherum';
+    token.name = 'Ethereum';
     token.symbol = 'ETH';
   } else if (dataSource.network() == 'matic' || dataSource.network() == 'mumbai') {
     token.name = 'Matic';
@@ -77,7 +79,7 @@ function createProtocolToken(): Token {
   return token;
 }
 
-function getTokenTypeAndTransformerAddress(tokenAddress: Address): TokenTypeAndTransformerAddress {
+export function getTokenTypeAndTransformerAddress(tokenAddress: Address): TokenTypeAndTransformerAddress {
   let transformerRegistry = TransformerRegistry.bind(TRANSFORMER_REGISTRY_ADDRESS);
   let transformerAddress = transformerRegistry.transformers([tokenAddress])[0];
   let tokenType = getTokenTypeByTransformerAddress(transformerAddress);
@@ -87,13 +89,13 @@ function getTokenTypeAndTransformerAddress(tokenAddress: Address): TokenTypeAndT
 function getTokenTypeByTransformerAddress(transformerAddress: Address): string {
   if (transformerAddress.equals(PROTOCOL_TOKEN_WRAPPER_TRANSFORMER_ADDRESS)) {
     return 'WRAPPED_PROTOCOL_TOKEN';
-  } else if (transformerAddress.equals(FORTY_SIX_TWENTY_SIX_TRANSFORMER_ADDRESS)) {
-    return 'FORTY_SIX_TWENTY_SIX';
+  } else if (transformerAddress.equals(YIELD_BEARING_SHARE_TRANSFORMER_ADDRESS)) {
+    return 'YIELD_BEARING_SHARE';
   }
   return 'BASE';
 }
 
-function getUnderlyingTokenIds(transformerAddress: Address, dependantAddress: Address): string[] {
+export function getUnderlyingTokenIds(transformerAddress: Address, dependantAddress: Address): string[] {
   let underlyingTokens: string[] = [];
   let transformer = Transformer.bind(transformerAddress);
   let underlyingTokenAddresses = transformer.getUnderlying(dependantAddress);

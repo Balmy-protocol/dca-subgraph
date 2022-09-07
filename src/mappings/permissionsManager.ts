@@ -4,10 +4,10 @@ import { Approval, ApprovalForAll, Modified, Transfer } from '../../generated/Pe
 import { ADDRESS_ZERO } from '../utils/constants';
 
 export function handleTransfer(event: Transfer): void {
-  let to = event.params.to.toHexString();
-  let from = event.params.from.toHexString();
+  let to = event.params.to;
+  let from = event.params.from;
 
-  if (to != ADDRESS_ZERO && from != ADDRESS_ZERO) {
+  if (to.notEqual(ADDRESS_ZERO) && from.notEqual(ADDRESS_ZERO)) {
     let transaction = transactionLibrary.getOrCreateFromEvent(event, 'Pm-Transfer');
     positionLibrary.transfer(event, transaction);
   }
