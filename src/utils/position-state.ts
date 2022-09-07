@@ -15,7 +15,6 @@ export function createBasic(positionId: string, rate: BigInt, startingSwap: BigI
     positionState.rate = rate;
 
     positionState.remainingSwaps = lastSwap.minus(startingSwap).plus(ONE_BI);
-    positionState.swapped = ZERO_BI;
     positionState.toWithdraw = ZERO_BI;
     positionState.withdrawn = ZERO_BI;
     positionState.remainingLiquidity = rate.times(positionState.remainingSwaps);
@@ -88,10 +87,10 @@ export function registerPairSwap(id: string, position: Position, ratio: BigInt):
   positionState.ratioAccumulator = positionState.ratioAccumulator.plus(ratio);
 
   let augmentedSwapped = positionState.ratioAccumulator.times(positionState.rate);
-  let totalSwapped = augmentedSwapped.div(from.magnitude);
+  let totalSwappedSinceModification = augmentedSwapped.div(from.magnitude);
+  let totalSwapped = positionState.swappedBeforeModified.plus(totalSwappedSinceModification);
 
-  positionState.swapped = positionState.swappedBeforeModified.plus(totalSwapped);
-  positionState.toWithdraw = positionState.swapped.minus(positionState.withdrawn);
+  positionState.toWithdraw = totalSwapped.minus(positionState.withdrawn);
 
   positionState.remainingSwaps = positionState.remainingSwaps.minus(ONE_BI);
   positionState.remainingLiquidity = positionState.remainingLiquidity.minus(positionState.rate);
