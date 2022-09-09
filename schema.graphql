@@ -61,7 +61,7 @@ type Position @entity {
   status: POSITION_STATUS!
 
   "Distributed share value (optional, only if type is a yield-bearing-share)"
-  chamoUnderlying: BigInt
+  depositedRateUnderlying: BigInt
 
   "total deposited expressed in (from)"
   totalDeposited: BigInt!
@@ -104,6 +104,9 @@ type PositionState @entity {
   remainingSwaps: BigInt!
   "to be withdrawn (swapped not withrawn. previously named as idleSwapped. expressed in TO token)"
   toWithdraw: BigInt!
+  "accumulator of the swapped underlying. helps to get yield generated of swapped"
+  accumSwappedUnderlying: BigInt
+  
   "withdrawn (expressed in TO token)"
   withdrawn: BigInt!
   "remaining liquidity (expressed in FROM token)"
@@ -331,10 +334,13 @@ type SwappedAction implements PositionActionInterface @entity {
 
   "swapped (expressed in to)"
   swapped: BigInt
-  "swapped underlying (if its a yield bearing share's position)"
+  "swapped underlying (optional, only if type is a yield-bearing-share)"
   swappedUnderlying: BigInt
+  "Distributed share value (optional, only if type is a yield-bearing-share)"
+  depositedRateUnderlying: BigInt
   "rate (expressed in from)"
   rate: BigInt
+
 
   "ratio unit b to a with fee subtracted"
   ratioPerUnitBToAWithFee: BigInt

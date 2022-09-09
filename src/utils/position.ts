@@ -1,4 +1,4 @@
-import { log, BigInt, Address, Bytes, store } from '@graphprotocol/graph-ts';
+import { log, BigInt, Address, Bytes } from '@graphprotocol/graph-ts';
 import { Transaction, Position, PairSwap, Pair, PositionState } from '../../generated/schema';
 import { Deposited, Modified, Terminated } from '../../generated/Hub/Hub';
 import { Modified as PermissionsModified } from '../../generated/PermissionsManager/PermissionsManager';
@@ -33,7 +33,7 @@ export function create(event: Deposited, transaction: Transaction): Position {
     position.permissions = permissionsLibrary.createFromDepositedPermissionsStruct(id, event.params.permissions);
 
     if (from.type == 'YIELD_BEARING_SHARE') {
-      position.chamoUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(event.params.fromToken, event.params.rate);
+      position.depositedRateUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(event.params.fromToken, event.params.rate);
     }
 
     position.totalWithdrawn = ZERO_BI;
@@ -45,7 +45,13 @@ export function create(event: Deposited, transaction: Transaction): Position {
     position.createdAtTimestamp = transaction.timestamp;
 
     // Create position state
-    let positionState = positionStateLibrary.createBasic(id, event.params.rate, event.params.startingSwap, event.params.lastSwap, transaction);
+    let positionState = positionStateLibrary.createBasic(
+      position,
+      event.params.rate,
+      event.params.startingSwap,
+      event.params.lastSwap,
+      transaction
+    );
 
     // Create position action
     positionActionLibrary.create(id, event.params.rate, event.params.startingSwap, event.params.lastSwap, position.permissions, transaction);
@@ -75,11 +81,12 @@ export function modified(event: Modified, transaction: Transaction): Position {
   // Position state
   let previousPositionState = positionStateLibrary.get(position.current);
   let newPositionState = positionStateLibrary.createComposed(
-    id,
+    position,
     event.params.rate,
     event.params.startingSwap,
     event.params.lastSwap,
     previousPositionState.toWithdraw,
+    previousPositionState.accumSwappedUnderlying,
     transaction
   );
   let oldPositionRate = previousPositionState.rate;
@@ -91,17 +98,17 @@ export function modified(event: Modified, transaction: Transaction): Position {
   if (from.type == 'YIELD_BEARING_SHARE') {
     const changeInAmount = event.params.rate.times(newPositionState.remainingSwaps).minus(oldPositionRate.times(oldRemainingSwaps));
     if (changeInAmount.gt(ZERO_BI)) {
-      const previousTotalUnderlyingRemaining = position.chamoUnderlying!.times(newPositionState.remainingSwaps);
+      const previousTotalUnderlyingRemaining = position.depositedRateUnderlying!.times(newPositionState.remainingSwaps);
       const underlyingValueOfIncreasedAmount = tokenLibrary.transformYieldBearingSharesToUnderlying(
         Address.fromString(position.from),
         changeInAmount
       );
       const newTotalUnderlying = previousTotalUnderlyingRemaining.plus(underlyingValueOfIncreasedAmount);
       // underlyingRate = (underlyingRate * remainingSwaps + toUnderlying(increaseAmount)) / newSwaps
-      position.chamoUnderlying = newTotalUnderlying.div(newPositionState.remainingSwaps);
+      position.depositedRateUnderlying = newTotalUnderlying.div(newPositionState.remainingSwaps);
     } else {
       // underlyingRate = (newRate * underlyingRate) / oldRate
-      position.chamoUnderlying = event.params.rate.times(position.chamoUnderlying!).div(oldPositionRate);
+      position.depositedRateUnderlying = event.params.rate.times(position.depositedRateUnderlying!).div(oldPositionRate);
     }
   }
 
@@ -190,11 +197,11 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   let currentState = positionStateLibrary.get(position.current);
 
   let ratioFromTo = position.from == pair.tokenA ? pairSwap.ratioPerUnitAToBWithFee : pairSwap.ratioPerUnitBToAWithFee;
-
-  // Position state
-  let updatedPositionState = positionStateLibrary.registerPairSwap(position.current, position, ratioFromTo);
   let from = tokenLibrary.getById(position.from);
   let swapped = ratioFromTo.times(currentState.rate).div(from.magnitude);
+
+  // Position state
+  let updatedPositionState = positionStateLibrary.registerPairSwap(position.current, position, swapped, ratioFromTo);
 
   // Position action
   positionActionLibrary.swapped(position, swapped, currentState.rate, pairSwap, transaction);

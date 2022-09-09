@@ -1,16 +1,16 @@
-import { log, BigInt } from '@graphprotocol/graph-ts';
+import { log, BigInt, Address } from '@graphprotocol/graph-ts';
 import { Position, PositionState, Transaction } from '../../generated/schema';
 import { ONE_BI, ZERO_BI } from './constants';
 import * as tokenLibrary from './token';
 
 // Creates position state  with zero-ed values.
-export function createBasic(positionId: string, rate: BigInt, startingSwap: BigInt, lastSwap: BigInt, transaction: Transaction): PositionState {
-  let id = positionId.concat('-').concat(transaction.id);
+export function createBasic(position: Position, rate: BigInt, startingSwap: BigInt, lastSwap: BigInt, transaction: Transaction): PositionState {
+  let id = position.id.concat('-').concat(transaction.id);
   log.info('[PositionState] Create basic {}', [id]);
   let positionState = PositionState.load(id);
   if (positionState == null) {
     positionState = new PositionState(id);
-    positionState.position = positionId;
+    positionState.position = position.id;
 
     positionState.rate = rate;
 
@@ -21,6 +21,11 @@ export function createBasic(positionId: string, rate: BigInt, startingSwap: BigI
 
     positionState.swappedBeforeModified = ZERO_BI;
     positionState.ratioAccumulator = ZERO_BI;
+
+    const to = tokenLibrary.getById(position.to);
+    if (to.type === 'YIELD_BEARING_SHARE') {
+      positionState.accumSwappedUnderlying = ZERO_BI;
+    }
 
     positionState.transaction = transaction.id;
     positionState.createdAtBlock = transaction.blockNumber;
@@ -33,17 +38,19 @@ export function createBasic(positionId: string, rate: BigInt, startingSwap: BigI
 // Creates a position state were all values are zero-ed except for toWithdraw and swappedBeforeModified. Only used when
 // position was modified
 export function createComposed(
-  positionId: string,
+  position: Position,
   rate: BigInt,
   startingSwap: BigInt,
   lastSwap: BigInt,
   swappedBeforeModified: BigInt,
+  accumSwappedUnderlying: BigInt | null,
   transaction: Transaction
 ): PositionState {
-  let id = positionId.concat('-').concat(transaction.id);
+  let id = position.id.concat('-').concat(transaction.id);
   log.info('[PositionState] Create composed {}', [id]);
-  let positionState = createBasic(positionId, rate, startingSwap, lastSwap, transaction);
+  let positionState = createBasic(position, rate, startingSwap, lastSwap, transaction);
   positionState.toWithdraw = swappedBeforeModified;
+  positionState.accumSwappedUnderlying = accumSwappedUnderlying;
   positionState.swappedBeforeModified = swappedBeforeModified;
   positionState.save();
   return positionState;
@@ -79,7 +86,7 @@ export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
   return positionState;
 }
 
-export function registerPairSwap(id: string, position: Position, ratio: BigInt): PositionState {
+export function registerPairSwap(id: string, position: Position, swapped: BigInt, ratio: BigInt): PositionState {
   log.info('[PositionState] Register pair swap {}', [id]);
   let positionState = get(id);
   let from = tokenLibrary.getById(position.from);
@@ -91,6 +98,11 @@ export function registerPairSwap(id: string, position: Position, ratio: BigInt):
   let totalSwapped = positionState.swappedBeforeModified.plus(totalSwappedSinceModification);
 
   positionState.toWithdraw = totalSwapped.minus(positionState.withdrawn);
+  if (positionState.accumSwappedUnderlying !== null) {
+    positionState.accumSwappedUnderlying = positionState.accumSwappedUnderlying!.plus(
+      tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), swapped)
+    );
+  }
 
   positionState.remainingSwaps = positionState.remainingSwaps.minus(ONE_BI);
   positionState.remainingLiquidity = positionState.remainingLiquidity.minus(positionState.rate);

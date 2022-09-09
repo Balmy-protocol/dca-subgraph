@@ -163,6 +163,8 @@ export function terminated(positionId: string, transaction: Transaction): Termin
 
 export function swapped(position: Position, swapped: BigInt, rate: BigInt, pairSwap: PairSwap, transaction: Transaction): SwappedAction {
   let id = position.id.concat('-').concat(transaction.id);
+  const from = tokenLibrary.getById(position.from);
+  const to = tokenLibrary.getById(position.to);
   log.info('[PositionAction] Swapped {}', [id]);
   let positionAction = SwappedAction.load(id);
   if (positionAction == null) {
@@ -177,9 +179,13 @@ export function swapped(position: Position, swapped: BigInt, rate: BigInt, pairS
     positionAction.ratioPerUnitAToBWithFee = pairSwap.ratioPerUnitAToBWithFee;
     positionAction.ratioPerUnitBToAWithFee = pairSwap.ratioPerUnitBToAWithFee;
 
+    // Check yield-bearing-share on from
+    if (from.type == 'YIELD_BEARING_SHARE') {
+      positionAction.depositedRateUnderlying = position.depositedRateUnderlying;
+    }
+
     // Check yield-bearing-share on to
-    const tokenTo = tokenLibrary.getById(position.to);
-    if (tokenTo.type == 'YIELD_BEARING_SHARE') {
+    if (to.type == 'YIELD_BEARING_SHARE') {
       positionAction.swappedUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), swapped);
     }
 
