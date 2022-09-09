@@ -32,6 +32,10 @@ export function create(event: Deposited, transaction: Transaction): Position {
     position.status = 'ACTIVE';
     position.permissions = permissionsLibrary.createFromDepositedPermissionsStruct(id, event.params.permissions);
 
+    if (from.type == 'YIELD_BEARING_SHARE') {
+      position.chamoUnderlying = tokenLibrary.getYieldBearingShareUnderlyingValue(event.params.fromToken);
+    }
+
     position.totalWithdrawn = ZERO_BI;
     position.totalSwapped = ZERO_BI;
     position.totalExecutedSwaps = ZERO_BI;
@@ -66,6 +70,7 @@ export function getById(id: string): Position {
 export function modified(event: Modified, transaction: Transaction): Position {
   let id = event.params.positionId.toString();
   let position = getById(event.params.positionId.toString());
+  let from = tokenLibrary.getById(position.from);
   log.info('[Position] Modified {}', [id]);
   // Position state
   let previousPositionState = positionStateLibrary.get(position.current);
@@ -82,6 +87,21 @@ export function modified(event: Modified, transaction: Transaction): Position {
   position.totalDeposited = position.totalDeposited.minus(previousPositionState.remainingLiquidity).plus(newPositionState.remainingLiquidity);
   position.totalSwaps = position.totalSwaps.minus(oldRemainingSwaps).plus(newPositionState.remainingSwaps);
   position.current = newPositionState.id;
+
+  if (from.type == 'YIELD_BEARING_SHARE') {
+    const changeInAmount = event.params.rate.times(newPositionState.remainingSwaps).minus(oldPositionRate.times(oldRemainingSwaps));
+    if (changeInAmount.gt(ZERO_BI)) {
+      const previousTotalUnderlyingRemaining = position.chamoUnderlying!.times(newPositionState.remainingSwaps);
+      const underlyingValueOfIncreasedAmount = tokenLibrary.getYieldBearingShareUnderlyingValue(Address.fromString(position.from));
+      const newTotalUnderlying = previousTotalUnderlyingRemaining.plus(underlyingValueOfIncreasedAmount);
+      // underlyingRate = (underlyingRate * remainingSwaps + toUnderlying(increaseAmount)) / newSwaps
+      position.chamoUnderlying = newTotalUnderlying.div(newPositionState.remainingSwaps);
+    } else {
+      // underlyingRate = (newRate * underlyingRate) / oldRate
+      position.chamoUnderlying = event.params.rate.times(position.chamoUnderlying!).div(oldPositionRate);
+    }
+  }
+
   // Remove position from active pairs if modified to have zero remaining swaps (soft termination)
   if (newPositionState.remainingSwaps.equals(ZERO_BI)) {
     pairLibrary.removeActivePosition(position);
@@ -92,6 +112,7 @@ export function modified(event: Modified, transaction: Transaction): Position {
   }
   position.save();
   //
+
   // Position action
   if (!oldPositionRate.equals(event.params.rate) && !newPositionState.remainingSwaps.equals(oldRemainingSwaps)) {
     positionActionLibrary.modifiedRateAndDuration(
@@ -115,7 +136,6 @@ export function terminated(event: Terminated, transaction: Transaction): Positio
   let id = event.params.positionId.toString();
   log.info('[Position] Terminated {}', [id]);
   let position = getById(id);
-  let positionState = positionStateLibrary.get(position.current);
   position.status = 'TERMINATED';
   position.terminatedAtBlock = transaction.blockNumber;
   position.terminatedAtTimestamp = transaction.timestamp;
@@ -126,6 +146,7 @@ export function terminated(event: Terminated, transaction: Transaction): Positio
   // Position action
   positionActionLibrary.terminated(id, transaction);
 
+  // Save position
   position.save();
 
   // Remove position from actives

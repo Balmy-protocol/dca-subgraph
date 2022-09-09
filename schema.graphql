@@ -60,6 +60,9 @@ type Position @entity {
   "position status"
   status: POSITION_STATUS!
 
+  "Distributed share value (optional, only if type is a yield-bearing-share)"
+  chamoUnderlying: BigInt
+
   "total deposited expressed in (from)"
   totalDeposited: BigInt!
   "total withdrawno expressed in (to)"
