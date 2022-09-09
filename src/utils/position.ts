@@ -33,7 +33,7 @@ export function create(event: Deposited, transaction: Transaction): Position {
     position.permissions = permissionsLibrary.createFromDepositedPermissionsStruct(id, event.params.permissions);
 
     if (from.type == 'YIELD_BEARING_SHARE') {
-      position.chamoUnderlying = tokenLibrary.getYieldBearingShareUnderlyingValue(event.params.fromToken);
+      position.chamoUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(event.params.fromToken, event.params.rate);
     }
 
     position.totalWithdrawn = ZERO_BI;
@@ -92,7 +92,10 @@ export function modified(event: Modified, transaction: Transaction): Position {
     const changeInAmount = event.params.rate.times(newPositionState.remainingSwaps).minus(oldPositionRate.times(oldRemainingSwaps));
     if (changeInAmount.gt(ZERO_BI)) {
       const previousTotalUnderlyingRemaining = position.chamoUnderlying!.times(newPositionState.remainingSwaps);
-      const underlyingValueOfIncreasedAmount = tokenLibrary.getYieldBearingShareUnderlyingValue(Address.fromString(position.from));
+      const underlyingValueOfIncreasedAmount = tokenLibrary.transformYieldBearingSharesToUnderlying(
+        Address.fromString(position.from),
+        changeInAmount
+      );
       const newTotalUnderlying = previousTotalUnderlyingRemaining.plus(underlyingValueOfIncreasedAmount);
       // underlyingRate = (underlyingRate * remainingSwaps + toUnderlying(increaseAmount)) / newSwaps
       position.chamoUnderlying = newTotalUnderlying.div(newPositionState.remainingSwaps);
@@ -188,14 +191,13 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
 
   let ratioFromTo = position.from == pair.tokenA ? pairSwap.ratioPerUnitAToBWithFee : pairSwap.ratioPerUnitBToAWithFee;
 
-  let rate = currentState.rate;
   // Position state
   let updatedPositionState = positionStateLibrary.registerPairSwap(position.current, position, ratioFromTo);
   let from = tokenLibrary.getById(position.from);
-  let swapped = ratioFromTo.times(rate).div(from.magnitude);
+  let swapped = ratioFromTo.times(currentState.rate).div(from.magnitude);
 
   // Position action
-  positionActionLibrary.swapped(positionId, swapped, rate, pairSwap, transaction);
+  positionActionLibrary.swapped(position, swapped, currentState.rate, pairSwap, transaction);
   //
   position.current = updatedPositionState.id;
   position.totalSwapped = position.totalSwapped.plus(swapped);

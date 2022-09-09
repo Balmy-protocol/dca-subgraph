@@ -138,6 +138,25 @@ describe('Token library', () => {
       });
     });
   });
+
+  describe('getUnderlying', () => {
+    describe('when sending a base token type', () => {
+      test('throws error', () => {
+        // TODO
+      });
+    });
+    describe('when sending a dependant token', () => {
+      test('returns underlying amounts', () => {
+        // TODO
+      });
+    });
+  });
+
+  describe('transformYieldBearingSharesToUnderlying', () => {
+    test('returns transformed shares amount to underlying', () => {
+      // TODO
+    });
+  });
 });
 
 /* -------------------------------------------------------------------------- */

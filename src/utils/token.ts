@@ -112,14 +112,15 @@ export function getUnderlyingTokenIds(transformerAddress: Address, dependantToke
   return underlyingTokens;
 }
 
-export function getCurrentUnderlying(dependantAddress: Address): Array<Transformer__calculateTransformToUnderlyingResultValue0Struct> {
+export function getUnderlying(dependantAddress: Address, amount: BigInt): Array<Transformer__calculateTransformToUnderlyingResultValue0Struct> {
   const token = getByAddress(dependantAddress);
+  if (token.type == 'BASE') throw new Error('Token is not dependant');
   const transformer = Transformer.bind(getTransformerAddress(dependantAddress)[0]);
-  return transformer.calculateTransformToUnderlying(dependantAddress, token.magnitude);
+  return transformer.calculateTransformToUnderlying(dependantAddress, amount);
 }
 
-export function getYieldBearingShareUnderlyingValue(dependantTokenAddress: Address): BigInt {
-  const underlyings = getCurrentUnderlying(dependantTokenAddress);
+export function transformYieldBearingSharesToUnderlying(dependantTokenAddress: Address, amount: BigInt): BigInt {
+  const underlyings = getUnderlying(dependantTokenAddress, amount);
   return underlyings[0].amount;
 }
 

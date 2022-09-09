@@ -331,6 +331,8 @@ type SwappedAction implements PositionActionInterface @entity {
 
   "swapped (expressed in to)"
   swapped: BigInt
+  "swapped underlying (if its a yield bearing share's position)"
+  swappedUnderlying: BigInt
   "rate (expressed in from)"
   rate: BigInt
 

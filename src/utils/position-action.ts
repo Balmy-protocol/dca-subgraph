@@ -11,8 +11,10 @@ import {
   ModifiedRateAction,
   ModifiedDurationAction,
   ModifiedRateAndDurationAction,
+  Position,
 } from '../../generated/schema';
 import { ONE_BI } from './constants';
+import * as tokenLibrary from '../utils/token';
 
 export function create(
   positionId: string,
@@ -159,21 +161,27 @@ export function terminated(positionId: string, transaction: Transaction): Termin
   return positionAction;
 }
 
-export function swapped(positionId: string, swapped: BigInt, rate: BigInt, pairSwap: PairSwap, transaction: Transaction): SwappedAction {
-  let id = positionId.concat('-').concat(transaction.id);
+export function swapped(position: Position, swapped: BigInt, rate: BigInt, pairSwap: PairSwap, transaction: Transaction): SwappedAction {
+  let id = position.id.concat('-').concat(transaction.id);
   log.info('[PositionAction] Swapped {}', [id]);
   let positionAction = SwappedAction.load(id);
   if (positionAction == null) {
     positionAction = new SwappedAction(id);
-    positionAction.position = positionId;
+    positionAction.position = position.id;
     positionAction.action = 'SWAPPED';
     positionAction.actor = transaction.from;
+
+    positionAction.rate = rate;
+    positionAction.swapped = swapped;
 
     positionAction.ratioPerUnitAToBWithFee = pairSwap.ratioPerUnitAToBWithFee;
     positionAction.ratioPerUnitBToAWithFee = pairSwap.ratioPerUnitBToAWithFee;
 
-    positionAction.swapped = swapped;
-    positionAction.rate = rate;
+    // Check yield-bearing-share on to
+    const tokenTo = tokenLibrary.getById(position.to);
+    if (tokenTo.type == 'YIELD_BEARING_SHARE') {
+      positionAction.swappedUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), swapped);
+    }
 
     positionAction.transaction = transaction.id;
     positionAction.createdAtBlock = transaction.blockNumber;
