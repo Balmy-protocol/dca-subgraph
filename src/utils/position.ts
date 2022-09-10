@@ -11,11 +11,11 @@ import * as tokenLibrary from './token';
 import { ONE_BI, ZERO_BI } from './constants';
 
 export function create(event: Deposited, transaction: Transaction): Position {
-  let id = event.params.positionId.toString();
+  const id = event.params.positionId.toString();
   log.info('[Position] Create {}', [id]);
-  let from = tokenLibrary.getByAddress(event.params.fromToken);
-  let to = tokenLibrary.getByAddress(event.params.toToken);
-  let pairId = pairLibrary.buildId(from.id, to.id);
+  const from = tokenLibrary.getByAddress(event.params.fromToken);
+  const to = tokenLibrary.getByAddress(event.params.toToken);
+  const pairId = pairLibrary.buildId(from.id, to.id);
   let pair = pairLibrary.get(pairId);
   if (pair == null) {
     pair = pairLibrary.create(pairId, event.params.fromToken, event.params.toToken, event.params.swapInterval, transaction);
@@ -41,7 +41,7 @@ export function create(event: Deposited, transaction: Transaction): Position {
     position.createdAtTimestamp = transaction.timestamp;
 
     // Create position state
-    let positionState = positionStateLibrary.createBasic(id, event.params.rate, event.params.startingSwap, event.params.lastSwap, transaction);
+    const positionState = positionStateLibrary.createBasic(id, event.params.rate, event.params.startingSwap, event.params.lastSwap, transaction);
 
     // Create position action
     positionActionLibrary.create(id, event.params.rate, event.params.startingSwap, event.params.lastSwap, position.permissions, transaction);
@@ -58,18 +58,18 @@ export function create(event: Deposited, transaction: Transaction): Position {
 
 export function getById(id: string): Position {
   log.info('[Position] Get {}', [id]);
-  let position = Position.load(id);
+  const position = Position.load(id);
   if (position == null) throw Error('Position not found');
   return position;
 }
 
 export function modified(event: Modified, transaction: Transaction): Position {
-  let id = event.params.positionId.toString();
-  let position = getById(event.params.positionId.toString());
+  const id = event.params.positionId.toString();
+  const position = getById(event.params.positionId.toString());
   log.info('[Position] Modified {}', [id]);
   // Position state
-  let previousPositionState = positionStateLibrary.get(position.current);
-  let newPositionState = positionStateLibrary.createComposed(
+  const previousPositionState = positionStateLibrary.get(position.current);
+  const newPositionState = positionStateLibrary.createComposed(
     id,
     event.params.rate,
     event.params.startingSwap,
@@ -77,8 +77,8 @@ export function modified(event: Modified, transaction: Transaction): Position {
     previousPositionState.toWithdraw,
     transaction
   );
-  let oldPositionRate = previousPositionState.rate;
-  let oldRemainingSwaps = previousPositionState.remainingSwaps;
+  const oldPositionRate = previousPositionState.rate;
+  const oldRemainingSwaps = previousPositionState.remainingSwaps;
   position.totalDeposited = position.totalDeposited.minus(previousPositionState.remainingLiquidity).plus(newPositionState.remainingLiquidity);
   position.totalSwaps = position.totalSwaps.minus(oldRemainingSwaps).plus(newPositionState.remainingSwaps);
   position.current = newPositionState.id;
@@ -112,10 +112,9 @@ export function modified(event: Modified, transaction: Transaction): Position {
 }
 
 export function terminated(event: Terminated, transaction: Transaction): Position {
-  let id = event.params.positionId.toString();
+  const id = event.params.positionId.toString();
   log.info('[Position] Terminated {}', [id]);
-  let position = getById(id);
-  let positionState = positionStateLibrary.get(position.current);
+  const position = getById(id);
   position.status = 'TERMINATED';
   position.terminatedAtBlock = transaction.blockNumber;
   position.terminatedAtTimestamp = transaction.timestamp;
@@ -136,8 +135,8 @@ export function terminated(event: Terminated, transaction: Transaction): Positio
 
 export function withdrew(positionId: string, transaction: Transaction): Position {
   log.info('[Position] Withdrew {}', [positionId]);
-  let position = getById(positionId);
-  let currentState = positionStateLibrary.get(position.current);
+  const position = getById(positionId);
+  const currentState = positionStateLibrary.get(position.current);
   // Position state
   positionStateLibrary.registerWithdrew(position.current, currentState.toWithdraw);
   position.totalWithdrawn = position.totalWithdrawn.plus(currentState.toWithdraw);
@@ -150,7 +149,7 @@ export function withdrew(positionId: string, transaction: Transaction): Position
 }
 
 export function shouldRegisterPairSwap(positionId: string, intervalsInSwap: BigInt[]): boolean {
-  let position = getById(positionId);
+  const position = getById(positionId);
 
   for (let i: i32 = 0; i < intervalsInSwap.length; i++) {
     if (intervalsInSwap[i].equals(BigInt.fromString(position.swapInterval))) {
@@ -162,16 +161,16 @@ export function shouldRegisterPairSwap(positionId: string, intervalsInSwap: BigI
 
 export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairSwap, transaction: Transaction): PositionAndPositionState {
   log.info('[Position] Register pair swap for position {}', [positionId]);
-  let position = getById(positionId);
-  let currentState = positionStateLibrary.get(position.current);
+  const position = getById(positionId);
+  const currentState = positionStateLibrary.get(position.current);
 
-  let ratioFromTo = position.from == pair.tokenA ? pairSwap.ratioPerUnitAToBWithFee : pairSwap.ratioPerUnitBToAWithFee;
+  const ratioFromTo = position.from == pair.tokenA ? pairSwap.ratioPerUnitAToBWithFee : pairSwap.ratioPerUnitBToAWithFee;
 
-  let rate = currentState.rate;
+  const rate = currentState.rate;
   // Position state
-  let updatedPositionState = positionStateLibrary.registerPairSwap(position.current, position, ratioFromTo);
-  let from = tokenLibrary.getById(position.from);
-  let swapped = ratioFromTo.times(rate).div(from.magnitude);
+  const updatedPositionState = positionStateLibrary.registerPairSwap(position.current, position, ratioFromTo);
+  const from = tokenLibrary.getById(position.from);
+  const swapped = ratioFromTo.times(rate).div(from.magnitude);
 
   // Position action
   positionActionLibrary.swapped(positionId, swapped, rate, pairSwap, transaction);
@@ -189,9 +188,9 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
 }
 
 export function transfer(event: Transfer, transaction: Transaction): void {
-  let id = event.params.tokenId.toString();
+  const id = event.params.tokenId.toString();
   log.info('[Position] Transfer position {}', [id]);
-  let position = Position.load(id);
+  const position = Position.load(id);
   if (position != null) {
     position.user = event.params.to as Bytes;
     permissionsLibrary.deleteAll(position.permissions);
@@ -202,8 +201,8 @@ export function transfer(event: Transfer, transaction: Transaction): void {
 }
 
 export function permissionsModified(event: PermissionsModified, transaction: Transaction): Position {
-  let position = getById(event.params.tokenId.toString());
-  let newAndModifiedPermissionsIds = permissionsLibrary.permissionsModified(position.id, event);
+  const position = getById(event.params.tokenId.toString());
+  const newAndModifiedPermissionsIds = permissionsLibrary.permissionsModified(position.id, event);
   position.permissions = newAndModifiedPermissionsIds.newPermissions;
   positionActionLibrary.permissionsModified(position.id, newAndModifiedPermissionsIds.modified, transaction);
   position.save();

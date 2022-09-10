@@ -8,10 +8,10 @@ import { createDepositedEvent, createTokensAllowedUpdatedEvent } from './test-ut
 import { mockTokenContract } from './test-utils/token';
 import { mockTransformerRegistry } from './test-utils/transformer-registry';
 
-let PERMISSION_ENTITY_TYPE = 'PositionPermission';
-let user = '0x4200000000000000000000000000000000000069';
-let token1 = '0x0000000000000000000000000000000000000001';
-let token2 = '0x0000000000000000000000000000000000000002';
+const PERMISSION_ENTITY_TYPE = 'PositionPermission';
+const user = '0x4200000000000000000000000000000000000069';
+const token1 = '0x0000000000000000000000000000000000000001';
+const token2 = '0x0000000000000000000000000000000000000002';
 
 test('Deposit with empty permissions doesnt create permissions', () => {
   mockTokenContract(token1, 'Token 1', 'T1', 15);
@@ -33,15 +33,15 @@ test('Deposit with empty permissions doesnt create permissions', () => {
       []
     )
   );
-  let position = Position.load('1')!;
+  const position = Position.load('1')!;
   assert.equals(ethereum.Value.fromStringArray(position.permissions), ethereum.Value.fromArray([]));
   assert.entityCount(PERMISSION_ENTITY_TYPE, 0);
 });
 
-let operator = '0x4200000000000000000000000000000000000096';
+const operator = '0x4200000000000000000000000000000000000096';
 
 test('Deposit with permissions creates the correct permissions', () => {
-  let permissionStruct = new DepositedPermissionsStruct();
+  const permissionStruct = new DepositedPermissionsStruct();
   permissionStruct.push(ethereum.Value.fromAddress(Address.fromString(operator)));
   permissionStruct.push(ethereum.Value.fromI32Array([0]));
   handleDeposited(
@@ -58,14 +58,14 @@ test('Deposit with permissions creates the correct permissions', () => {
       [permissionStruct]
     )
   );
-  let position = Position.load('2')!;
-  let positionPermissionId = position.id.concat('-').concat(operator);
+  const position = Position.load('2')!;
+  const positionPermissionId = position.id.concat('-').concat(operator);
   assert.equals(
     ethereum.Value.fromStringArray(position.permissions),
     ethereum.Value.fromArray([ethereum.Value.fromString(positionPermissionId)])
   );
   assert.entityCount(PERMISSION_ENTITY_TYPE, 1);
-  let permission = PositionPermission.load(positionPermissionId)!;
+  const permission = PositionPermission.load(positionPermissionId)!;
   assert.assertNotNull(permission);
   assert.bytesEquals(permission.operator, Bytes.fromHexString(operator));
   assert.i32Equals(permission.permissions.length, 1);

@@ -22,7 +22,7 @@ export function create(
   permissions: string[],
   transaction: Transaction
 ): CreatedAction {
-  let id = positionId.concat('-').concat(transaction.id);
+  const id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Create {}', [id]);
   let positionAction = CreatedAction.load(id);
   if (positionAction == null) {
@@ -44,7 +44,7 @@ export function create(
 }
 
 export function modifiedRate(positionId: string, rate: BigInt, oldRate: BigInt, transaction: Transaction): ModifiedRateAction {
-  let id = positionId.concat('-').concat(transaction.id);
+  const id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Modified rate {}', [id]);
   let positionAction = ModifiedRateAction.load(id);
   if (positionAction == null) {
@@ -71,7 +71,7 @@ export function modifiedDuration(
   oldRemainingSwaps: BigInt,
   transaction: Transaction
 ): ModifiedDurationAction {
-  let id = positionId.concat('-').concat(transaction.id);
+  const id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Modified duration {}', [id]);
   let positionAction = ModifiedDurationAction.load(id);
   if (positionAction == null) {
@@ -100,7 +100,7 @@ export function modifiedRateAndDuration(
   oldRemainingSwaps: BigInt,
   transaction: Transaction
 ): ModifiedRateAndDurationAction {
-  let id = positionId.concat('-').concat(transaction.id);
+  const id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Modified rate and duration {}', [id]);
   let positionAction = ModifiedRateAndDurationAction.load(id);
   if (positionAction == null) {
@@ -123,7 +123,7 @@ export function modifiedRateAndDuration(
 }
 
 export function withdrew(positionId: string, withdrawn: BigInt, transaction: Transaction): WithdrewAction {
-  let id = positionId.concat('-').concat(transaction.id);
+  const id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Withdrew {}', [id]);
   let positionAction = WithdrewAction.load(id);
   if (positionAction == null) {
@@ -143,7 +143,7 @@ export function withdrew(positionId: string, withdrawn: BigInt, transaction: Tra
 }
 
 export function terminated(positionId: string, transaction: Transaction): TerminatedAction {
-  let id = positionId.concat('-').concat(transaction.id);
+  const id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Withdrew {}', [id]);
   let positionAction = TerminatedAction.load(id);
   if (positionAction == null) {
@@ -160,7 +160,7 @@ export function terminated(positionId: string, transaction: Transaction): Termin
 }
 
 export function swapped(positionId: string, swapped: BigInt, rate: BigInt, pairSwap: PairSwap, transaction: Transaction): SwappedAction {
-  let id = positionId.concat('-').concat(transaction.id);
+  const id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Swapped {}', [id]);
   let positionAction = SwappedAction.load(id);
   if (positionAction == null) {
@@ -184,7 +184,7 @@ export function swapped(positionId: string, swapped: BigInt, rate: BigInt, pairS
 }
 
 export function transfered(positionId: string, from: Address, to: Address, transaction: Transaction): TransferedAction {
-  let id = positionId.concat('-').concat(transaction.id);
+  const id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Transfered {}', [id]);
   let positionAction = TransferedAction.load(id);
   if (positionAction == null) {
@@ -205,7 +205,7 @@ export function transfered(positionId: string, from: Address, to: Address, trans
 }
 
 export function permissionsModified(positionId: string, permissions: string[], transaction: Transaction): PermissionsModifiedAction {
-  let id = positionId.concat('-').concat(transaction.id);
+  const id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Permissions modified {}', [id]);
   let positionAction = PermissionsModifiedAction.load(id);
   if (positionAction == null) {
