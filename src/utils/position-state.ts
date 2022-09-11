@@ -5,7 +5,7 @@ import * as tokenLibrary from './token';
 
 // Creates position state  with zero-ed values.
 export function createBasic(positionId: string, rate: BigInt, startingSwap: BigInt, lastSwap: BigInt, transaction: Transaction): PositionState {
-  let id = positionId.concat('-').concat(transaction.id);
+  const id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionState] Create basic {}', [id]);
   let positionState = PositionState.load(id);
   if (positionState == null) {
@@ -40,9 +40,9 @@ export function createComposed(
   swappedBeforeModified: BigInt,
   transaction: Transaction
 ): PositionState {
-  let id = positionId.concat('-').concat(transaction.id);
+  const id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionState] Create composed {}', [id]);
-  let positionState = createBasic(positionId, rate, startingSwap, lastSwap, transaction);
+  const positionState = createBasic(positionId, rate, startingSwap, lastSwap, transaction);
   positionState.toWithdraw = swappedBeforeModified;
   positionState.swappedBeforeModified = swappedBeforeModified;
   positionState.save();
@@ -51,14 +51,14 @@ export function createComposed(
 
 export function get(id: string): PositionState {
   log.info('[PositionState] Get {}', [id]);
-  let positionState = PositionState.load(id);
+  const positionState = PositionState.load(id);
   if (positionState == null) throw Error('PositionState not found');
   return positionState;
 }
 
 export function registerTerminated(id: string): PositionState {
   log.info('[PositionState] Register terminated {}', [id]);
-  let positionState = get(id);
+  const positionState = get(id);
   positionState.rate = ZERO_BI;
 
   positionState.remainingSwaps = ZERO_BI;
@@ -72,7 +72,7 @@ export function registerTerminated(id: string): PositionState {
 
 export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
   log.info('[PositionState] Register withdrew {}', [id]);
-  let positionState = get(id);
+  const positionState = get(id);
   positionState.toWithdraw = positionState.toWithdraw.minus(withdrawn);
   positionState.withdrawn = positionState.withdrawn.plus(withdrawn);
   positionState.save();
@@ -81,14 +81,14 @@ export function registerWithdrew(id: string, withdrawn: BigInt): PositionState {
 
 export function registerPairSwap(id: string, position: Position, ratio: BigInt): PositionState {
   log.info('[PositionState] Register pair swap {}', [id]);
-  let positionState = get(id);
-  let from = tokenLibrary.getById(position.from);
+  const positionState = get(id);
+  const from = tokenLibrary.getById(position.from);
 
   positionState.ratioAccumulator = positionState.ratioAccumulator.plus(ratio);
 
-  let augmentedSwapped = positionState.ratioAccumulator.times(positionState.rate);
-  let totalSwappedSinceModification = augmentedSwapped.div(from.magnitude);
-  let totalSwapped = positionState.swappedBeforeModified.plus(totalSwappedSinceModification);
+  const augmentedSwapped = positionState.ratioAccumulator.times(positionState.rate);
+  const totalSwappedSinceModification = augmentedSwapped.div(from.magnitude);
+  const totalSwapped = positionState.swappedBeforeModified.plus(totalSwappedSinceModification);
 
   positionState.toWithdraw = totalSwapped.minus(positionState.withdrawn);
 

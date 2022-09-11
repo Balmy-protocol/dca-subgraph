@@ -3,10 +3,10 @@ import { newMockEvent } from 'matchstick-as/assembly/index';
 import { Deposited, DepositedPermissionsStruct, TokensAllowedUpdated } from '../../generated/Hub/Hub';
 
 export function createTokensAllowedUpdatedEvent(tokens: Array<Address>, allowed: Array<boolean>): TokensAllowedUpdated {
-  let newTokensAllowedUpdatedEvent = changetype<TokensAllowedUpdated>(newMockEvent());
+  const newTokensAllowedUpdatedEvent = changetype<TokensAllowedUpdated>(newMockEvent());
   newTokensAllowedUpdatedEvent.parameters = new Array();
-  let tokensParm = new ethereum.EventParam('_tokens', ethereum.Value.fromAddressArray(tokens));
-  let allowedParam = new ethereum.EventParam('_allowed', ethereum.Value.fromBooleanArray(allowed));
+  const tokensParm = new ethereum.EventParam('_tokens', ethereum.Value.fromAddressArray(tokens));
+  const allowedParam = new ethereum.EventParam('_allowed', ethereum.Value.fromBooleanArray(allowed));
 
   newTokensAllowedUpdatedEvent.parameters.push(tokensParm);
   newTokensAllowedUpdatedEvent.parameters.push(allowedParam);
@@ -26,7 +26,7 @@ export function createDepositedEvent(
   lastSwap: i32,
   permissions: Array<DepositedPermissionsStruct>
 ): Deposited {
-  let newDepositedEvent = changetype<Deposited>(newMockEvent());
+  const newDepositedEvent = changetype<Deposited>(newMockEvent());
   newDepositedEvent.parameters = new Array();
 
   newDepositedEvent.parameters.push(new ethereum.EventParam('depositor', ethereum.Value.fromAddress(depositor)));

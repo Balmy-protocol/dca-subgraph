@@ -24,7 +24,7 @@ export function createToken(
   type: string,
   underlyingTokens: string[] | null
 ): void {
-  let token = new Token(tokenAddress.toHexString());
+  const token = new Token(tokenAddress.toHexString());
   token.name = name;
   token.symbol = symbol;
   token.decimals = decimals;
