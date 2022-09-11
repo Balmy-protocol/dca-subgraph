@@ -6,6 +6,7 @@ import * as swapIntervalsLibrary from '../utils/swap-intervals';
 import {
   TokensAllowedUpdated,
   Deposited,
+  Miscellaneous,
   Modified,
   RoleAdminChanged,
   SwapIntervalsAllowed,
@@ -29,6 +30,11 @@ export function handleSetAllowedTokens(event: TokensAllowedUpdated): void {
 export function handleDeposited(event: Deposited): void {
   let transaction = transactionLibrary.getOrCreateFromEvent(event, 'Hub-Deposited');
   positionLibrary.create(event, transaction);
+}
+
+export function handleMiscellaneous(event: Miscellaneous): void {
+  const transaction = transactionLibrary.getOrCreateFromEvent(event, 'Hub-Miscellaneous');
+  positionLibrary.processMiscellaneous(event, transaction);
 }
 
 export function handleModified(event: Modified): void {

@@ -66,6 +66,8 @@ dataSources:
           handler: handleSetAllowedTokens
         - event: Deposited(indexed address,indexed address,uint256,address,address,uint32,uint120,uint32,uint32,(address,uint8[])[])
           handler: handleDeposited
+        - event: Miscellaneous(uint256,bytes)
+          handler: handleMiscellaneous
         - event: Modified(indexed address,uint256,uint120,uint32,uint32)
           handler: handleModified
         - event: Terminated(indexed address,indexed address,indexed address,uint256,uint256,uint256)

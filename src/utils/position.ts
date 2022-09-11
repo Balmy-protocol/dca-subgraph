@@ -1,6 +1,6 @@
 import { log, BigInt, Address, Bytes, store } from '@graphprotocol/graph-ts';
 import { Transaction, Position, PairSwap, Pair, PositionState } from '../../generated/schema';
-import { Deposited, Modified, Terminated } from '../../generated/Hub/Hub';
+import { Deposited, Miscellaneous, Modified, Terminated } from '../../generated/Hub/Hub';
 import { Modified as PermissionsModified } from '../../generated/PermissionsManager/PermissionsManager';
 import { Transfer } from '../../generated/PermissionsManager/PermissionsManager';
 import * as pairLibrary from './pair';
@@ -54,6 +54,10 @@ export function create(event: Deposited, transaction: Transaction): Position {
     pairLibrary.addActivePosition(position);
   }
   return position;
+}
+
+export function processMiscellaneous(event: Miscellaneous, transaction: Transaction): void {
+  log.info('[Miscellaneous] Processing miscellaneous for position {}', [event.params.positionId.toString()]);
 }
 
 export function getById(id: string): Position {

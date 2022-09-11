@@ -54,6 +54,8 @@ type Position @entity {
   pair: Pair!
   "swap interval"
   swapInterval: SwapInterval!
+  "referral"
+  referral: Bytes
 
   "permissions"
   permissions: [PositionPermission!]!
