@@ -35,6 +35,7 @@ export function create(event: Deposited, transaction: Transaction): Position {
     position.totalWithdrawn = ZERO_BI;
     position.totalSwapped = ZERO_BI;
     position.totalExecutedSwaps = ZERO_BI;
+    position.totalGeneratedFee = ZERO_BI;
 
     position.transaction = transaction.id;
     position.createdAtBlock = transaction.blockNumber;

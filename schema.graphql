@@ -70,6 +70,8 @@ type Position @entity {
   totalSwaps: BigInt!
   "times it was swapped"
   totalExecutedSwaps: BigInt!
+  "total fees generated for the protocol"
+  totalGeneratedFee: BigInt!
 
   "state"
   current: PositionState!
