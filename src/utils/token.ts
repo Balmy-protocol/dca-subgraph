@@ -1,7 +1,7 @@
 import { Address, log, BigInt, dataSource } from '@graphprotocol/graph-ts';
 import { Token } from '../../generated/schema';
 import { ERC20 } from '../../generated/Hub/ERC20';
-import { Transformer } from '../../generated/Hub/Transformer';
+import { Transformer, Transformer__calculateTransformToUnderlyingResultValue0Struct } from '../../generated/Hub/Transformer';
 import { TransformerRegistry } from '../../generated/Hub/TransformerRegistry';
 import { PROTOCOL_TOKEN_ADDRESS } from './constants';
 
@@ -80,10 +80,14 @@ export function createProtocolToken(): Token {
 }
 
 export function getTokenTypeAndTransformerAddress(tokenAddress: Address): TokenTypeAndTransformerAddress {
-  const transformerRegistry = TransformerRegistry.bind(TRANSFORMER_REGISTRY_ADDRESS);
-  const transformerAddress = transformerRegistry.transformers([tokenAddress])[0];
+  const transformerAddress = getTransformerAddress(tokenAddress)[0];
   const tokenType = getTokenTypeByTransformerAddress(transformerAddress);
   return new TokenTypeAndTransformerAddress(tokenType, transformerAddress);
+}
+
+export function getTransformerAddress(dependantTokenAddress: Address): Address[] {
+  const transformerRegistry = TransformerRegistry.bind(TRANSFORMER_REGISTRY_ADDRESS);
+  return transformerRegistry.transformers([dependantTokenAddress]);
 }
 
 function getTokenTypeByTransformerAddress(transformerAddress: Address): string {
@@ -95,10 +99,10 @@ function getTokenTypeByTransformerAddress(transformerAddress: Address): string {
   return 'BASE';
 }
 
-export function getUnderlyingTokenIds(transformerAddress: Address, dependantAddress: Address): string[] {
+export function getUnderlyingTokenIds(transformerAddress: Address, dependantTokenAddress: Address): string[] {
   const underlyingTokens: string[] = [];
   const transformer = Transformer.bind(transformerAddress);
-  const underlyingTokenAddresses = transformer.getUnderlying(dependantAddress);
+  const underlyingTokenAddresses = transformer.getUnderlying(dependantTokenAddress);
   for (let i: i32 = 0; i < underlyingTokenAddresses.length; i++) {
     const underlyingId = underlyingTokenAddresses[i].toHexString();
     const underlyingToken = Token.load(underlyingId);
@@ -106,6 +110,19 @@ export function getUnderlyingTokenIds(transformerAddress: Address, dependantAddr
     underlyingTokens.push(underlyingId);
   }
   return underlyingTokens;
+}
+
+export function transformToUnderlying(
+  dependantAddress: Address,
+  amount: BigInt
+): Array<Transformer__calculateTransformToUnderlyingResultValue0Struct> {
+  const transformer = Transformer.bind(getTransformerAddress(dependantAddress)[0]);
+  return transformer.calculateTransformToUnderlying(dependantAddress, amount);
+}
+
+export function transformYieldBearingSharesToUnderlying(dependantTokenAddress: Address, amount: BigInt): BigInt {
+  const underlyings = transformToUnderlying(dependantTokenAddress, amount);
+  return underlyings[0].amount;
 }
 
 export class TokenTypeAndTransformerAddress {

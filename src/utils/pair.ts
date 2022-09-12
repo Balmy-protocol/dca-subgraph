@@ -73,12 +73,12 @@ export function swapped(event: Swapped, transaction: Transaction): void {
       // Check if we are executing the interval that the position has
       if (positionLibrary.shouldRegisterPairSwap(activePositionIds[x], intervals)) {
         // Applies swap to position.
-        const positionAndState = positionLibrary.registerPairSwap(activePositionIds[x], pair, pairSwap, transaction); // O(1)
+        const position = positionLibrary.registerPairSwap(activePositionIds[x], pair, pairSwap, transaction); // O(1)
         // If remaining swap is zero, we need to do some further modifications
-        if (positionAndState.positionState.remainingSwaps.equals(ZERO_BI)) {
+        if (position.remainingSwaps.equals(ZERO_BI)) {
           // Take position from active positions
-          newActivePositionIds.splice(newActivePositionIds.indexOf(positionAndState.position.id), 1); // O(x + x), where worst x scenario x = m
-          const indexOfInterval = getIndexOfInterval(BigInt.fromString(positionAndState.position.swapInterval));
+          newActivePositionIds.splice(newActivePositionIds.indexOf(position.id), 1); // O(x + x), where worst x scenario x = m
+          const indexOfInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
           // Reduce active positions per interval
           newActivePositionsPerInterval[indexOfInterval] = newActivePositionsPerInterval[indexOfInterval].minus(ONE_BI);
         }

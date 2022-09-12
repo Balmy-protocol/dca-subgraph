@@ -54,11 +54,33 @@ type Position @entity {
   pair: Pair!
   "swap interval"
   swapInterval: SwapInterval!
-
-  "permissions"
-  permissions: [PositionPermission!]!
   "position status"
   status: POSITION_STATUS!
+  "permissions"
+  permissions: [PositionPermission!]!
+
+  "current rate of position"
+  rate: BigInt!
+  "deposited rate underlying (optional, only if type is a yield-bearing-share)"
+  depositedRateUnderlying: BigInt
+
+  "current remaining swaps"
+  remainingSwaps: BigInt!
+  "current amount able to be withdrawn (expressed in TO token)"
+  toWithdraw: BigInt!
+  "accumulator of the swapped underlying. helps to get yield generated of swapped."
+  accumSwappedUnderlying: BigInt
+  
+  "withdrawn (expressed in TO token). needed to calculate toWithdraw."
+  withdrawn: BigInt!
+  "remaining liquidity (expressed in FROM token)"
+  remainingLiquidity: BigInt!
+
+  # Mimic on-chain swapped amounts
+  "swapped before modified"
+  swappedBeforeModified: BigInt!
+  "ratio accumulator. refers to on-chain rate accumulator"
+  ratioAccumulator: BigInt!
 
   "total deposited expressed in (from)"
   totalDeposited: BigInt!
@@ -73,9 +95,7 @@ type Position @entity {
   "total fees generated for the protocol"
   totalGeneratedFee: BigInt!
 
-  "state"
-  current: PositionState!
-  "actions"
+  "actions history"
   history: [PositionActionInterface!]! @derivedFrom(field: "position")
   
   "transaction"
@@ -88,38 +108,6 @@ type Position @entity {
   terminatedAtBlock: BigInt
   "terminated at timestamp"
   terminatedAtTimestamp: BigInt
-}
-
-type PositionState @entity {
-  "position.id-tx.hash-tx.index"
-  id: ID!
-  "position"
-  position: Position!
-
-  "rate"
-  rate: BigInt!
-
-  "remaining swaps"
-  remainingSwaps: BigInt!
-  "to be withdrawn (swapped not withrawn. previously named as idleSwapped. expressed in TO token)"
-  toWithdraw: BigInt!
-  "withdrawn (expressed in TO token)"
-  withdrawn: BigInt!
-  "remaining liquidity (expressed in FROM token)"
-  remainingLiquidity: BigInt!
-
-  # Mimic on-chain swapped amounts
-  "swapped before modified"
-  swappedBeforeModified: BigInt!
-  "ratio accumulator. refers to on-chain rate accumulator"
-  ratioAccumulator: BigInt!
-
-  "transaction"
-  transaction: Transaction!
-  "createdAtBlock"
-  createdAtBlock: BigInt!
-  "createdAtTimestamp"
-  createdAtTimestamp: BigInt!
 }
 
 enum PERMISSION {
@@ -330,8 +318,13 @@ type SwappedAction implements PositionActionInterface @entity {
 
   "swapped (expressed in to)"
   swapped: BigInt
+  "swapped underlying (optional, only if type is a yield-bearing-share)"
+  swappedUnderlying: BigInt
+  "Distributed share value (optional, only if type is a yield-bearing-share)"
+  depositedRateUnderlying: BigInt
   "rate (expressed in from)"
   rate: BigInt
+
 
   "ratio unit b to a with fee subtracted"
   ratioPerUnitBToAWithFee: BigInt

@@ -3,9 +3,9 @@ import { assert, beforeEach, clearStore, dataSourceMock, describe, test } from '
 import { Token } from '../../generated/schema';
 import * as tokenLibrary from '../../src/utils/token';
 import { createToken, mockTokenContract } from '../test-utils/token';
-import { mockTransformerRegistry } from '../test-utils/transformer-registry';
-import { mockTransformer } from '../test-utils/transformer';
-import { ADDRESS_ZERO } from '../../src/utils/constants';
+import { MockTransformerRegistry } from '../test-utils/transformer-registry';
+import { MockTransformer } from '../test-utils/transformer';
+import { ADDRESS_ZERO, ONE_BI } from '../../src/utils/constants';
 
 describe('Token library', () => {
   /* -------------------- Set ups environment for each test ------------------- */
@@ -75,7 +75,7 @@ describe('Token library', () => {
   describe('getTokenTypeAndTransformerAddress', () => {
     describe(`when token doesn't have a transformer assigned`, () => {
       beforeEach(() => {
-        mockTransformerRegistry([token1_address], [ADDRESS_ZERO]);
+        MockTransformerRegistry.transformers([token1_address], [ADDRESS_ZERO]);
       });
       test('then type is base and transformer address is zero', () => {
         const tokenTypeAndTransformer = tokenLibrary.getTokenTypeAndTransformerAddress(token1_address);
@@ -86,7 +86,7 @@ describe('Token library', () => {
     describe(`when token has a transformer assigned`, () => {
       describe('and its the protocol wrapper transformer', () => {
         beforeEach(() => {
-          mockTransformerRegistry([token1_address], [tokenLibrary.PROTOCOL_TOKEN_WRAPPER_TRANSFORMER_ADDRESS]);
+          MockTransformerRegistry.transformers([token1_address], [tokenLibrary.PROTOCOL_TOKEN_WRAPPER_TRANSFORMER_ADDRESS]);
         });
         test('then type and transformer address are correct', () => {
           const tokenTypeAndTransformer = tokenLibrary.getTokenTypeAndTransformerAddress(token1_address);
@@ -96,7 +96,7 @@ describe('Token library', () => {
       });
       describe('and its the yield baring shares transformer', () => {
         beforeEach(() => {
-          mockTransformerRegistry([token1_address], [tokenLibrary.YIELD_BEARING_SHARE_TRANSFORMER_ADDRESS]);
+          MockTransformerRegistry.transformers([token1_address], [tokenLibrary.YIELD_BEARING_SHARE_TRANSFORMER_ADDRESS]);
         });
         test('then type and transformer address are correct', () => {
           const tokenTypeAndTransformer = tokenLibrary.getTokenTypeAndTransformerAddress(token1_address);
@@ -109,7 +109,7 @@ describe('Token library', () => {
 
   describe('getUnderlyingTokenIds', () => {
     beforeEach(() => {
-      mockTransformer(transformerAddress, dependantAddress, [token1_address]);
+      MockTransformer.getUnderlying(transformerAddress, dependantAddress, [token1_address]);
     });
     describe('when underlying token already exists', () => {
       test('returns correct underlying tokens', () => {
@@ -125,7 +125,7 @@ describe('Token library', () => {
         // Mock token contract on-chain
         mockTokenContract(token1_id, token1_name, token1_symbol, token1_decimals);
         // We indicate that the underlying is going to be a BASE token
-        mockTransformerRegistry([token1_address], [ADDRESS_ZERO]);
+        MockTransformerRegistry.transformers([token1_address], [ADDRESS_ZERO]);
       });
       test('creates underlying and returns them', () => {
         assert.entityCount('Token', 0);
@@ -136,6 +136,24 @@ describe('Token library', () => {
         assert.stringEquals(token.id, token1_id);
         assert.equals(ethereum.Value.fromStringArray(underlyingTokens), ethereum.Value.fromStringArray([token1_id]));
       });
+    });
+  });
+
+  describe('getUnderlying', () => {
+    describe('when sending a dependant token', () => {
+      beforeEach(() => {
+        MockTransformerRegistry.transformers([token1_address], [transformerAddress]);
+        MockTransformer.getUnderlying(transformerAddress, dependantAddress, [token1_address]);
+      });
+      test('returns underlying amounts', () => {
+        // TODO
+      });
+    });
+  });
+
+  describe('transformYieldBearingSharesToUnderlying', () => {
+    test('returns transformed shares amount to underlying', () => {
+      // TODO
     });
   });
 });

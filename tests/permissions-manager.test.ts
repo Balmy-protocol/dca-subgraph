@@ -6,7 +6,7 @@ import { handleDeposited, handleSetAllowedTokens } from '../src/mappings/hub';
 import { ADDRESS_ZERO } from '../src/utils/constants';
 import { createDepositedEvent, createTokensAllowedUpdatedEvent } from './test-utils/event-utils';
 import { mockTokenContract } from './test-utils/token';
-import { mockTransformerRegistry } from './test-utils/transformer-registry';
+import { MockTransformerRegistry } from './test-utils/transformer-registry';
 
 const PERMISSION_ENTITY_TYPE = 'PositionPermission';
 const user = '0x4200000000000000000000000000000000000069';
@@ -15,9 +15,9 @@ const token2 = '0x0000000000000000000000000000000000000002';
 
 test('Deposit with empty permissions doesnt create permissions', () => {
   mockTokenContract(token1, 'Token 1', 'T1', 15);
-  mockTransformerRegistry([Address.fromString(token1)], [ADDRESS_ZERO]);
+  MockTransformerRegistry.transformers([Address.fromString(token1)], [ADDRESS_ZERO]);
   mockTokenContract(token2, 'Token 2', 'T2', 16);
-  mockTransformerRegistry([Address.fromString(token2)], [ADDRESS_ZERO]);
+  MockTransformerRegistry.transformers([Address.fromString(token2)], [ADDRESS_ZERO]);
   handleSetAllowedTokens(createTokensAllowedUpdatedEvent([Address.fromString(token1), Address.fromString(token2)], [true, true]));
   handleDeposited(
     createDepositedEvent(

@@ -47,7 +47,6 @@ dataSources:
         - PairSwap
         - PairSwapInterval
         - Position
-        - PositionState
         - PositionPairSwap
         - SwapInterval
         - Transaction

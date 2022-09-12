@@ -111,3 +111,4 @@ subgraph.yaml
 package-lock.json
 .idea
 generated
+tests/.latest.json
