@@ -13,7 +13,7 @@ export const YIELD_BEARING_SHARE_TRANSFORMER_ADDRESS = Address.fromString('0xe07
 
 export function getById(id: string): Token {
   log.info('[Token] Get {}', [id]);
-  let token = Token.load(id);
+  const token = Token.load(id);
   if (token == null) throw Error('Token not found');
   return token;
 }
@@ -23,7 +23,7 @@ export function getByAddress(tokenAddress: Address): Token {
 }
 
 export function getOrCreate(tokenAddress: Address, allowed: boolean): Token {
-  let id = tokenAddress.toHexString();
+  const id = tokenAddress.toHexString();
   log.info('[Tokens] Get or create {}', [id]);
   let token = Token.load(id);
   if (token === null) {
@@ -31,14 +31,14 @@ export function getOrCreate(tokenAddress: Address, allowed: boolean): Token {
       token = createProtocolToken();
     } else {
       token = new Token(id);
-      let erc20Contract = ERC20.bind(tokenAddress);
+      const erc20Contract = ERC20.bind(tokenAddress);
       token.name = erc20Contract.name();
       token.symbol = erc20Contract.symbol();
       token.decimals = erc20Contract.decimals();
       token.magnitude = BigInt.fromI32(10).pow(erc20Contract.decimals() as u8);
       token.allowed = allowed;
 
-      let tokenTypeAndTransformerAddress = getTokenTypeAndTransformerAddress(tokenAddress);
+      const tokenTypeAndTransformerAddress = getTokenTypeAndTransformerAddress(tokenAddress);
       token.type = tokenTypeAndTransformerAddress.tokenType;
 
       if (tokenTypeAndTransformerAddress.tokenType != 'BASE') {
@@ -58,7 +58,7 @@ export function getOrCreate(tokenAddress: Address, allowed: boolean): Token {
 }
 
 export function createProtocolToken(): Token {
-  let token = new Token(PROTOCOL_TOKEN_ADDRESS.toHexString());
+  const token = new Token(PROTOCOL_TOKEN_ADDRESS.toHexString());
   if (
     dataSource.network() == 'mainnet' ||
     dataSource.network() == 'optimism' ||
@@ -80,13 +80,13 @@ export function createProtocolToken(): Token {
 }
 
 export function getTokenTypeAndTransformerAddress(tokenAddress: Address): TokenTypeAndTransformerAddress {
-  let transformerAddress = getTransformerAddress(tokenAddress)[0];
-  let tokenType = getTokenTypeByTransformerAddress(transformerAddress);
+  const transformerAddress = getTransformerAddress(tokenAddress)[0];
+  const tokenType = getTokenTypeByTransformerAddress(transformerAddress);
   return new TokenTypeAndTransformerAddress(tokenType, transformerAddress);
 }
 
 export function getTransformerAddress(dependantTokenAddress: Address): Address[] {
-  let transformerRegistry = TransformerRegistry.bind(TRANSFORMER_REGISTRY_ADDRESS);
+  const transformerRegistry = TransformerRegistry.bind(TRANSFORMER_REGISTRY_ADDRESS);
   return transformerRegistry.transformers([dependantTokenAddress]);
 }
 
@@ -100,12 +100,12 @@ function getTokenTypeByTransformerAddress(transformerAddress: Address): string {
 }
 
 export function getUnderlyingTokenIds(transformerAddress: Address, dependantTokenAddress: Address): string[] {
-  let underlyingTokens: string[] = [];
-  let transformer = Transformer.bind(transformerAddress);
-  let underlyingTokenAddresses = transformer.getUnderlying(dependantTokenAddress);
+  const underlyingTokens: string[] = [];
+  const transformer = Transformer.bind(transformerAddress);
+  const underlyingTokenAddresses = transformer.getUnderlying(dependantTokenAddress);
   for (let i: i32 = 0; i < underlyingTokenAddresses.length; i++) {
-    let underlyingId = underlyingTokenAddresses[i].toHexString();
-    let underlyingToken = Token.load(underlyingId);
+    const underlyingId = underlyingTokenAddresses[i].toHexString();
+    const underlyingToken = Token.load(underlyingId);
     if (underlyingToken === null) getOrCreate(underlyingTokenAddresses[i], false);
     underlyingTokens.push(underlyingId);
   }

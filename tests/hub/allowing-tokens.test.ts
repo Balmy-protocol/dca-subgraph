@@ -7,8 +7,8 @@ import { mockTokenContract } from '../test-utils/token';
 import { MockTransformerRegistry } from '../test-utils/transformer-registry';
 import { ADDRESS_ZERO } from '../../src/utils/constants';
 
-let TOKEN_ENTITY_TYPE = 'Token';
-let token1 = '0x0000000000000000000000000000000000000001';
+const TOKEN_ENTITY_TYPE = 'Token';
+const token1 = '0x0000000000000000000000000000000000000001';
 
 test('First time tokens are updated', () => {
   mockTokenContract(token1, 'Token 1', 'T1', 15);
@@ -16,7 +16,7 @@ test('First time tokens are updated', () => {
   assert.entityCount(TOKEN_ENTITY_TYPE, 0);
   handleSetAllowedTokens(createTokensAllowedUpdatedEvent([Address.fromString(token1)], [true]));
   assert.entityCount(TOKEN_ENTITY_TYPE, 1);
-  let token = Token.load(token1)!;
+  const token = Token.load(token1)!;
   assert.assertNotNull(token);
   assert.stringEquals(token.name, 'Token 1');
   assert.stringEquals(token.symbol, 'T1');
@@ -27,7 +27,7 @@ test('First time tokens are updated', () => {
 
 test('Token was already allowed and its updated to not allowed', () => {
   handleSetAllowedTokens(createTokensAllowedUpdatedEvent([Address.fromString(token1)], [false]));
-  let token = Token.load(token1)!;
+  const token = Token.load(token1)!;
   assert.assertNotNull(token);
   assert.assertTrue(!token.allowed);
   clearStore();

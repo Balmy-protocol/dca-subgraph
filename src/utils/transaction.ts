@@ -7,18 +7,18 @@ export function createIdFromHashAndIndexAndAction(hash: Bytes, index: BigInt, ac
 
 export function getOrCreateFromEvent(event: ethereum.Event, action: string): Transaction {
   log.info('[Transaction] Get or create transaction from event', []);
-  let transaction = _getOrCreate(event.transaction, event.block, action);
+  const transaction = _getOrCreate(event.transaction, event.block, action);
   return transaction;
 }
 
 export function getOrCreateFromCall(call: ethereum.Call, action: string): Transaction {
   log.info('[Transaction] Get or create transaction from call', []);
-  let transaction = _getOrCreate(call.transaction, call.block, action);
+  const transaction = _getOrCreate(call.transaction, call.block, action);
   return transaction;
 }
 
 function _getOrCreate(ethTransaction: ethereum.Transaction, block: ethereum.Block, action: string): Transaction {
-  let id = createIdFromHashAndIndexAndAction(ethTransaction.hash, ethTransaction.index, action);
+  const id = createIdFromHashAndIndexAndAction(ethTransaction.hash, ethTransaction.index, action);
   log.info('[Transaction] Get or create {}', [id]);
   let transaction = Transaction.load(id);
   if (transaction == null) {

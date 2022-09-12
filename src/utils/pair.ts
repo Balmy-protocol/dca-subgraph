@@ -10,9 +10,9 @@ import { getIndexOfInterval, getIntervals, intervalsFromBytes } from './interval
 export function create(id: string, token0Address: Address, token1Address: Address, swapInterval: BigInt, transaction: Transaction): Pair {
   log.info('[Pair] Create {}', [id]);
   let pair = Pair.load(id);
-  let token0 = tokenLibrary.getByAddress(token0Address);
-  let token1 = tokenLibrary.getByAddress(token1Address);
-  let token0ComesFirst = token1.id > token0.id;
+  const token0 = tokenLibrary.getByAddress(token0Address);
+  const token1 = tokenLibrary.getByAddress(token1Address);
+  const token0ComesFirst = token1.id > token0.id;
   if (pair == null) {
     pair = new Pair(id);
     pair.tokenA = token0ComesFirst ? token0.id : token1.id;
@@ -35,34 +35,34 @@ export function buildId(token0Address: string, token1Address: string): string {
 
 export function get(id: string): Pair | null {
   log.info('[Pair] Get {}', [id]);
-  let pair = Pair.load(id);
+  const pair = Pair.load(id);
   return pair;
 }
 
 export function swapped(event: Swapped, transaction: Transaction): void {
-  let id = event.address.toHexString();
+  const id = event.address.toHexString();
   log.info('[Pair] Swapped {}', [id]);
-  let pairs = event.params.swapInformation.pairs;
-  let fee = event.params.fee;
+  const pairs = event.params.swapInformation.pairs;
+  const fee = event.params.fee;
   for (let i: i32 = 0; i < pairs.length; i++) {
     // O(n)
-    let id = pairs[i].tokenA.toHexString().concat('-').concat(pairs[i].tokenB.toHexString());
-    let pair = get(id)!;
-    let intervals = intervalsFromBytes(pairs[i].intervalsInSwap);
+    const id = pairs[i].tokenA.toHexString().concat('-').concat(pairs[i].tokenB.toHexString());
+    const pair = get(id)!;
+    const intervals = intervalsFromBytes(pairs[i].intervalsInSwap);
     // Check if there was any interval in the swap
-    let hasExecutedSwaps = intervals.length !== 0;
+    const hasExecutedSwaps = intervals.length !== 0;
     if (!hasExecutedSwaps) {
       continue;
     }
 
-    let pairSwap = pairSwapLibrary.create(pair, pairs[i], transaction, fee);
-    let activePositionIds = pair.activePositionIds;
-    let newActivePositionsPerInterval = pair.activePositionsPerInterval;
-    let newActivePositionIds = pair.activePositionIds;
-    let newLastSwappedAt = pair.lastSwappedAt;
+    const pairSwap = pairSwapLibrary.create(pair, pairs[i], transaction, fee);
+    const activePositionIds = pair.activePositionIds;
+    const newActivePositionsPerInterval = pair.activePositionsPerInterval;
+    const newActivePositionIds = pair.activePositionIds;
+    const newLastSwappedAt = pair.lastSwappedAt;
     // Update all last swaped at by interval
     for (let x: i32 = 0; x < intervals.length; x++) {
-      let indexOfInterval = getIndexOfInterval(intervals[x]);
+      const indexOfInterval = getIndexOfInterval(intervals[x]);
       if (newActivePositionsPerInterval[indexOfInterval].gt(ZERO_BI)) {
         newLastSwappedAt[indexOfInterval] = transaction.timestamp;
       }
@@ -73,12 +73,12 @@ export function swapped(event: Swapped, transaction: Transaction): void {
       // Check if we are executing the interval that the position has
       if (positionLibrary.shouldRegisterPairSwap(activePositionIds[x], intervals)) {
         // Applies swap to position.
-        let positionAndState = positionLibrary.registerPairSwap(activePositionIds[x], pair, pairSwap, transaction); // O(1)
+        const positionAndState = positionLibrary.registerPairSwap(activePositionIds[x], pair, pairSwap, transaction); // O(1)
         // If remaining swap is zero, we need to do some further modifications
         if (positionAndState.positionState.remainingSwaps.equals(ZERO_BI)) {
           // Take position from active positions
           newActivePositionIds.splice(newActivePositionIds.indexOf(positionAndState.position.id), 1); // O(x + x), where worst x scenario x = m
-          let indexOfInterval = getIndexOfInterval(BigInt.fromString(positionAndState.position.swapInterval));
+          const indexOfInterval = getIndexOfInterval(BigInt.fromString(positionAndState.position.swapInterval));
           // Reduce active positions per interval
           newActivePositionsPerInterval[indexOfInterval] = newActivePositionsPerInterval[indexOfInterval].minus(ONE_BI);
         }
@@ -94,11 +94,11 @@ export function swapped(event: Swapped, transaction: Transaction): void {
 
 export function addActivePosition(position: Position): Pair {
   log.info('[Pair] Add active position {}', [position.pair]);
-  let pair = get(position.pair)!;
-  let found = false;
+  const pair = get(position.pair)!;
   // Add to active positions
-  let newActivePositionIds = pair.activePositionIds;
+  const newActivePositionIds = pair.activePositionIds;
   // This can be greatly optimizied by saving index of active position on position.
+  let found = false;
   for (let i: i32 = 0; i < newActivePositionIds.length && !found; i++) {
     if (newActivePositionIds[i] == position.id) {
       found = true;
@@ -108,8 +108,8 @@ export function addActivePosition(position: Position): Pair {
     newActivePositionIds.push(position.id);
     pair.activePositionIds = newActivePositionIds;
     // Add to active positions per interval
-    let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
-    let activePositionsPerInterval = pair.activePositionsPerInterval;
+    const indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
+    const activePositionsPerInterval = pair.activePositionsPerInterval;
     activePositionsPerInterval[indexOfPositionInterval] = activePositionsPerInterval[indexOfPositionInterval].plus(ONE_BI);
     pair.activePositionsPerInterval = activePositionsPerInterval;
 
@@ -121,16 +121,16 @@ export function addActivePosition(position: Position): Pair {
 
 export function removeActivePosition(position: Position): Pair {
   log.info('[Pair] Remove active position {}', [position.pair]);
-  let pair = get(position.pair)!;
+  const pair = get(position.pair)!;
   // Remove from active positions
   if (pair.activePositionIds.includes(position.id)) {
-    let newActivePositionIds = pair.activePositionIds;
+    const newActivePositionIds = pair.activePositionIds;
     newActivePositionIds.splice(newActivePositionIds.indexOf(position.id), 1);
     pair.activePositionIds = newActivePositionIds;
 
     // Remove from active positions per interval
-    let indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
-    let activePositionsPerInterval = pair.activePositionsPerInterval;
+    const indexOfPositionInterval = getIndexOfInterval(BigInt.fromString(position.swapInterval));
+    const activePositionsPerInterval = pair.activePositionsPerInterval;
     activePositionsPerInterval[indexOfPositionInterval] = activePositionsPerInterval[indexOfPositionInterval].minus(ONE_BI);
     pair.activePositionsPerInterval = activePositionsPerInterval;
 

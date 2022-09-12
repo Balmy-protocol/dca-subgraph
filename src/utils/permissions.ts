@@ -5,11 +5,11 @@ import { PositionPermission, Transaction, Position } from '../../generated/schem
 import * as positionLibrary from './position';
 import { Modified } from '../../generated/PermissionsManager/PermissionsManager';
 
-export let permissionByIndex = ['INCREASE', 'REDUCE', 'WITHDRAW', 'TERMINATE'];
+export const permissionByIndex = ['INCREASE', 'REDUCE', 'WITHDRAW', 'TERMINATE'];
 
 export function get(id: string): PositionPermission {
   log.info('[PositionPermission] Get {}', [id]);
-  let positionPermission = PositionPermission.load(id);
+  const positionPermission = PositionPermission.load(id);
   if (positionPermission == null) throw Error('PositionPermission not found');
   return positionPermission;
 }
@@ -23,16 +23,16 @@ export function deleteAll(positionPermissions: string[]): void {
 
 export function permissionsModified(positionId: string, event: Modified): NewAndModifiedPermissionsIds {
   log.info('[PositionPermission] Permissions modified {}', [positionId]);
-  let position = positionLibrary.getById(positionId);
+  const position = positionLibrary.getById(positionId);
 
-  let newPositionPermissionsIds: string[] = position.permissions;
-  let positionPermissions: PositionPermission[] = [];
+  const newPositionPermissionsIds: string[] = position.permissions;
+  const positionPermissions: PositionPermission[] = [];
   for (let i: i32 = 0; i < position.permissions.length; i++) {
-    let permission = get(position.permissions[i]);
+    const permission = get(position.permissions[i]);
     positionPermissions.push(permission);
   }
 
-  let modifiedPermissions: string[] = [];
+  const modifiedPermissions: string[] = [];
 
   // We iterate over every modification
   // O(n)
@@ -48,7 +48,7 @@ export function permissionsModified(positionId: string, event: Modified): NewAnd
       modifiedPermissions.push(positionPermissions[j].id);
       if (event.params.permissions[i].permissions.length > 0) {
         // If new permissions.length > 0 => we update that operators permissions
-        let permissions: string[] = [];
+        const permissions: string[] = [];
         for (let k: i32 = 0; k < event.params.permissions[i].permissions.length; k++) {
           // O(1)
           permissions.push(permissionByIndex[event.params.permissions[i].permissions[k]]);
@@ -63,7 +63,7 @@ export function permissionsModified(positionId: string, event: Modified): NewAnd
       }
     } else {
       // If emitted modification is not on a already created permission => create permission
-      let permission = createFromModifiedPermissionsStruct(position.id, [event.params.permissions[i]]);
+      const permission = createFromModifiedPermissionsStruct(position.id, [event.params.permissions[i]]);
       modifiedPermissions.push(permission[0]);
       newPositionPermissionsIds.push(permission[0]);
     }
@@ -85,10 +85,10 @@ export function createFromCommonPermissionsStruct(positionId: string, permission
   log.info('[Permissions] Create from deposited {}', [positionId]);
   let positionPermissionsIds: string[] = [];
   for (let i: i32 = 0; i < permissionSet.length; i++) {
-    let positionPermissionId = positionId.concat('-').concat(permissionSet[i].operator.toHexString());
-    let positionPermission = new PositionPermission(positionPermissionId);
+    const positionPermissionId = positionId.concat('-').concat(permissionSet[i].operator.toHexString());
+    const positionPermission = new PositionPermission(positionPermissionId);
     positionPermission.operator = permissionSet[i].operator as Bytes;
-    let permissions: string[] = [];
+    const permissions: string[] = [];
     for (let x: i32 = 0; x < permissionSet[i].permissions.length; x++) {
       permissions.push(permissionByIndex[permissionSet[i].permissions[x]]);
     }
@@ -101,7 +101,7 @@ export function createFromCommonPermissionsStruct(positionId: string, permission
 
 // Since thegraph is pretty limited and we can't cast it when needed, we need this convertion function
 export function convertDepositedPermissionStructToCommon(permissionSet: DepositedPermissionsStruct[]): CommonPermissionsStruct[] {
-  let commonPermissionSet: CommonPermissionsStruct[] = [];
+  const commonPermissionSet: CommonPermissionsStruct[] = [];
   for (let i: i32 = 0; i < permissionSet.length; i++) {
     commonPermissionSet.push(new CommonPermissionsStruct(permissionSet[i].operator, permissionSet[i].permissions));
   }
@@ -110,7 +110,7 @@ export function convertDepositedPermissionStructToCommon(permissionSet: Deposite
 
 // Since thegraph is pretty limited and we can't cast it when needed, we need this convertion function
 export function convertModifiedPermissionStructToCommon(permissionSet: ModifiedPermissionsStruct[]): CommonPermissionsStruct[] {
-  let commonPermissionSet: CommonPermissionsStruct[] = [];
+  const commonPermissionSet: CommonPermissionsStruct[] = [];
   for (let i: i32 = 0; i < permissionSet.length; i++) {
     commonPermissionSet.push(new CommonPermissionsStruct(permissionSet[i].operator, permissionSet[i].permissions));
   }
