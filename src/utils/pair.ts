@@ -138,20 +138,3 @@ export function removeActivePosition(position: Position): Pair {
   }
   return pair;
 }
-
-// if (_neededInSwap > 0 || _totalBeingSwapped > 0) {
-//   uint256 _totalFee = FeeMath.calculateSubtractedFee(_swapFee, _neededInSwap);
-
-//   int256 _platformFee = int256((_totalFee * _platformFeeRatio) / MAX_PLATFORM_FEE_RATIO);
-
-//   // If diff is negative, we need tokens. If diff is positive, then we have more than is needed
-//   int256 _diff = int256(_totalBeingSwapped) - int256(_neededInSwap);
-
-//   // Instead of checking if diff is positive or not, we compare against the platform fee. This is to avoid any rounding issues
-//   if (_diff > _platformFee) {
-//     _tokenInSwap.reward = uint256(_diff - _platformFee);
-//   } else if (_diff < _platformFee) {
-//     _tokenInSwap.toProvide = uint256(_platformFee - _diff);
-//   }
-//   _tokenInSwap.platformFee = uint256(_platformFee);
-// }
