@@ -210,53 +210,7 @@ type PermissionsModifiedAction implements PositionActionInterface @entity {
   createdAtTimestamp: BigInt!
 }
 
-type ModifiedRateAction implements PositionActionInterface @entity {
-  "position.id-tx.hash-tx.index"
-  id: ID!
-  "position"
-  position: Position!
-  "action that caused the modification"
-  action: ACTION!
-  "actor who executed the action"
-  actor: Bytes!
-
-  "rate"
-  rate: BigInt!
-  "previous rate"
-  oldRate: BigInt!
-
-  "transaction"
-  transaction: Transaction!
-  "createdAtBlock"
-  createdAtBlock: BigInt!
-  "createdAtTimestamp"
-  createdAtTimestamp: BigInt!
-}
-
-type ModifiedDurationAction implements PositionActionInterface @entity {
-  "position.id-tx.hash-tx.index"
-  id: ID!
-  "position"
-  position: Position!
-  "action that caused the modification"
-  action: ACTION!
-  "actor who executed the action"
-  actor: Bytes!
-
-  "remaining swaps"
-  remainingSwaps: BigInt!
-  "previous remaining swaps"
-  oldRemainingSwaps: BigInt!
-
-  "transaction"
-  transaction: Transaction!
-  "createdAtBlock"
-  createdAtBlock: BigInt!
-  "createdAtTimestamp"
-  createdAtTimestamp: BigInt!
-}
-
-type ModifiedRateAndDurationAction implements PositionActionInterface @entity {
+type ModifiedAction implements PositionActionInterface @entity {
   "position.id-tx.hash-tx.index"
   id: ID!
   "position"

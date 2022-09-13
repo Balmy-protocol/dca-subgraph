@@ -139,9 +139,25 @@ export function modified(event: Modified, transaction: Transaction): Position {
       transaction
     );
   } else if (!previousPositionRate.equals(event.params.rate)) {
-    positionActionLibrary.modifiedRate(id, event.params.rate, previousPositionRate, transaction);
+    positionActionLibrary.modifiedRate(
+      id,
+      event.params.rate,
+      event.params.startingSwap,
+      event.params.lastSwap,
+      previousPositionRate,
+      previousRemainingSwaps,
+      transaction
+    );
   } else {
-    positionActionLibrary.modifiedDuration(id, event.params.startingSwap, event.params.lastSwap, previousRemainingSwaps, transaction);
+    positionActionLibrary.modifiedDuration(
+      id,
+      event.params.rate,
+      event.params.startingSwap,
+      event.params.lastSwap,
+      previousPositionRate,
+      previousRemainingSwaps,
+      transaction
+    );
   }
   return position;
 }
