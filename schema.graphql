@@ -253,6 +253,8 @@ type WithdrewAction implements PositionActionInterface @entity {
 
   "withdrawn (expressed in TO token)"
   withdrawn: BigInt!
+  "withdrawn underlying (optional, when to token is yield bearing share)"
+  withdrawnUnderlying: BigInt
 
   "transaction"
   transaction: Transaction!

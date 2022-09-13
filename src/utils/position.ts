@@ -207,7 +207,7 @@ export function withdrew(positionId: string, transaction: Transaction): Position
   position.save();
   //
   // Position action
-  positionActionLibrary.withdrew(positionId, previousToWithdraw, transaction);
+  positionActionLibrary.withdrew(position, previousToWithdraw, transaction);
   //
   return position;
 }
