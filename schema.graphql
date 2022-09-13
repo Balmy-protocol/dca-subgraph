@@ -224,10 +224,14 @@ type ModifiedAction implements PositionActionInterface @entity {
   rate: BigInt!
   "previous rate"
   oldRate: BigInt!
+  "Distributed share value (optional, only if type is a yield-bearing-share)"
+  depositedRateUnderlying: BigInt
   "remaining swaps"
   remainingSwaps: BigInt!
   "previous remaining swaps"
   oldRemainingSwaps: BigInt!
+  "Distributed share value (optional, only if type is a yield-bearing-share)"
+  oldDepositedRateUnderlying: BigInt
 
   "transaction"
   transaction: Transaction!
@@ -249,6 +253,8 @@ type WithdrewAction implements PositionActionInterface @entity {
 
   "withdrawn (expressed in TO token)"
   withdrawn: BigInt!
+  "withdrawn underlying (optional, when to token is yield bearing share)"
+  withdrawnUnderlying: BigInt
 
   "transaction"
   transaction: Transaction!
@@ -269,19 +275,19 @@ type SwappedAction implements PositionActionInterface @entity {
   actor: Bytes!
 
   "swapped (expressed in to)"
-  swapped: BigInt
+  swapped: BigInt!
   "swapped underlying (optional, only if type is a yield-bearing-share)"
   swappedUnderlying: BigInt
+  "rate (expressed in from)"
+  rate: BigInt!
   "Distributed share value (optional, only if type is a yield-bearing-share)"
   depositedRateUnderlying: BigInt
-  "rate (expressed in from)"
-  rate: BigInt
 
 
   "ratio unit b to a with fee subtracted"
-  ratioPerUnitBToAWithFee: BigInt
+  ratioPerUnitBToAWithFee: BigInt!
   "ratio unit a to b with fee subtracted"
-  ratioPerUnitAToBWithFee: BigInt
+  ratioPerUnitAToBWithFee: BigInt!
 
   "transaction"
   transaction: Transaction!
