@@ -8,9 +8,7 @@ import {
   TerminatedAction,
   WithdrewAction,
   CreatedAction,
-  ModifiedRateAction,
-  ModifiedDurationAction,
-  ModifiedRateAndDurationAction,
+  ModifiedAction,
   Position,
 } from '../../generated/schema';
 import { ONE_BI } from './constants';
@@ -45,52 +43,54 @@ export function create(
   return positionAction;
 }
 
-export function modifiedRate(positionId: string, rate: BigInt, oldRate: BigInt, transaction: Transaction): ModifiedRateAction {
-  const id = positionId.concat('-').concat(transaction.id);
-  log.info('[PositionAction] Modified rate {}', [id]);
-  let positionAction = ModifiedRateAction.load(id);
-  if (positionAction == null) {
-    positionAction = new ModifiedRateAction(id);
-    positionAction.position = positionId;
-    positionAction.action = 'MODIFIED_RATE';
-    positionAction.actor = transaction.from;
-
-    positionAction.rate = rate;
-    positionAction.oldRate = oldRate;
-
-    positionAction.transaction = transaction.id;
-    positionAction.createdAtBlock = transaction.blockNumber;
-    positionAction.createdAtTimestamp = transaction.timestamp;
-    positionAction.save();
-  }
-  return positionAction;
+export function modifiedRate(
+  positionId: string,
+  rate: BigInt,
+  startingSwap: BigInt,
+  lastSwap: BigInt,
+  depositedRateUnderlying: BigInt | null,
+  oldRate: BigInt,
+  oldRemainingSwaps: BigInt,
+  oldDepositedRateUnderlying: BigInt | null,
+  transaction: Transaction
+): ModifiedAction {
+  return handleModifiedRateOrDuration(
+    'MODIFIED_RATE',
+    positionId,
+    rate,
+    startingSwap,
+    lastSwap,
+    depositedRateUnderlying,
+    oldRate,
+    oldRemainingSwaps,
+    oldDepositedRateUnderlying,
+    transaction
+  );
 }
 
 export function modifiedDuration(
   positionId: string,
+  rate: BigInt,
   startingSwap: BigInt,
   lastSwap: BigInt,
+  depositedRateUnderlying: BigInt | null,
+  oldRate: BigInt,
   oldRemainingSwaps: BigInt,
+  oldDepositedRateUnderlying: BigInt | null,
   transaction: Transaction
-): ModifiedDurationAction {
-  const id = positionId.concat('-').concat(transaction.id);
-  log.info('[PositionAction] Modified duration {}', [id]);
-  let positionAction = ModifiedDurationAction.load(id);
-  if (positionAction == null) {
-    positionAction = new ModifiedDurationAction(id);
-    positionAction.position = positionId;
-    positionAction.action = 'MODIFIED_DURATION';
-    positionAction.actor = transaction.from;
-
-    positionAction.remainingSwaps = lastSwap.minus(startingSwap).plus(ONE_BI);
-    positionAction.oldRemainingSwaps = oldRemainingSwaps;
-
-    positionAction.transaction = transaction.id;
-    positionAction.createdAtBlock = transaction.blockNumber;
-    positionAction.createdAtTimestamp = transaction.timestamp;
-    positionAction.save();
-  }
-  return positionAction;
+): ModifiedAction {
+  return handleModifiedRateOrDuration(
+    'MODIFIED_DURATION',
+    positionId,
+    rate,
+    startingSwap,
+    lastSwap,
+    depositedRateUnderlying,
+    oldRate,
+    oldRemainingSwaps,
+    oldDepositedRateUnderlying,
+    transaction
+  );
 }
 
 export function modifiedRateAndDuration(
@@ -98,23 +98,53 @@ export function modifiedRateAndDuration(
   rate: BigInt,
   startingSwap: BigInt,
   lastSwap: BigInt,
+  depositedRateUnderlying: BigInt | null,
   oldRate: BigInt,
   oldRemainingSwaps: BigInt,
+  oldDepositedRateUnderlying: BigInt | null,
   transaction: Transaction
-): ModifiedRateAndDurationAction {
+): ModifiedAction {
+  return handleModifiedRateOrDuration(
+    'MODIFIED_RATE_AND_DURATION',
+    positionId,
+    rate,
+    startingSwap,
+    lastSwap,
+    depositedRateUnderlying,
+    oldRate,
+    oldRemainingSwaps,
+    oldDepositedRateUnderlying,
+    transaction
+  );
+}
+
+function handleModifiedRateOrDuration(
+  action: string,
+  positionId: string,
+  rate: BigInt,
+  startingSwap: BigInt,
+  lastSwap: BigInt,
+  depositedRateUnderlying: BigInt | null,
+  oldRate: BigInt,
+  oldRemainingSwaps: BigInt,
+  oldDepositedRateUnderlying: BigInt | null,
+  transaction: Transaction
+): ModifiedAction {
   const id = positionId.concat('-').concat(transaction.id);
-  log.info('[PositionAction] Modified rate and duration {}', [id]);
-  let positionAction = ModifiedRateAndDurationAction.load(id);
+  log.info('[PositionAction] Modified action with id {}', [id]);
+  let positionAction = ModifiedAction.load(id);
   if (positionAction == null) {
-    positionAction = new ModifiedRateAndDurationAction(id);
+    positionAction = new ModifiedAction(id);
     positionAction.position = positionId;
-    positionAction.action = 'MODIFIED_RATE_AND_DURATION';
+    positionAction.action = action;
     positionAction.actor = transaction.from;
 
     positionAction.rate = rate;
     positionAction.remainingSwaps = lastSwap.minus(startingSwap).plus(ONE_BI);
-    positionAction.oldRemainingSwaps = oldRemainingSwaps;
+    positionAction.depositedRateUnderlying = depositedRateUnderlying;
     positionAction.oldRate = oldRate;
+    positionAction.oldRemainingSwaps = oldRemainingSwaps;
+    positionAction.oldDepositedRateUnderlying = oldDepositedRateUnderlying;
 
     positionAction.transaction = transaction.id;
     positionAction.createdAtBlock = transaction.blockNumber;
@@ -124,17 +154,21 @@ export function modifiedRateAndDuration(
   return positionAction;
 }
 
-export function withdrew(positionId: string, withdrawn: BigInt, transaction: Transaction): WithdrewAction {
-  const id = positionId.concat('-').concat(transaction.id);
+export function withdrew(position: Position, withdrawn: BigInt, transaction: Transaction): WithdrewAction {
+  const id = position.id.concat('-').concat(transaction.id);
   log.info('[PositionAction] Withdrew {}', [id]);
+  const to = tokenLibrary.getById(position.to);
   let positionAction = WithdrewAction.load(id);
   if (positionAction == null) {
     positionAction = new WithdrewAction(id);
-    positionAction.position = positionId;
+    positionAction.position = position.id;
     positionAction.action = 'WITHDREW';
     positionAction.actor = transaction.from;
 
     positionAction.withdrawn = withdrawn;
+    if (to.type == 'YIELD_BEARING_SHARE') {
+      positionAction.withdrawnUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), withdrawn);
+    }
 
     positionAction.transaction = transaction.id;
     positionAction.createdAtBlock = transaction.blockNumber;
