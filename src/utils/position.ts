@@ -230,8 +230,8 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   const from = tokenLibrary.getById(position.from);
   const to = tokenLibrary.getById(position.to);
 
-  const ratioFromTo = position.from == pair.tokenA ? pairSwap.ratioPerUnitAToB : pairSwap.ratioPerUnitBToA;
-  const ratioFromToFeeApplied = position.from == pair.tokenA ? pairSwap.ratioPerUnitAToBWithFeeApplied : pairSwap.ratioPerUnitBToAWithFeeApplied;
+  const ratioFromTo = position.from == pair.tokenA ? pairSwap.ratioAToB : pairSwap.ratioBToA;
+  const ratioFromToFeeApplied = position.from == pair.tokenA ? pairSwap.ratioAToBWithFeeApplied : pairSwap.ratioBToAWithFeeApplied;
   const swappedWithFeeApplied = ratioFromToFeeApplied.times(position.rate).div(from.magnitude);
   const swappedWithoutFeeApplied = ratioFromTo.times(position.rate).div(from.magnitude);
   const generatedFee = swappedWithoutFeeApplied.minus(swappedWithFeeApplied);

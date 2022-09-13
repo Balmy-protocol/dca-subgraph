@@ -11,10 +11,10 @@ export function create(pair: Pair, event: SwappedSwapInformationPairsStruct, tra
     pairSwap = new PairSwap(pairSwapId);
     pairSwap.pair = pair.id;
     pairSwap.swapper = transaction.from;
-    pairSwap.ratioPerUnitBToA = event.ratioBToA;
-    pairSwap.ratioPerUnitBToAWithFeeApplied = APPLY_FEE(fee, event.ratioBToA);
-    pairSwap.ratioPerUnitAToB = event.ratioAToB;
-    pairSwap.ratioPerUnitAToBWithFeeApplied = APPLY_FEE(fee, event.ratioAToB);
+    pairSwap.ratioBToA = event.ratioBToA;
+    pairSwap.ratioBToAWithFeeApplied = APPLY_FEE(fee, event.ratioBToA);
+    pairSwap.ratioAToB = event.ratioAToB;
+    pairSwap.ratioAToBWithFeeApplied = APPLY_FEE(fee, event.ratioAToB);
     pairSwap.transaction = transaction.id;
     pairSwap.executedAtBlock = transaction.blockNumber;
     pairSwap.executedAtTimestamp = transaction.timestamp;

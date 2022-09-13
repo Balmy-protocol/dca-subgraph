@@ -135,14 +135,14 @@ type PairSwap @entity {
   swapper: Bytes!
   "pair swap intervals"
   pairSwapsIntervals: [PairSwapInterval!]! @derivedFrom(field: "pairSwap")
-  "ratio unit b to a"
-  ratioPerUnitBToA: BigInt!
-  "ratio unit b to a with fee subtracted"
-  ratioPerUnitBToAWithFeeApplied: BigInt!
-  "ratio unit a to b"
-  ratioPerUnitAToB: BigInt!
-  "ratio unit a to b with fee subtracted"
-  ratioPerUnitAToBWithFeeApplied: BigInt!
+  "ratio b to a"
+  ratioBToA: BigInt!
+  "ratio b to a with fee subtracted"
+  ratioBToAWithFeeApplied: BigInt!
+  "ratio a to b"
+  ratioAToB: BigInt!
+  "ratio a to b with fee subtracted"
+  ratioAToBWithFeeApplied: BigInt!
   "executed with transaction"
   transaction: Transaction!
   "executed at block number"
@@ -286,10 +286,10 @@ type SwappedAction implements PositionActionInterface @entity {
   depositedRateUnderlying: BigInt
 
 
-  "ratio unit b to a with fee subtracted"
-  ratioPerUnitBToAWithFeeApplied: BigInt!
-  "ratio unit a to b with fee subtracted"
-  ratioPerUnitAToBWithFeeApplied: BigInt!
+  "ratio b to a with fee subtracted"
+  ratioBToAWithFeeApplied: BigInt!
+  "ratio a to b with fee subtracted"
+  ratioAToBWithFeeApplied: BigInt!
 
   "transaction"
   transaction: Transaction!
