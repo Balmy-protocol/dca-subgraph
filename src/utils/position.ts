@@ -207,12 +207,15 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   const from = tokenLibrary.getById(position.from);
   const to = tokenLibrary.getById(position.to);
 
-  const ratioFromTo = position.from == pair.tokenA ? pairSwap.ratioPerUnitAToBWithFee : pairSwap.ratioPerUnitBToAWithFee;
-  const swapped = ratioFromTo.times(position.rate).div(from.magnitude);
+  const ratioFromTo = position.from == pair.tokenA ? pairSwap.ratioPerUnitAToB : pairSwap.ratioPerUnitBToA;
+  const ratioFromToFeeApplied = position.from == pair.tokenA ? pairSwap.ratioPerUnitAToBWithFeeApplied : pairSwap.ratioPerUnitBToAWithFeeApplied;
+  const swappedWithFeeApplied = ratioFromToFeeApplied.times(position.rate).div(from.magnitude);
+  const swappedWithoutFeeApplied = ratioFromTo.times(position.rate).div(from.magnitude);
+  const generatedFee = swappedWithoutFeeApplied.minus(swappedWithFeeApplied);
 
   position.remainingSwaps = position.remainingSwaps.minus(ONE_BI);
   position.remainingLiquidity = position.remainingLiquidity.minus(position.rate);
-  position.ratioAccumulator = position.ratioAccumulator.plus(ratioFromTo);
+  position.ratioAccumulator = position.ratioAccumulator.plus(ratioFromToFeeApplied);
 
   const augmentedSwapped = position.ratioAccumulator.times(position.rate);
   const totalSwappedSinceModification = augmentedSwapped.div(from.magnitude);
@@ -221,12 +224,13 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   position.toWithdraw = totalSwapped.minus(position.withdrawn);
   if (to.type == 'YIELD_BEARING_SHARE') {
     position.accumSwappedUnderlying = position.accumSwappedUnderlying!.plus(
-      tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), swapped)
+      tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), swappedWithFeeApplied)
     );
   }
 
-  position.totalSwapped = position.totalSwapped.plus(swapped);
+  position.totalSwapped = position.totalSwapped.plus(swappedWithFeeApplied);
   position.totalExecutedSwaps = position.totalExecutedSwaps.plus(ONE_BI);
+  position.totalGeneratedFee = position.totalGeneratedFee.plus(generatedFee);
 
   if (position.remainingSwaps.equals(ZERO_BI)) {
     position.status = 'COMPLETED';
@@ -234,7 +238,7 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   position.save();
 
   // Position action
-  positionActionLibrary.swapped(position, swapped, position.rate, pairSwap, transaction);
+  positionActionLibrary.swapped(position, swappedWithFeeApplied, position.rate, pairSwap, transaction);
   //
 
   return position;

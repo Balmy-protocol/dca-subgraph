@@ -12,9 +12,9 @@ export function create(pair: Pair, event: SwappedSwapInformationPairsStruct, tra
     pairSwap.pair = pair.id;
     pairSwap.swapper = transaction.from;
     pairSwap.ratioPerUnitBToA = event.ratioBToA;
-    pairSwap.ratioPerUnitBToAWithFee = APPLY_FEE(fee, event.ratioBToA);
+    pairSwap.ratioPerUnitBToAWithFeeApplied = APPLY_FEE(fee, event.ratioBToA);
     pairSwap.ratioPerUnitAToB = event.ratioAToB;
-    pairSwap.ratioPerUnitAToBWithFee = APPLY_FEE(fee, event.ratioAToB);
+    pairSwap.ratioPerUnitAToBWithFeeApplied = APPLY_FEE(fee, event.ratioAToB);
     pairSwap.transaction = transaction.id;
     pairSwap.executedAtBlock = transaction.blockNumber;
     pairSwap.executedAtTimestamp = transaction.timestamp;
@@ -33,8 +33,9 @@ export function create(pair: Pair, event: SwappedSwapInformationPairsStruct, tra
   return pairSwap;
 }
 
+// _amount * (FeeMath.FEE_PRECISION - _fee / 100);
 function APPLY_FEE(fee: BigInt, amount: BigInt): BigInt {
   const FEE_PRECISION = BigInt.fromI32(10000);
-  const feeAmount = amount.times(fee).div(FEE_PRECISION).div(BigInt.fromI32(100));
+  const feeAmount = amount.times(FEE_PRECISION.minus(fee.div(BigInt.fromI32(100))));
   return amount.minus(feeAmount);
 }

@@ -138,11 +138,11 @@ type PairSwap @entity {
   "ratio unit b to a"
   ratioPerUnitBToA: BigInt!
   "ratio unit b to a with fee subtracted"
-  ratioPerUnitBToAWithFee: BigInt!
+  ratioPerUnitBToAWithFeeApplied: BigInt!
   "ratio unit a to b"
   ratioPerUnitAToB: BigInt!
   "ratio unit a to b with fee subtracted"
-  ratioPerUnitAToBWithFee: BigInt!
+  ratioPerUnitAToBWithFeeApplied: BigInt!
   "executed with transaction"
   transaction: Transaction!
   "executed at block number"
@@ -327,9 +327,9 @@ type SwappedAction implements PositionActionInterface @entity {
 
 
   "ratio unit b to a with fee subtracted"
-  ratioPerUnitBToAWithFee: BigInt
+  ratioPerUnitBToAWithFeeApplied: BigInt
   "ratio unit a to b with fee subtracted"
-  ratioPerUnitAToBWithFee: BigInt
+  ratioPerUnitAToBWithFeeApplied: BigInt
 
   "transaction"
   transaction: Transaction!

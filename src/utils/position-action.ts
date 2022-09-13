@@ -176,8 +176,8 @@ export function swapped(position: Position, swapped: BigInt, rate: BigInt, pairS
     positionAction.rate = rate;
     positionAction.swapped = swapped;
 
-    positionAction.ratioPerUnitAToBWithFee = pairSwap.ratioPerUnitAToBWithFee;
-    positionAction.ratioPerUnitBToAWithFee = pairSwap.ratioPerUnitBToAWithFee;
+    positionAction.ratioPerUnitAToBWithFeeApplied = pairSwap.ratioPerUnitAToBWithFeeApplied;
+    positionAction.ratioPerUnitBToAWithFeeApplied = pairSwap.ratioPerUnitBToAWithFeeApplied;
 
     // Check yield-bearing-share on from
     if (from.type == 'YIELD_BEARING_SHARE') {
