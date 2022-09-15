@@ -19,8 +19,8 @@ import { BigInt } from '@graphprotocol/graph-ts';
 
 export function handleSetAllowedTokens(event: TokensAllowedUpdated): void {
   transactionLibrary.getOrCreateFromEvent(event, 'Hub-TokensAllowedUpdated');
-  const tokens = event.params._tokens;
-  const allowed = event.params._allowed;
+  const tokens = event.params.tokens;
+  const allowed = event.params.allowed;
   for (let i: i32 = 0; i < tokens.length; i++) {
     tokenLibrary.getOrCreate(tokens[i], allowed[i]);
   }

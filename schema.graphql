@@ -135,6 +135,10 @@ type PairSwap @entity {
   swapper: Bytes!
   "pair swap intervals"
   pairSwapsIntervals: [PairSwapInterval!]! @derivedFrom(field: "pairSwap")
+  "total amount to swap token a"
+  totalAmountToSwapTokenA: BigInt!
+  "total amount to swap token b"
+  totalAmountToSwapTokenB: BigInt!
   "ratio b to a"
   ratioBToA: BigInt!
   "ratio b to a with fee subtracted"

@@ -18,7 +18,7 @@ export function getOrCreate(interval: BigInt, isActive: boolean): SwapInterval {
 
 export function addSwapIntervals(event: SwapIntervalsAllowed, transaction: Transaction): void {
   log.info('[SwapIntervals] Add swap interval', []);
-  const intervals = event.params._swapIntervals;
+  const intervals = event.params.swapIntervals;
   for (let i: i32 = 0; i < intervals.length; i++) {
     const swapInterval = getOrCreate(intervals[i], true);
     swapInterval.active = true;
@@ -28,7 +28,7 @@ export function addSwapIntervals(event: SwapIntervalsAllowed, transaction: Trans
 
 export function disableSwapIntervals(event: SwapIntervalsForbidden, transaction: Transaction): void {
   log.info('[SwapIntervals] Remove swap interval', []);
-  const intervals = event.params._swapIntervals;
+  const intervals = event.params.swapIntervals;
   for (let i: i32 = 0; i < intervals.length; i++) {
     const swapInterval = getOrCreate(intervals[i], false);
     swapInterval.active = false;

@@ -40,10 +40,10 @@ export function get(id: string): Pair | null {
 }
 
 export function swapped(event: Swapped, transaction: Transaction): void {
-  const id = event.address.toHexString();
-  log.info('[Pair] Swapped {}', [id]);
-  const pairs = event.params.swapInformation.pairs;
+  log.info('[Pair] Swapped', []);
   const fee = event.params.fee;
+  const pairs = event.params.swapInformation.pairs;
+  const extendedPairsInformation = pairSwapLibrary.getExtendedPairInformation(event);
   for (let i: i32 = 0; i < pairs.length; i++) {
     // O(n)
     const id = pairs[i].tokenA.toHexString().concat('-').concat(pairs[i].tokenB.toHexString());
@@ -73,7 +73,7 @@ export function swapped(event: Swapped, transaction: Transaction): void {
       // Check if we are executing the interval that the position has
       if (positionLibrary.shouldRegisterPairSwap(activePositionIds[x], intervals)) {
         // Applies swap to position.
-        const position = positionLibrary.registerPairSwap(activePositionIds[x], pair, pairSwap, transaction); // O(1)
+        const position = positionLibrary.registerPairSwap(activePositionIds[x], pair, extendedPairsInformation[i], pairSwap, transaction); // O(1)
         // If remaining swap is zero, we need to do some further modifications
         if (position.remainingSwaps.equals(ZERO_BI)) {
           // Take position from active positions

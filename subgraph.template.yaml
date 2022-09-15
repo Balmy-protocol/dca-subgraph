@@ -73,7 +73,7 @@ dataSources:
           handler: handleWithdrew
         - event: WithdrewMany(indexed address,indexed address,(address,uint256[])[],uint256[])
           handler: handleWithdrewMany
-        - event: Swapped(indexed address,indexed address,indexed address,((address,uint256,uint256,uint256)[],(address,address,uint256,uint256,bytes1)[]),uint256[],uint32)
+        - event: Swapped(indexed address,indexed address,indexed address,((address,uint256,uint256,uint256)[],(address,address,uint256,uint256,uint256,uint256,bytes1)[]),uint256[],uint32)
           handler: handleSwapped
         - event: SwapIntervalsAllowed(uint32[])
           handler: handleSwapIntervalsAllowed

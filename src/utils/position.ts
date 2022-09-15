@@ -9,6 +9,7 @@ import * as permissionsLibrary from './permissions';
 import * as positionActionLibrary from './position-action';
 import * as tokenLibrary from './token';
 import { ONE_BI, ZERO_BI } from './constants';
+import { ExtendedPairInformation } from './types';
 
 export function create(event: Deposited, transaction: Transaction): Position {
   const id = event.params.positionId.toString();
@@ -224,17 +225,27 @@ export function shouldRegisterPairSwap(positionId: string, intervalsInSwap: BigI
   return false;
 }
 
-export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairSwap, transaction: Transaction): Position {
+export function registerPairSwap(
+  positionId: string,
+  pair: Pair,
+  extendedPairInformation: ExtendedPairInformation,
+  pairSwap: PairSwap,
+  transaction: Transaction
+): Position {
   log.info('[Position] Register pair swap for position {}', [positionId]);
   const position = getById(positionId);
   const from = tokenLibrary.getById(position.from);
   const to = tokenLibrary.getById(position.to);
 
-  const ratioFromTo = position.from == pair.tokenA ? pairSwap.ratioAToB : pairSwap.ratioBToA;
+  const totalTokenPlatformFee = position.from == pair.tokenA ? extendedPairInformation.platformFeeAToB : extendedPairInformation.platformFeeBToA;
+  const totalAmountToSwap = position.from == pair.tokenA ? pairSwap.totalAmountToSwapTokenA : pairSwap.totalAmountToSwapTokenB;
   const ratioFromToFeeApplied = position.from == pair.tokenA ? pairSwap.ratioAToBWithFeeApplied : pairSwap.ratioBToAWithFeeApplied;
   const swappedWithFeeApplied = ratioFromToFeeApplied.times(position.rate).div(from.magnitude);
-  const swappedWithoutFeeApplied = ratioFromTo.times(position.rate).div(from.magnitude);
-  const generatedFee = swappedWithoutFeeApplied.minus(swappedWithFeeApplied);
+
+  // totalSwappedFromA              - platformFeeAToB
+  // swappedByPositionFromA = rate  - positionFee
+  // positionFee = platformFeeAtoB * rate(position X) / totalAmountToSwap(tokenA)
+  const generatedFee = totalTokenPlatformFee.times(position.rate).div(totalAmountToSwap);
 
   position.remainingSwaps = position.remainingSwaps.minus(ONE_BI);
   position.remainingLiquidity = position.remainingLiquidity.minus(position.rate);
