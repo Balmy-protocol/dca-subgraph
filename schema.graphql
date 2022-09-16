@@ -66,10 +66,12 @@ type Position @entity {
 
   "current remaining swaps"
   remainingSwaps: BigInt!
-  "current amount able to be withdrawn (expressed in TO token)"
+  "current amount that can be withdrawn (expressed in TO token)"
   toWithdraw: BigInt!
-  "accumulator of the swapped underlying. helps to get yield generated of swapped."
-  accumSwappedUnderlying: BigInt
+  "accum of the swapped, in terms of the underlying. underlying priced at the moment of the swap"
+  totalSwappedUnderlyingAccum: BigInt
+  "accum of the swapped that has not been withdrawn, in terms of the underlying. underlying priced at the moment of the swap"
+  toWithdrawUnderlyingAccum: BigInt
 
   "withdrawn (expressed in TO token). needed to calculate toWithdraw."
   withdrawn: BigInt!
@@ -86,7 +88,7 @@ type Position @entity {
   totalDeposited: BigInt!
   "total withdrawno expressed in (to)"
   totalWithdrawn: BigInt!
-  "total swapped expressed in (to)"
+  "historic total swapped (expressed in TO token)"
   totalSwapped: BigInt!
   "total swaps"
   totalSwaps: BigInt!
@@ -231,13 +233,13 @@ type ModifiedAction implements PositionActionInterface @entity {
   "previous rate"
   oldRate: BigInt!
   "Distributed share value (optional, only if type is a yield-bearing-share)"
-  depositedRateUnderlying: BigInt
+  rateUnderlying: BigInt
   "remaining swaps"
   remainingSwaps: BigInt!
   "previous remaining swaps"
   oldRemainingSwaps: BigInt!
   "Distributed share value (optional, only if type is a yield-bearing-share)"
-  oldDepositedRateUnderlying: BigInt
+  oldRateUnderlying: BigInt
 
   "transaction"
   transaction: Transaction!

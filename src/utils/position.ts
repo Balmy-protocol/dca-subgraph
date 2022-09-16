@@ -46,7 +46,8 @@ export function create(event: Deposited, transaction: Transaction): Position {
       position.depositedRateUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(event.params.fromToken, event.params.rate);
     }
     if (to.type == 'YIELD_BEARING_SHARE') {
-      position.accumSwappedUnderlying = ZERO_BI;
+      position.toWithdrawUnderlyingAccum = ZERO_BI;
+      position.totalSwappedUnderlyingAccum = ZERO_BI;
     }
 
     position.totalWithdrawn = ZERO_BI;
@@ -202,10 +203,14 @@ export function withdrew(positionId: string, transaction: Transaction): Position
   log.info('[Position] Withdrew {}', [positionId]);
   const position = getById(positionId);
   const previousToWithdraw = position.toWithdraw;
+  const to = tokenLibrary.getById(position.to);
 
   position.toWithdraw = ZERO_BI;
   position.withdrawn = position.withdrawn.plus(previousToWithdraw);
   position.totalWithdrawn = position.totalWithdrawn.plus(previousToWithdraw);
+  if (to.type == 'YIELD_BEARING_SHARE') {
+    position.toWithdrawUnderlyingAccum = ZERO_BI;
+  }
   position.save();
   //
   // Position action
@@ -257,7 +262,10 @@ export function registerPairSwap(
 
   position.toWithdraw = totalSwapped.minus(position.withdrawn);
   if (to.type == 'YIELD_BEARING_SHARE') {
-    position.accumSwappedUnderlying = position.accumSwappedUnderlying!.plus(
+    position.totalSwappedUnderlyingAccum = position.totalSwappedUnderlyingAccum!.plus(
+      tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), swappedWithFeeApplied)
+    );
+    position.toWithdrawUnderlyingAccum = position.toWithdrawUnderlyingAccum!.plus(
       tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), swappedWithFeeApplied)
     );
   }

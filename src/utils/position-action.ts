@@ -48,10 +48,10 @@ export function modifiedRate(
   rate: BigInt,
   startingSwap: BigInt,
   lastSwap: BigInt,
-  depositedRateUnderlying: BigInt | null,
+  rateUnderlying: BigInt | null,
   oldRate: BigInt,
   oldRemainingSwaps: BigInt,
-  oldDepositedRateUnderlying: BigInt | null,
+  oldRateUnderlying: BigInt | null,
   transaction: Transaction
 ): ModifiedAction {
   return handleModifiedRateOrDuration(
@@ -60,10 +60,10 @@ export function modifiedRate(
     rate,
     startingSwap,
     lastSwap,
-    depositedRateUnderlying,
+    rateUnderlying,
     oldRate,
     oldRemainingSwaps,
-    oldDepositedRateUnderlying,
+    oldRateUnderlying,
     transaction
   );
 }
@@ -73,10 +73,10 @@ export function modifiedDuration(
   rate: BigInt,
   startingSwap: BigInt,
   lastSwap: BigInt,
-  depositedRateUnderlying: BigInt | null,
+  rateUnderlying: BigInt | null,
   oldRate: BigInt,
   oldRemainingSwaps: BigInt,
-  oldDepositedRateUnderlying: BigInt | null,
+  oldRateUnderlying: BigInt | null,
   transaction: Transaction
 ): ModifiedAction {
   return handleModifiedRateOrDuration(
@@ -85,10 +85,10 @@ export function modifiedDuration(
     rate,
     startingSwap,
     lastSwap,
-    depositedRateUnderlying,
+    rateUnderlying,
     oldRate,
     oldRemainingSwaps,
-    oldDepositedRateUnderlying,
+    oldRateUnderlying,
     transaction
   );
 }
@@ -98,10 +98,10 @@ export function modifiedRateAndDuration(
   rate: BigInt,
   startingSwap: BigInt,
   lastSwap: BigInt,
-  depositedRateUnderlying: BigInt | null,
+  rateUnderlying: BigInt | null,
   oldRate: BigInt,
   oldRemainingSwaps: BigInt,
-  oldDepositedRateUnderlying: BigInt | null,
+  oldRateUnderlying: BigInt | null,
   transaction: Transaction
 ): ModifiedAction {
   return handleModifiedRateOrDuration(
@@ -110,10 +110,10 @@ export function modifiedRateAndDuration(
     rate,
     startingSwap,
     lastSwap,
-    depositedRateUnderlying,
+    rateUnderlying,
     oldRate,
     oldRemainingSwaps,
-    oldDepositedRateUnderlying,
+    oldRateUnderlying,
     transaction
   );
 }
@@ -124,10 +124,10 @@ function handleModifiedRateOrDuration(
   rate: BigInt,
   startingSwap: BigInt,
   lastSwap: BigInt,
-  depositedRateUnderlying: BigInt | null,
+  rateUnderlying: BigInt | null,
   oldRate: BigInt,
   oldRemainingSwaps: BigInt,
-  oldDepositedRateUnderlying: BigInt | null,
+  oldRateUnderlying: BigInt | null,
   transaction: Transaction
 ): ModifiedAction {
   const id = positionId.concat('-').concat(transaction.id);
@@ -141,10 +141,10 @@ function handleModifiedRateOrDuration(
 
     positionAction.rate = rate;
     positionAction.remainingSwaps = lastSwap.minus(startingSwap).plus(ONE_BI);
-    positionAction.depositedRateUnderlying = depositedRateUnderlying;
+    positionAction.rateUnderlying = rateUnderlying;
     positionAction.oldRate = oldRate;
     positionAction.oldRemainingSwaps = oldRemainingSwaps;
-    positionAction.oldDepositedRateUnderlying = oldDepositedRateUnderlying;
+    positionAction.oldRateUnderlying = oldRateUnderlying;
 
     positionAction.transaction = transaction.id;
     positionAction.createdAtBlock = transaction.blockNumber;

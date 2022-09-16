@@ -11,9 +11,8 @@ jobs:
       matrix:
         networks:
           [
-            { name: "arbitrum", deploy-script: "arbitrum:mainnet" },
-            { name: "mumbai", deploy-script: "mumbai" },
-            { name: "optimism", deploy-script: "optimism:mainnet" },
+            { name: "arbitrum", deploy-script: "arbitrum" },
+            { name: "optimism", deploy-script: "optimism" },
             { name: "polygon", deploy-script: "polygon" },
           ]
     steps:

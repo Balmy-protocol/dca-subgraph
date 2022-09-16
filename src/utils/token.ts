@@ -26,7 +26,7 @@ export function getOrCreate(tokenAddress: Address, allowed: boolean): Token {
   const id = tokenAddress.toHexString();
   log.info('[Tokens] Get or create {}', [id]);
   let token = Token.load(id);
-  if (token === null) {
+  if (token == null) {
     if (tokenAddress.equals(PROTOCOL_TOKEN_ADDRESS)) {
       token = createProtocolToken();
     } else {
@@ -106,7 +106,7 @@ export function getUnderlyingTokenIds(transformerAddress: Address, dependantToke
   for (let i: i32 = 0; i < underlyingTokenAddresses.length; i++) {
     const underlyingId = underlyingTokenAddresses[i].toHexString();
     const underlyingToken = Token.load(underlyingId);
-    if (underlyingToken === null) getOrCreate(underlyingTokenAddresses[i], false);
+    if (underlyingToken == null) getOrCreate(underlyingTokenAddresses[i], false);
     underlyingTokens.push(underlyingId);
   }
   return underlyingTokens;

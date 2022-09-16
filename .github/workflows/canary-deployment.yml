@@ -8,9 +8,8 @@ on:
         required: true
         type: choice
         options:
-          - "arbitrum:mainnet"
-          - "mumbai"
-          - "optimism:mainnet"
+          - "arbitrum"
+          - "optimism"
           - "polygon"
 
 jobs:
