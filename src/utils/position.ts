@@ -45,7 +45,7 @@ export function create(event: Deposited, transaction: Transaction): Position {
     if (from.type == 'YIELD_BEARING_SHARE') {
       position.depositedRateUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(event.params.fromToken, event.params.rate);
     }
-    if (to.type === 'YIELD_BEARING_SHARE') {
+    if (to.type == 'YIELD_BEARING_SHARE') {
       position.accumSwappedUnderlying = ZERO_BI;
     }
 

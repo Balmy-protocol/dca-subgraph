@@ -43,7 +43,7 @@ enum POSITION_STATUS {
 type Position @entity {
   "pair.id-position.id"
   id: ID!
-  
+
   "user"
   user: Bytes!
   "from"
@@ -70,7 +70,7 @@ type Position @entity {
   toWithdraw: BigInt!
   "accumulator of the swapped underlying. helps to get yield generated of swapped."
   accumSwappedUnderlying: BigInt
-  
+
   "withdrawn (expressed in TO token). needed to calculate toWithdraw."
   withdrawn: BigInt!
   "remaining liquidity (expressed in FROM token)"
@@ -97,7 +97,7 @@ type Position @entity {
 
   "actions history"
   history: [PositionActionInterface!]! @derivedFrom(field: "position")
-  
+
   "transaction"
   transaction: Transaction!
   "created at block"
@@ -288,7 +288,8 @@ type SwappedAction implements PositionActionInterface @entity {
   rate: BigInt!
   "Distributed share value (optional, only if type is a yield-bearing-share)"
   depositedRateUnderlying: BigInt
-
+  "Current rate in underlying token (optional, only if type is a yield-bearing-share)"
+  rateUnderlying: BigInt
 
   "ratio b to a with fee subtracted"
   ratioBToAWithFeeApplied: BigInt!

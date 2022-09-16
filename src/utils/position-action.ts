@@ -216,6 +216,7 @@ export function swapped(position: Position, swapped: BigInt, rate: BigInt, pairS
     // Check yield-bearing-share on from
     if (from.type == 'YIELD_BEARING_SHARE') {
       positionAction.depositedRateUnderlying = position.depositedRateUnderlying;
+      positionAction.rateUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.from), rate);
     }
 
     // Check yield-bearing-share on to
