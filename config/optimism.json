@@ -1,7 +1,7 @@
 {
   "network": "optimism",
-  "hubStartBlock": "8840310",
-  "hub": "0x059d306A25c4cE8D7437D25743a8B94520536BD5",
-  "permissionsManagerStartBlock": "8840310",
-  "permissionsManager": "0x6f54391fE0386D506b51d69Deeb8b04E0544E088"
+  "hubStartBlock": "24956231",
+  "hub": "0xA5AdC5484f9997fBF7D405b9AA62A7d88883C345",
+  "permissionsManagerStartBlock": "24956201",
+  "permissionsManager": "0x20bdAE1413659f47416f769a4B27044946bc9923"
 }
