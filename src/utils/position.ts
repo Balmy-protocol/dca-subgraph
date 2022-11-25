@@ -124,7 +124,10 @@ export function modified(event: Modified, transaction: Transaction): Position {
       // underlyingRate = (newRate * underlyingRate) / oldRate
       position.depositedRateUnderlying = event.params.rate.times(position.depositedRateUnderlying!).div(previousPositionRate);
     } else {
-      position.depositedRateUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.from), event.params.rate);
+      position.depositedRateUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(
+        Address.fromString(position.from),
+        event.params.rate
+      );
     }
   }
 
