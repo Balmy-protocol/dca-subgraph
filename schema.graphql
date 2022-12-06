@@ -386,6 +386,8 @@ type Transaction @entity {
   to: Bytes!
   "Ether value sent in the transaction"
   value: BigInt!
+  "Gas price of the transaction"
+  gasPrice: BigInt!
   "Timestamp when the transaction was executed"
   timestamp: BigInt!
   "Block number"

@@ -31,6 +31,7 @@ function _getOrCreate(ethTransaction: ethereum.Transaction, block: ethereum.Bloc
     transaction.timestamp = block.timestamp;
     transaction.blockNumber = block.number;
     transaction.event = action;
+    transaction.gasPrice = ethTransaction.gasPrice;
     transaction.save();
   }
 
