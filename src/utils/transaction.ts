@@ -1,5 +1,9 @@
-import { log, ethereum, BigInt, Bytes } from '@graphprotocol/graph-ts';
+import { log, ethereum, BigInt, Bytes, dataSource, Address } from '@graphprotocol/graph-ts';
 import { Transaction } from '../../generated/schema';
+import { OVMGasPriceOracle } from '../../generated/Hub/OVMGasPriceOracle';
+
+// Optimism gas price oracle to calculate l1 gas price.
+export const OVM_GAS_PRICE_ORACLE_ADDRESS = Address.fromString('0x420000000000000000000000000000000000000F');
 
 export function createIdFromHashAndIndexAndAction(hash: Bytes, index: BigInt, action: string): string {
   return hash.toHexString().concat('-').concat(index.toString()).concat('-').concat(action);
@@ -17,6 +21,15 @@ export function getOrCreateFromCall(call: ethereum.Call, action: string): Transa
   return transaction;
 }
 
+export function calculateL1GasPrice(): BigInt {
+  const ovmGasPriceOracle = OVMGasPriceOracle.bind(OVM_GAS_PRICE_ORACLE_ADDRESS);
+  return ovmGasPriceOracle.l1BaseFee();
+}
+export function getFixedOverhead(): BigInt {
+  const ovmGasPriceOracle = OVMGasPriceOracle.bind(OVM_GAS_PRICE_ORACLE_ADDRESS);
+  return ovmGasPriceOracle.overhead();
+}
+
 function _getOrCreate(ethTransaction: ethereum.Transaction, block: ethereum.Block, action: string): Transaction {
   const id = createIdFromHashAndIndexAndAction(ethTransaction.hash, ethTransaction.index, action);
   log.info('[Transaction] Get or create {}', [id]);
@@ -32,6 +45,14 @@ function _getOrCreate(ethTransaction: ethereum.Transaction, block: ethereum.Bloc
     transaction.blockNumber = block.number;
     transaction.event = action;
     transaction.gasPrice = ethTransaction.gasPrice;
+    transaction.l1GasPrice = null;
+    transaction.overhead = null;
+
+    if (dataSource.network() == 'optimism') {
+      transaction.l1GasPrice = calculateL1GasPrice();
+      transaction.overhead = getFixedOverhead();
+    }
+
     transaction.save();
   }
 

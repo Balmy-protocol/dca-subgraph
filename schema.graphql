@@ -388,6 +388,10 @@ type Transaction @entity {
   value: BigInt!
   "Gas price of the transaction"
   gasPrice: BigInt!
+  "L1 gas fee used for a transaction on optimism"
+  l1GasPrice: BigInt
+  "fixed overhead used for a transaction on optimism"
+  overhead: BigInt
   "Timestamp when the transaction was executed"
   timestamp: BigInt!
   "Block number"

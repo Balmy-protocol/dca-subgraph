@@ -20,6 +20,8 @@ dataSources:
       abis:
         - name: PermissionsManager
           file: ./abis/PermissionsManager.json
+        - name: OVMGasPriceOracle
+          file: ./abis/OVMGasPriceOracle.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
@@ -56,6 +58,8 @@ dataSources:
           file: ./abis/Hub.json
         - name: ERC20
           file: ./abis/ERC20Detailed.json
+        - name: OVMGasPriceOracle
+          file: ./abis/OVMGasPriceOracle.json
         - name: TransformerRegistry
           file: ./abis/TransformerRegistry.json
         - name: Transformer
