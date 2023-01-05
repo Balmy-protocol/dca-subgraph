@@ -214,6 +214,7 @@ export function withdrew(positionId: string, transaction: Transaction): Position
   log.info('[Position] Withdrew {}', [positionId]);
   const position = getById(positionId);
   const previousToWithdraw = position.toWithdraw;
+  const previousToWithdrawUnderlyingAccum = position.toWithdrawUnderlyingAccum;
   const to = tokenLibrary.getById(position.to);
 
   position.toWithdraw = ZERO_BI;
@@ -225,7 +226,7 @@ export function withdrew(positionId: string, transaction: Transaction): Position
   position.save();
   //
   // Position action
-  positionActionLibrary.withdrew(position, previousToWithdraw, transaction);
+  positionActionLibrary.withdrew(position, previousToWithdraw, previousToWithdrawUnderlyingAccum, transaction);
   //
   return position;
 }

@@ -156,7 +156,12 @@ function handleModifiedRateOrDuration(
   return positionAction;
 }
 
-export function withdrew(position: Position, withdrawn: BigInt, transaction: Transaction): WithdrewAction {
+export function withdrew(
+  position: Position,
+  withdrawn: BigInt,
+  withdrawnUnderlyingAccum: BigInt | null,
+  transaction: Transaction
+): WithdrewAction {
   const id = position.id.concat('-').concat(transaction.id);
   log.info('[PositionAction] Withdrew {}', [id]);
   const to = tokenLibrary.getById(position.to);
@@ -170,6 +175,7 @@ export function withdrew(position: Position, withdrawn: BigInt, transaction: Tra
     positionAction.withdrawn = withdrawn;
     if (to.type == 'YIELD_BEARING_SHARE') {
       positionAction.withdrawnUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), withdrawn);
+      positionAction.withdrawnUnderlyingAccum = withdrawnUnderlyingAccum;
     }
 
     positionAction.transaction = transaction.id;

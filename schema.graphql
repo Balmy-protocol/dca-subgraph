@@ -265,6 +265,8 @@ type WithdrewAction implements PositionActionInterface @entity {
   withdrawn: BigInt!
   "withdrawn underlying (optional, when to token is yield bearing share)"
   withdrawnUnderlying: BigInt
+  "withdrawn underlying base accumulated since last withdraw (optional, when the token is yield bearing share)"
+  withdrawnUnderlyingAccum: BigInt
 
   "transaction"
   transaction: Transaction!
