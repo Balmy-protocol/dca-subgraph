@@ -1,12 +1,12 @@
-import { Address, log, BigInt, dataSource } from '@graphprotocol/graph-ts';
+import { Address, log, BigInt, dataSource, ethereum } from '@graphprotocol/graph-ts';
 import { Token } from '../../generated/schema';
 import { ERC20 } from '../../generated/Hub/ERC20';
-import { Transformer, Transformer__calculateTransformToUnderlyingResultValue0Struct } from '../../generated/Hub/Transformer';
+import { Transformer } from '../../generated/Hub/Transformer';
 import {
   TransformerRegistry,
   TransformerRegistry__calculateTransformToUnderlyingResultValue0Struct,
 } from '../../generated/Hub/TransformerRegistry';
-import { PROTOCOL_TOKEN_ADDRESS } from './constants';
+import { ADDRESS_ZERO, PROTOCOL_TOKEN_ADDRESS, ZERO_BI } from './constants';
 
 export const TRANSFORMER_REGISTRY_ADDRESS = Address.fromString('0xC0136591Df365611B1452B5F8823dEF69Ff3A685');
 // WETH / WMATIC / ETC
@@ -34,9 +34,27 @@ export function getOrCreate(tokenAddress: Address, allowed: boolean): Token {
     } else {
       token = new Token(id);
       const erc20Contract = ERC20.bind(tokenAddress);
-      token.name = erc20Contract.name();
-      token.symbol = erc20Contract.symbol();
-      token.decimals = erc20Contract.decimals();
+      const name = erc20Contract.try_name();
+      if (name.reverted) {
+        log.error('[Tokens] Call reverted while trying to get name of token {}', [tokenAddress.toHexString()]);
+        token.name = 'TBD';
+      } else {
+        token.name = name.value;
+      }
+      const symbol = erc20Contract.try_symbol();
+      if (symbol.reverted) {
+        log.error('[Tokens] Call reverted while trying to get symbol of token {}', [tokenAddress.toHexString()]);
+        token.symbol = 'TBD';
+      } else {
+        token.symbol = symbol.value;
+      }
+      const decimals = erc20Contract.try_decimals();
+      if (decimals.reverted) {
+        log.error('[Tokens] Call reverted while trying to get decimals of token {}', [tokenAddress.toHexString()]);
+        token.decimals = 18;
+      } else {
+        token.decimals = decimals.value;
+      }
       token.magnitude = BigInt.fromI32(10).pow(erc20Contract.decimals() as u8);
       token.allowed = allowed;
 
@@ -119,7 +137,18 @@ export function transformToUnderlying(
   amount: BigInt
 ): Array<TransformerRegistry__calculateTransformToUnderlyingResultValue0Struct> {
   const transformerRegistry = TransformerRegistry.bind(TRANSFORMER_REGISTRY_ADDRESS);
-  return transformerRegistry.calculateTransformToUnderlying(dependantAddress, amount);
+  const calculateTransformToUnderlying = transformerRegistry.try_calculateTransformToUnderlying(dependantAddress, amount);
+  if (calculateTransformToUnderlying.reverted) {
+    log.error('[Tokens] Error while calling calculate transform to underlying with {} {}', [
+      dependantAddress.toHexString(),
+      amount.toHexString(),
+    ]);
+    const response = new TransformerRegistry__calculateTransformToUnderlyingResultValue0Struct();
+    response.push(ethereum.Value.fromAddress(ADDRESS_ZERO));
+    response.push(ethereum.Value.fromUnsignedBigInt(amount));
+    return [response];
+  }
+  return calculateTransformToUnderlying.value;
 }
 
 export function transformYieldBearingSharesToUnderlying(dependantTokenAddress: Address, amount: BigInt): BigInt {
