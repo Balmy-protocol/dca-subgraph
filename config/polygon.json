@@ -1,7 +1,7 @@
 {
-  "network": "polygon",
-  "hubStartBlock": "33477755",
+  "network": "matic",
+  "hubStartBlock": "33633624",
   "hub": "0xA5AdC5484f9997fBF7D405b9AA62A7d88883C345",
-  "permissionsManagerStartBlock": "33477755",
+  "permissionsManagerStartBlock": "33633624",
   "permissionsManager": "0x20bdAE1413659f47416f769a4B27044946bc9923"
 }
