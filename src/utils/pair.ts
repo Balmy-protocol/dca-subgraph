@@ -20,6 +20,7 @@ export function create(id: string, token0Address: Address, token1Address: Addres
     pair.activePositionIds = new Array<string>();
     pair.activePositionsPerInterval = [ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI];
     pair.lastSwappedAt = [ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI];
+    pair.oldestActivePositionCreatedAt = transaction.timestamp;
     pair.transaction = transaction.id;
     pair.createdAtBlock = transaction.blockNumber;
     pair.createdAtTimestamp = transaction.timestamp;
@@ -105,6 +106,9 @@ export function addActivePosition(position: Position): Pair {
     }
   }
   if (!found) {
+    if (newActivePositionIds.length === 0) {
+      pair.oldestActivePositionCreatedAt = position.createdAtTimestamp;
+    }
     newActivePositionIds.push(position.id);
     pair.activePositionIds = newActivePositionIds;
     // Add to active positions per interval
@@ -133,6 +137,10 @@ export function removeActivePosition(position: Position): Pair {
     const activePositionsPerInterval = pair.activePositionsPerInterval;
     activePositionsPerInterval[indexOfPositionInterval] = activePositionsPerInterval[indexOfPositionInterval].minus(ONE_BI);
     pair.activePositionsPerInterval = activePositionsPerInterval;
+
+    if (newActivePositionIds.length === 0) {
+      pair.oldestActivePositionCreatedAt = ZERO_BI;
+    }
 
     pair.save();
   }
