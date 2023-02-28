@@ -1,8 +1,12 @@
 specVersion: 0.0.5
 schema:
   file: ./schema.graphql
+# graft:
+#   base: QmTmrkrZTWqU1C28WgveaBe2ERbYmtha2AGZ4FZ2x6kPrK # Subgraph ID of base subgraph
+#   block: 77656968 # Block number
 features:
   - nonFatalErrors
+  - grafting
 dataSources:
   - kind: ethereum/contract
     name: PermissionsManager
