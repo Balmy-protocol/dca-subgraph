@@ -1,7 +1,7 @@
 {
   "network": "arbitrum-one",
-  "hubStartBlock": "26261879",
+  "hubStartBlock": "32875804",
   "hub": "0xA5AdC5484f9997fBF7D405b9AA62A7d88883C345",
-  "permissionsManagerStartBlock": "26261787",
+  "permissionsManagerStartBlock": "32875804",
   "permissionsManager": "0x20bdAE1413659f47416f769a4B27044946bc9923"
 }
