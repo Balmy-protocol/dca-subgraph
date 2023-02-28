@@ -187,6 +187,7 @@ export function terminated(event: Terminated, transaction: Transaction): Positio
   const id = event.params.positionId.toString();
   log.info('[Position] Terminated {}', [id]);
   const position = getById(id);
+  const to = tokenLibrary.getById(position.to);
 
   // Auxiliar previous position values
   const previousRemainingLiquidity = position.remainingLiquidity;
