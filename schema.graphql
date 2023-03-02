@@ -367,6 +367,14 @@ type TerminatedAction implements PositionActionInterface @entity {
   action: ACTION!
   "actor who executed the action"
   actor: Bytes!
+  "withdrawn swapped (expressed in TO token)"
+  withdrawnSwapped: BigInt!
+  "withdrawn swapped underlying (optional, when to token is yield bearing share)"
+  withdrawnSwappedUnderlying: BigInt
+  "withdrawn remaining (expressed in FROM token)"
+  withdrawnRemaining: BigInt!
+  "withdrawn remaining underlying (optional, when to token is yield bearing share)"
+  withdrawnRemainingUnderlying: BigInt
   "transaction"
   transaction: Transaction!
   "createdAtBlock"

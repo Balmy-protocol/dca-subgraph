@@ -186,18 +186,40 @@ export function withdrew(
   return positionAction;
 }
 
-export function terminated(positionId: string, transaction: Transaction): TerminatedAction {
-  const id = positionId.concat('-').concat(transaction.id);
+export function terminated(
+  position: Position,
+  withdrawnSwapped: BigInt,
+  withdrawnRemaining: BigInt,
+  transaction: Transaction
+): TerminatedAction {
+  const id = position.id.concat('-').concat(transaction.id);
   log.info('[PositionAction] Withdrew {}', [id]);
   let positionAction = TerminatedAction.load(id);
   if (positionAction == null) {
+    const to = tokenLibrary.getById(position.to);
+    const from = tokenLibrary.getById(position.from);
     positionAction = new TerminatedAction(id);
-    positionAction.position = positionId;
+    positionAction.position = position.id;
     positionAction.action = 'TERMINATED';
     positionAction.actor = transaction.from;
     positionAction.transaction = transaction.id;
     positionAction.createdAtBlock = transaction.blockNumber;
     positionAction.createdAtTimestamp = transaction.timestamp;
+
+    positionAction.withdrawnSwapped = withdrawnSwapped;
+    positionAction.withdrawnRemaining = withdrawnRemaining;
+    if (to.type == 'YIELD_BEARING_SHARE') {
+      positionAction.withdrawnSwappedUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(
+        Address.fromString(position.to),
+        withdrawnSwapped
+      );
+    }
+    if (from.type == 'YIELD_BEARING_SHARE') {
+      positionAction.withdrawnRemainingUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(
+        Address.fromString(position.from),
+        withdrawnRemaining
+      );
+    }
     positionAction.save();
   }
   return positionAction;

@@ -188,6 +188,10 @@ export function terminated(event: Terminated, transaction: Transaction): Positio
   log.info('[Position] Terminated {}', [id]);
   const position = getById(id);
 
+  // Auxiliar previous position values
+  const previousRemainingLiquidity = position.remainingLiquidity;
+  const previousToWithdraw = position.toWithdraw;
+
   position.rate = ZERO_BI;
   position.remainingSwaps = ZERO_BI;
   position.remainingLiquidity = ZERO_BI;
@@ -199,7 +203,7 @@ export function terminated(event: Terminated, transaction: Transaction): Positio
   position.terminatedAtTimestamp = transaction.timestamp;
 
   // Position action
-  positionActionLibrary.terminated(id, transaction);
+  positionActionLibrary.terminated(position, previousToWithdraw, previousRemainingLiquidity, transaction);
 
   // Save position
   position.save();
