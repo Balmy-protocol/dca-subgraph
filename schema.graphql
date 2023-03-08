@@ -72,6 +72,8 @@ type Position @entity {
   toWithdraw: BigInt!
   "accum of the swapped, in terms of the underlying. underlying priced at the moment of the swap"
   totalSwappedUnderlyingAccum: BigInt
+  "accum of the withdrawn, in terms of the underlying. underlying priced at the moment of the swap"
+  totalWithdrawnUnderlying: BigInt
   "accum of the swapped that has not been withdrawn, in terms of the underlying. underlying priced at the moment of the swap"
   toWithdrawUnderlyingAccum: BigInt
 
