@@ -70,6 +70,18 @@ export function getOrCreate(tokenAddress: Address, allowed: boolean): Token {
   } else {
     if (allowed != token.allowed) {
       token.allowed = allowed;
+
+      // We also need to re-fetch what type of token it is, since there was a case where we
+      // allowed the token first insted of registering the transformer, so
+      // we need to re-evaluate if it's being allowed again 😵
+      if (allowed) {
+        const tokenTypeAndTransformerAddress = getTokenTypeAndTransformerAddress(tokenAddress);
+        token.type = tokenTypeAndTransformerAddress.tokenType;
+
+        if (tokenTypeAndTransformerAddress.tokenType != 'BASE') {
+          token.underlyingTokens = getUnderlyingTokenIds(tokenTypeAndTransformerAddress.transformerAddress, tokenAddress);
+        }
+      }
       token.save();
     }
   }
