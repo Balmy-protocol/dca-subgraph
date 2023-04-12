@@ -6,7 +6,7 @@ import {
   TransformerRegistry,
   TransformerRegistry__calculateTransformToUnderlyingResultValue0Struct,
 } from '../../generated/Hub/TransformerRegistry';
-import { ADDRESS_ZERO, KNOWN_4626, PROTOCOL_TOKEN_ADDRESS, ZERO_BI } from './constants';
+import { ADDRESS_ZERO, getKnown4626, PROTOCOL_TOKEN_ADDRESS } from './constants';
 
 export const TRANSFORMER_REGISTRY_ADDRESS = Address.fromString('0xC0136591Df365611B1452B5F8823dEF69Ff3A685');
 // WETH / WMATIC / ETC
@@ -102,7 +102,8 @@ export function createProtocolToken(): Token {
 export function getTokenTypeAndTransformerAddress(tokenAddress: Address): TokenTypeAndTransformerAddress {
   // This is a patch / check if we did not add the token to the registry
   // before enabling the token, creating a position or swapping it
-  if (KNOWN_4626[dataSource.network()].includes(tokenAddress)) {
+  const knownFortySixTwentySix = getKnown4626();
+  if (knownFortySixTwentySix.has(dataSource.network()) && knownFortySixTwentySix[dataSource.network()].includes(tokenAddress)) {
     log.debug("[Token] We've detected {} to be a 4626 via our known addresses", [tokenAddress.toHexString()]);
     return new TokenTypeAndTransformerAddress('YIELD_BEARING_SHARE', YIELD_BEARING_SHARE_TRANSFORMER_ADDRESS);
   }

@@ -12,9 +12,11 @@ export const ONE_BD = BigDecimal.fromString('1');
 export const BI_18 = BigInt.fromI32(18);
 export const MAX_BI = BigInt.fromString('115792089237316195423570985008687907853269984665640564039457584007913129639935');
 
-export const KNOWN_4626 = {
-  mainnet: [],
-  optimism: [],
-  'arbitrum-one': [],
-  matic: [],
-};
+export function getKnown4626(): Map<string, Array<Address>> {
+  const KNOWN_4626 = new Map<string, Array<Address>>();
+  KNOWN_4626.set('mainnet', new Array<Address>());
+  KNOWN_4626.set('optimism', new Array<Address>());
+  KNOWN_4626.set('arbitrum-one', new Array<Address>());
+  KNOWN_4626.set('matic', new Array<Address>());
+  return KNOWN_4626;
+}
