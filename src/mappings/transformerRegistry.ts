@@ -8,7 +8,7 @@ import { getTokenTypeAndTransformerAddress, getUnderlyingTokenIds } from '../uti
 
 export function handleTransformersRegistered(event: TransformersRegistered): void {
   log.info('[TransformerRegistry] Handle transformers registered', []);
-  const transaction = transactionLibrary.getOrCreateFromEvent(event, 'Tr-TransformersRegistered');
+  transactionLibrary.getOrCreateFromEvent(event, 'Tr-TransformersRegistered');
   const hub = Hub.bind(HUB_ADDRESS);
   let registrations = event.params.registrations;
   for (let i: i32 = 0; i < registrations.length; i++) {
