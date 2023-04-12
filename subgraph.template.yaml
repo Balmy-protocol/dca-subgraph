@@ -8,6 +8,36 @@ features:
   - nonFatalErrors
   - grafting
 dataSources:
+    - kind: ethereum/contract
+    name: TransformerRegistry
+    network: {{network}}
+    source:
+      startBlock: {{transformerRegistryStartBlock}}
+      address: '{{transformerRegistry}}'
+      abi: TransformerRegistry
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/transformerRegistry.ts
+      entities:
+        - TransformerRegistry
+        - Transaction
+        - Token
+      abis:
+        - name: Hub
+          file: ./abis/Hub.json
+        - name: ERC20
+          file: ./abis/ERC20Detailed.json
+        - name: OVMGasPriceOracle
+          file: ./abis/OVMGasPriceOracle.json
+        - name: TransformerRegistry
+          file: ./abis/TransformerRegistry.json
+        - name: Transformer
+          file: ./abis/Transformer.json
+      eventHandlers:
+        - event: TransformersRegistered((address,address[])[])
+          handler: handleTransformersRegistered
   - kind: ethereum/contract
     name: PermissionsManager
     network: {{network}}
@@ -90,7 +120,5 @@ dataSources:
           handler: handleSwapIntervalsAllowed
         - event: SwapIntervalsForbidden(uint32[])
           handler: handleSwapIntervalsDisabled
-        - event: TransformersRegistered((address,address[])[])
-          handler: handleTransformersRegistered
         - event: RoleAdminChanged(indexed bytes32,indexed bytes32,indexed bytes32)
           handler: dirtyInitialization
