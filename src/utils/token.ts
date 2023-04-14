@@ -6,7 +6,7 @@ import {
   TransformerRegistry,
   TransformerRegistry__calculateTransformToUnderlyingResultValue0Struct,
 } from '../../generated/Hub/TransformerRegistry';
-import { ADDRESS_ZERO, PROTOCOL_TOKEN_ADDRESS, ZERO_BI } from './constants';
+import { ADDRESS_ZERO, getKnown4626, PROTOCOL_TOKEN_ADDRESS } from './constants';
 
 export const TRANSFORMER_REGISTRY_ADDRESS = Address.fromString('0xC0136591Df365611B1452B5F8823dEF69Ff3A685');
 // WETH / WMATIC / ETC
@@ -70,18 +70,6 @@ export function getOrCreate(tokenAddress: Address, allowed: boolean): Token {
   } else {
     if (allowed != token.allowed) {
       token.allowed = allowed;
-
-      // We also need to re-fetch what type of token it is, since there was a case where we
-      // allowed the token first insted of registering the transformer, so
-      // we need to re-evaluate if it's being allowed again 😵
-      if (allowed) {
-        const tokenTypeAndTransformerAddress = getTokenTypeAndTransformerAddress(tokenAddress);
-        token.type = tokenTypeAndTransformerAddress.tokenType;
-
-        if (tokenTypeAndTransformerAddress.tokenType != 'BASE') {
-          token.underlyingTokens = getUnderlyingTokenIds(tokenTypeAndTransformerAddress.transformerAddress, tokenAddress);
-        }
-      }
       token.save();
     }
   }
@@ -112,6 +100,13 @@ export function createProtocolToken(): Token {
 }
 
 export function getTokenTypeAndTransformerAddress(tokenAddress: Address): TokenTypeAndTransformerAddress {
+  // This is a patch / check if we did not add the token to the registry
+  // before enabling the token, creating a position or swapping it
+  const knownFortySixTwentySix = getKnown4626();
+  if (knownFortySixTwentySix.has(dataSource.network()) && knownFortySixTwentySix[dataSource.network()].includes(tokenAddress)) {
+    log.debug("[Token] We've detected {} to be a 4626 via our known addresses", [tokenAddress.toHexString()]);
+    return new TokenTypeAndTransformerAddress('YIELD_BEARING_SHARE', YIELD_BEARING_SHARE_TRANSFORMER_ADDRESS);
+  }
   const transformerAddress = getTransformerAddress(tokenAddress)[0];
   const tokenType = getTokenTypeByTransformerAddress(transformerAddress);
   return new TokenTypeAndTransformerAddress(tokenType, transformerAddress);

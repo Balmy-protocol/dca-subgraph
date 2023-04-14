@@ -2,12 +2,42 @@ specVersion: 0.0.5
 schema:
   file: ./schema.graphql
 # graft:
-#   base: QmTmrkrZTWqU1C28WgveaBe2ERbYmtha2AGZ4FZ2x6kPrK # Subgraph ID of base subgraph
-#   block: 77656968 # Block number
+#   base: QmRErUDnU2WFdHYa5RiLpDhAwTTQXuJcM9EqLgqW3Eu36P # Subgraph ID of base subgraph
+#   block: 85870880 # Block number
 features:
   - nonFatalErrors
   - grafting
 dataSources:
+  - kind: ethereum/contract
+    name: TransformerRegistry
+    network: {{network}}
+    source:
+      startBlock: {{transformerRegistryStartBlock}}
+      address: '{{transformerRegistry}}'
+      abi: TransformerRegistry
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/transformerRegistry.ts
+      entities:
+        - TransformerRegistry
+        - Transaction
+        - Token
+      abis:
+        - name: Hub
+          file: ./abis/Hub.json
+        - name: ERC20
+          file: ./abis/ERC20Detailed.json
+        - name: OVMGasPriceOracle
+          file: ./abis/OVMGasPriceOracle.json
+        - name: TransformerRegistry
+          file: ./abis/TransformerRegistry.json
+        - name: Transformer
+          file: ./abis/Transformer.json
+      eventHandlers:
+        - event: TransformersRegistered((address,address[])[])
+          handler: handleTransformersRegistered
   - kind: ethereum/contract
     name: PermissionsManager
     network: {{network}}
@@ -57,6 +87,7 @@ dataSources:
         - Position
         - PositionPairSwap
         - SwapInterval
+        - TransformerRegistry
         - Transaction
         - Token
       abis:

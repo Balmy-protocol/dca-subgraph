@@ -15,7 +15,7 @@ import {
   Withdrew,
   WithdrewMany,
 } from '../../generated/Hub/Hub';
-import { BigInt, log } from '@graphprotocol/graph-ts';
+import { BigInt } from '@graphprotocol/graph-ts';
 
 export function handleSetAllowedTokens(event: TokensAllowedUpdated): void {
   transactionLibrary.getOrCreateFromEvent(event, 'Hub-TokensAllowedUpdated');
