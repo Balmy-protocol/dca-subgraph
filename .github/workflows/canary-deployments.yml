@@ -15,6 +15,7 @@ jobs:
             { name: "arbitrum", deploy-script: "arbitrum" },
             { name: "optimism", deploy-script: "optimism" },
             { name: "polygon", deploy-script: "polygon" },
+            { name: "bnb", deploy-script: "bnb" },
           ]
     steps:
       - name: Check out github repository

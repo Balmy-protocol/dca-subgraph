@@ -1,0 +1,9 @@
+{
+  "network": "bsc",
+  "hubStartBlock": "21672150",
+  "hub": "0xA5AdC5484f9997fBF7D405b9AA62A7d88883C345",
+  "permissionsManagerStartBlock": "21672144",
+  "permissionsManager": "0x20bdAE1413659f47416f769a4B27044946bc9923",
+  "transformerRegistryStartBlock": "21672104",
+  "transformerRegistry": "0xC0136591Df365611B1452B5F8823dEF69Ff3A685"
+}

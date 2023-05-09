@@ -12,6 +12,7 @@ on:
           - "arbitrum"
           - "optimism"
           - "polygon"
+          - "bnb"
 
 jobs:
   deploy:
