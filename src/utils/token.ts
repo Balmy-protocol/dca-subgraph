@@ -91,6 +91,9 @@ export function createProtocolToken(): Token {
   } else if (dataSource.network() == 'matic' || dataSource.network() == 'mumbai') {
     token.name = 'Matic';
     token.symbol = 'MATIC';
+  } else if (dataSource.network() == 'bsc') {
+    token.name = 'BNB';
+    token.symbol = 'BNB';
   }
   token.decimals = 18;
   token.magnitude = BigInt.fromI32(10).pow(18);
