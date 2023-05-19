@@ -35,7 +35,7 @@ export const intervalsFromBytes = (intervalsBytes: Bytes): BigInt[] => {
       result.push(intervals[cycle]);
     }
     cycle = cycle + 1;
-    intervalsAsNumber = intervalsAsNumber >> 1;
+    intervalsAsNumber = intervalsAsNumber.rightShift(1);
   }
   return result;
 };

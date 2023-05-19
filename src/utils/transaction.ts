@@ -1,6 +1,6 @@
 import { log, ethereum, BigInt, Bytes, dataSource, Address } from '@graphprotocol/graph-ts';
 import { Transaction } from '../../generated/schema';
-import { OVMGasPriceOracle } from '../../generated/Hub/OVMGasPriceOracle';
+import { OVMGasPriceOracle } from '../../generated/TransformerRegistry/OVMGasPriceOracle';
 
 // Optimism gas price oracle to calculate l1 gas price.
 export const OVM_GAS_PRICE_ORACLE_ADDRESS = Address.fromString('0x420000000000000000000000000000000000000F');
@@ -39,7 +39,7 @@ function _getOrCreate(ethTransaction: ethereum.Transaction, block: ethereum.Bloc
     transaction.from = ethTransaction.from;
     transaction.hash = ethTransaction.hash;
     transaction.index = ethTransaction.index;
-    transaction.to = ethTransaction.to as Bytes;
+    transaction.to = ethTransaction.to! as Bytes;
     transaction.value = ethTransaction.value;
     transaction.timestamp = block.timestamp;
     transaction.blockNumber = block.number;

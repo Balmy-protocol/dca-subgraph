@@ -1,6 +1,6 @@
 import { log, BigInt, Address } from '@graphprotocol/graph-ts';
 import { Transaction, Pair, PairSwap, PairSwapInterval } from '../../generated/schema';
-import { SwappedSwapInformationPairsStruct } from '../../generated/Hub/Hub';
+import { SwappedSwapInformationPairsStruct } from '../../generated/TransformerRegistry/Hub';
 import { intervalsFromBytes } from './intervals';
 import * as tokenLibrary from './token';
 

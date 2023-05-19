@@ -14,7 +14,7 @@ import {
   Terminated,
   Withdrew,
   WithdrewMany,
-} from '../../generated/Hub/Hub';
+} from '../../generated/TransformerRegistry/Hub';
 import { BigInt } from '@graphprotocol/graph-ts';
 
 export function handleSetAllowedTokens(event: TokensAllowedUpdated): void {
