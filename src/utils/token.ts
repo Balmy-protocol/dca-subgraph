@@ -1,11 +1,11 @@
 import { Address, log, BigInt, dataSource, ethereum } from '@graphprotocol/graph-ts';
 import { Token } from '../../generated/schema';
-import { ERC20 } from '../../generated/Hub/ERC20';
-import { Transformer } from '../../generated/Hub/Transformer';
+import { ERC20 } from '../../generated/TransformerRegistry/ERC20';
+import { Transformer } from '../../generated/TransformerRegistry/Transformer';
 import {
   TransformerRegistry,
   TransformerRegistry__calculateTransformToUnderlyingResultValue0Struct,
-} from '../../generated/Hub/TransformerRegistry';
+} from '../../generated/TransformerRegistry/TransformerRegistry';
 import { ADDRESS_ZERO, getKnown4626, PROTOCOL_TOKEN_ADDRESS } from './constants';
 
 export const TRANSFORMER_REGISTRY_ADDRESS = Address.fromString('0xC0136591Df365611B1452B5F8823dEF69Ff3A685');

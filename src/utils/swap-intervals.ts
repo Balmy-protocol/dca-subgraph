@@ -1,6 +1,6 @@
 import { BigInt, log } from '@graphprotocol/graph-ts';
 import { SwapInterval, Transaction } from '../../generated/schema';
-import { SwapIntervalsAllowed, SwapIntervalsForbidden } from '../../generated/Hub/Hub';
+import { SwapIntervalsAllowed, SwapIntervalsForbidden } from '../../generated/TransformerRegistry/Hub';
 
 export function getOrCreate(interval: BigInt, isActive: boolean): SwapInterval {
   let swapInterval = SwapInterval.load(interval.toString());

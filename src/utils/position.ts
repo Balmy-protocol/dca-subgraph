@@ -1,6 +1,6 @@
 import { log, BigInt, Address, Bytes } from '@graphprotocol/graph-ts';
 import { Transaction, Position, PairSwap, Pair } from '../../generated/schema';
-import { Deposited, Modified, Terminated } from '../../generated/Hub/Hub';
+import { Deposited, Modified, Terminated } from '../../generated/TransformerRegistry/Hub';
 import { Modified as PermissionsModified } from '../../generated/PermissionsManager/PermissionsManager';
 import { Transfer } from '../../generated/PermissionsManager/PermissionsManager';
 import * as pairLibrary from './pair';

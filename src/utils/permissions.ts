@@ -1,5 +1,5 @@
 import { Address, Bytes, log, store } from '@graphprotocol/graph-ts';
-import { DepositedPermissionsStruct } from '../../generated/Hub/Hub';
+import { DepositedPermissionsStruct } from '../../generated/TransformerRegistry/Hub';
 import { ModifiedPermissionsStruct } from '../../generated/PermissionsManager/PermissionsManager';
 import { PositionPermission, Transaction, Position } from '../../generated/schema';
 import * as positionLibrary from './position';

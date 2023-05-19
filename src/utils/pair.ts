@@ -1,11 +1,11 @@
 import { log, BigInt, Address } from '@graphprotocol/graph-ts';
 import { Transaction, Pair, Position } from '../../generated/schema';
+import { Swapped } from '../../generated/TransformerRegistry/Hub';
 import * as tokenLibrary from '../utils/token';
 import * as positionLibrary from '../utils/position';
 import * as pairSwapLibrary from '../utils/pair-swap';
-import { Swapped } from '../../generated/Hub/Hub';
-import { MAX_BI, ONE_BI, ZERO_BI } from './constants';
-import { getIndexOfInterval, getIntervals, intervalsFromBytes } from './intervals';
+import { ONE_BI, ZERO_BI } from './constants';
+import { getIndexOfInterval, intervalsFromBytes } from './intervals';
 
 export function create(id: string, token0Address: Address, token1Address: Address, swapInterval: BigInt, transaction: Transaction): Pair {
   log.info('[Pair] Create {}', [id]);

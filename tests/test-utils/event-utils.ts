@@ -1,6 +1,6 @@
 import { Address, ethereum } from '@graphprotocol/graph-ts';
 import { newMockEvent } from 'matchstick-as/assembly/index';
-import { Deposited, DepositedPermissionsStruct, TokensAllowedUpdated } from '../../generated/Hub/Hub';
+import { Deposited, DepositedPermissionsStruct, TokensAllowedUpdated } from '../../generated/TransformerRegistry/Hub';
 
 export function createTokensAllowedUpdatedEvent(tokens: Array<Address>, allowed: Array<boolean>): TokensAllowedUpdated {
   const newTokensAllowedUpdatedEvent = changetype<TokensAllowedUpdated>(newMockEvent());

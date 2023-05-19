@@ -1,8 +1,8 @@
 import { log } from '@graphprotocol/graph-ts';
 import * as transactionLibrary from '../utils/transaction';
 import * as tokenLibrary from '../utils/token';
-import { Hub } from '../../generated/Hub/Hub';
-import { TransformersRegistered } from '../../generated/Hub/TransformerRegistry';
+import { Hub } from '../../generated/TransformerRegistry/Hub';
+import { TransformersRegistered } from '../../generated/TransformerRegistry/TransformerRegistry';
 import { HUB_ADDRESS } from '../utils/constants';
 import { getTokenTypeAndTransformerAddress, getUnderlyingTokenIds } from '../utils/token';
 

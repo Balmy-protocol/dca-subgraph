@@ -1,6 +1,6 @@
 import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts';
 import { createMockedFunction } from 'matchstick-as/assembly/index';
-import { Transformer__calculateTransformToUnderlyingResultValue0Struct } from '../../generated/Hub/Transformer';
+import { Transformer__calculateTransformToUnderlyingResultValue0Struct } from '../../generated/TransformerRegistry/Transformer';
 
 export class MockTransformer {
   static getUnderlying(transformerAddress: Address, dependantAddress: Address, underlyingTokensAddresses: Address[]): void {
