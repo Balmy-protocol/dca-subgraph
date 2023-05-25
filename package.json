@@ -61,7 +61,7 @@
     "test": "graph test"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.49.0",
+    "@graphprotocol/graph-cli": "0.50.1",
     "@graphprotocol/graph-ts": "0.30.0",
     "mustache": "4.2.0"
   },
