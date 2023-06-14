@@ -15,7 +15,8 @@ import {
   Withdrew,
   WithdrewMany,
 } from '../../generated/TransformerRegistry/Hub';
-import { BigInt } from '@graphprotocol/graph-ts';
+import { BigInt, dataSource } from '@graphprotocol/graph-ts';
+import { Token } from '../../generated/schema';
 
 export function handleSetAllowedTokens(event: TokensAllowedUpdated): void {
   transactionLibrary.getOrCreateFromEvent(event, 'Hub-TokensAllowedUpdated');
@@ -77,4 +78,22 @@ export function dirtyInitialization(event: RoleAdminChanged): void {
   swapIntervalsLibrary.getOrCreate(BigInt.fromString('14400'), true);
   swapIntervalsLibrary.getOrCreate(BigInt.fromString('86400'), true);
   swapIntervalsLibrary.getOrCreate(BigInt.fromString('604800'), true);
+  if (dataSource.network() == 'arbitrum-one') {
+    const bridgedUSDC = new Token('0xff970a61a04b1ca14834a43f5de4533ebddb5cc8');
+    bridgedUSDC.name = 'Bridged USDC';
+    bridgedUSDC.symbol = 'USDC.e';
+    bridgedUSDC.decimals = 6;
+    bridgedUSDC.type = 'BASE';
+    bridgedUSDC.allowed = true;
+    bridgedUSDC.magnitude = BigInt.fromI32(10).pow(6);
+    bridgedUSDC.save();
+    const nativeUSDC = new Token('0xaf88d065e77c8cC2239327C5EDb3A432268e5831');
+    nativeUSDC.name = 'USD Coin';
+    nativeUSDC.symbol = 'USDC';
+    nativeUSDC.decimals = 6;
+    nativeUSDC.type = 'BASE';
+    nativeUSDC.allowed = true;
+    nativeUSDC.magnitude = BigInt.fromI32(10).pow(6);
+    nativeUSDC.save();
+  }
 }
