@@ -23,13 +23,13 @@
     chalk "^2.0.0"
     js-tokens "^4.0.0"
 
-"@commitlint/cli@17.6.3":
-  version "17.6.3"
-  resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-17.6.3.tgz#a02194a2bb6efe4e681eda2addd072a8d02c9497"
-  integrity sha512-ItSz2fd4F+CujgIbQOfNNerDF1eFlsBGEfp9QcCb1kxTYMuKTYZzA6Nu1YRRrIaaWwe2E7awUGpIMrPoZkOG3A==
+"@commitlint/cli@17.6.5":
+  version "17.6.5"
+  resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-17.6.5.tgz#3a8abd6499f9d4aeafe3bf9201338ccb868a14b9"
+  integrity sha512-3PQrWr/uo6lzF5k7n5QuosCYnzaxP9qGBp3jhWP0Vmsa7XA6wrl9ccPqfQyXpSbQE3zBROVO3TDqgPKe4tfmLQ==
   dependencies:
     "@commitlint/format" "^17.4.4"
-    "@commitlint/lint" "^17.6.3"
+    "@commitlint/lint" "^17.6.5"
     "@commitlint/load" "^17.5.0"
     "@commitlint/read" "^17.5.1"
     "@commitlint/types" "^17.4.4"
@@ -39,10 +39,10 @@
     resolve-global "1.0.0"
     yargs "^17.0.0"
 
-"@commitlint/config-conventional@17.6.3":
-  version "17.6.3"
-  resolved "https://registry.yarnpkg.com/@commitlint/config-conventional/-/config-conventional-17.6.3.tgz#21f5835235493e386effeaa98b898124230b1000"
-  integrity sha512-bLyHEjjRWqlLQWIgYFHmUPbEFMOOLXeF3QbUinDIJev/u9e769tkoTH9YPknEywiuIrAgZaVo+OfzAIsJP0fsw==
+"@commitlint/config-conventional@17.6.5":
+  version "17.6.5"
+  resolved "https://registry.yarnpkg.com/@commitlint/config-conventional/-/config-conventional-17.6.5.tgz#a8ec286e634a071329fe45dc4955032c2176aeb5"
+  integrity sha512-Xl9H9KLl86NZm5CYNTNF9dcz1xelE/EbvhWIWcYxG/rn3UWYWdWmmnX2q6ZduNdLFSGbOxzUpIx61j5zxbeXxg==
   dependencies:
     conventional-changelog-conventionalcommits "^5.0.0"
 
@@ -79,22 +79,22 @@
     "@commitlint/types" "^17.4.4"
     chalk "^4.1.0"
 
-"@commitlint/is-ignored@^17.6.3":
-  version "17.6.3"
-  resolved "https://registry.yarnpkg.com/@commitlint/is-ignored/-/is-ignored-17.6.3.tgz#8e21046558a0339fbf2a33ef0ad7d5a9ae7ff6bc"
-  integrity sha512-LQbNdnPbxrpbcrVKR5yf51SvquqktpyZJwqXx3lUMF6+nT9PHB8xn3wLy8pi2EQv5Zwba484JnUwDE1ygVYNQA==
+"@commitlint/is-ignored@^17.6.5":
+  version "17.6.5"
+  resolved "https://registry.yarnpkg.com/@commitlint/is-ignored/-/is-ignored-17.6.5.tgz#cea24cd2031fe7d242590b91fab3352750887194"
+  integrity sha512-CQvAPt9gX7cuUbMrIaIMKczfWJqqr6m8IlJs0F2zYwyyMTQ87QMHIj5jJ5HhOaOkaj6dvTMVGx8Dd1I4xgUuoQ==
   dependencies:
     "@commitlint/types" "^17.4.4"
     semver "7.5.0"
 
-"@commitlint/lint@^17.6.3":
-  version "17.6.3"
-  resolved "https://registry.yarnpkg.com/@commitlint/lint/-/lint-17.6.3.tgz#2d9a88b73c44be8b97508c980198a6f289251655"
-  integrity sha512-fBlXwt6SHJFgm3Tz+luuo3DkydAx9HNC5y4eBqcKuDuMVqHd2ugMNr+bQtx6riv9mXFiPoKp7nE4Xn/ls3iVDA==
+"@commitlint/lint@^17.6.5":
+  version "17.6.5"
+  resolved "https://registry.yarnpkg.com/@commitlint/lint/-/lint-17.6.5.tgz#dfa437f14430c9874d6b1a3ba8a2d44b79780c02"
+  integrity sha512-BSJMwkE4LWXrOsiP9KoHG+/heSDfvOL/Nd16+ojTS/DX8HZr8dNl8l3TfVr/d/9maWD8fSegRGtBtsyGuugFrw==
   dependencies:
-    "@commitlint/is-ignored" "^17.6.3"
-    "@commitlint/parse" "^17.4.4"
-    "@commitlint/rules" "^17.6.1"
+    "@commitlint/is-ignored" "^17.6.5"
+    "@commitlint/parse" "^17.6.5"
+    "@commitlint/rules" "^17.6.5"
     "@commitlint/types" "^17.4.4"
 
 "@commitlint/load@^17.5.0":
@@ -122,10 +122,10 @@
   resolved "https://registry.yarnpkg.com/@commitlint/message/-/message-17.4.2.tgz#f4753a79701ad6db6db21f69076e34de6580e22c"
   integrity sha512-3XMNbzB+3bhKA1hSAWPCQA3lNxR4zaeQAQcHj0Hx5sVdO6ryXtgUBGGv+1ZCLMgAPRixuc6en+iNAzZ4NzAa8Q==
 
-"@commitlint/parse@^17.4.4":
-  version "17.4.4"
-  resolved "https://registry.yarnpkg.com/@commitlint/parse/-/parse-17.4.4.tgz#8311b12f2b730de6ea0679ae2a37b386bcc5b04b"
-  integrity sha512-EKzz4f49d3/OU0Fplog7nwz/lAfXMaDxtriidyGF9PtR+SRbgv4FhsfF310tKxs6EPj8Y+aWWuX3beN5s+yqGg==
+"@commitlint/parse@^17.6.5":
+  version "17.6.5"
+  resolved "https://registry.yarnpkg.com/@commitlint/parse/-/parse-17.6.5.tgz#7b84b328a6a94ca08ab7c98c491d9d3dab68f09d"
+  integrity sha512-0zle3bcn1Hevw5Jqpz/FzEWNo2KIzUbc1XyGg6WrWEoa6GH3A1pbqNF6MvE6rjuy6OY23c8stWnb4ETRZyN+Yw==
   dependencies:
     "@commitlint/types" "^17.4.4"
     conventional-changelog-angular "^5.0.11"
@@ -154,10 +154,10 @@
     resolve-from "^5.0.0"
     resolve-global "^1.0.0"
 
-"@commitlint/rules@^17.6.1":
-  version "17.6.1"
-  resolved "https://registry.yarnpkg.com/@commitlint/rules/-/rules-17.6.1.tgz#dff529b8d1e0455808fe7e3e1fa70617e4eb2759"
-  integrity sha512-lUdHw6lYQ1RywExXDdLOKxhpp6857/4c95Dc/1BikrHgdysVUXz26yV0vp1GL7Gv+avx9WqZWTIVB7pNouxlfw==
+"@commitlint/rules@^17.6.5":
+  version "17.6.5"
+  resolved "https://registry.yarnpkg.com/@commitlint/rules/-/rules-17.6.5.tgz#fabcacdde923e26ac5ef90d4b3f8fc05526bbaa1"
+  integrity sha512-uTB3zSmnPyW2qQQH+Dbq2rekjlWRtyrjDo4aLFe63uteandgkI+cc0NhhbBAzcXShzVk0qqp8SlkQMu0mgHg/A==
   dependencies:
     "@commitlint/ensure" "^17.4.4"
     "@commitlint/message" "^17.4.2"
@@ -378,10 +378,10 @@
     graphql-import-node "^0.0.5"
     js-yaml "^4.1.0"
 
-"@graphprotocol/graph-cli@0.50.1":
-  version "0.50.1"
-  resolved "https://registry.yarnpkg.com/@graphprotocol/graph-cli/-/graph-cli-0.50.1.tgz#ca44138761e4d111e27c3645dd6bb6ea6e07753e"
-  integrity sha512-tk3e5NYBwXRuRD1y5+UKTRDv+Hwf3a78qmcpGOpIMjMgIpvDnepApRbqMqxt3Ma/RCRkACp0Kmkt3O5Ey4xlkQ==
+"@graphprotocol/graph-cli@0.51.1":
+  version "0.51.1"
+  resolved "https://registry.yarnpkg.com/@graphprotocol/graph-cli/-/graph-cli-0.51.1.tgz#252a53c9cf235efb8a7f4cb16b2bc053b00e99f1"
+  integrity sha512-6W1aphU/0Uq1ju8e4Ya5plmXUcjCR2N30wjDrf5Cn6QjHsk9VUqMt4x3+D3DHGSVvXve2+ThiEU2s2xktP3PTw==
   dependencies:
     "@float-capital/float-subgraph-uncrashable" "^0.0.0-alpha.4"
     "@oclif/core" "2.8.4"
@@ -410,10 +410,10 @@
     which "2.0.2"
     yaml "1.10.2"
 
-"@graphprotocol/graph-ts@0.30.0":
-  version "0.30.0"
-  resolved "https://registry.yarnpkg.com/@graphprotocol/graph-ts/-/graph-ts-0.30.0.tgz#591dee3c7d9fc236ad57ce0712779e94aef9a50a"
-  integrity sha512-h5tJqlsZXglGYM0PcBsBOqof4PT0Fr4Z3QBTYN/IjMF3VvRX2A8/bdpqaAnva+2N0uAfXXwRcwcOcW5O35yzXw==
+"@graphprotocol/graph-ts@0.31.0":
+  version "0.31.0"
+  resolved "https://registry.yarnpkg.com/@graphprotocol/graph-ts/-/graph-ts-0.31.0.tgz#730668c0369828b31bef81e8d9bc66b9b48e3480"
+  integrity sha512-xreRVM6ho2BtolyOh2flDkNoGZximybnzUnF53zJVp0+Ed0KnAlO1/KOCUYw06euVI9tk0c9nA2Z/D5SIQV2Rg==
   dependencies:
     assemblyscript "0.19.10"
 
