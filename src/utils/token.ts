@@ -95,6 +95,9 @@ export function createProtocolToken(): Token {
   } else if (dataSource.network() == 'bsc') {
     token.name = 'BNB';
     token.symbol = 'BNB';
+  } else if (dataSource.network() == 'gnosis') {
+    token.name = 'xDAI';
+    token.symbol = 'xDAI';
   }
   token.decimals = 18;
   token.magnitude = BigInt.fromI32(10).pow(18);

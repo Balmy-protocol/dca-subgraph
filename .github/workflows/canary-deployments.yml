@@ -16,6 +16,7 @@ jobs:
             { name: "optimism", deploy-script: "optimism" },
             { name: "polygon", deploy-script: "polygon" },
             { name: "bnb", deploy-script: "bnb" },
+            { name: "gnosis", deploy-script: "gnosis" },
           ]
     steps:
       - name: Check out github repository
