@@ -1,4 +1,4 @@
-name: Deploy all stables
+name: Deploy all hosted services stables
 
 on:
   workflow_dispatch:
@@ -11,12 +11,13 @@ jobs:
       matrix:
         networks:
           [
-            { name: "ethereum", deploy-script: "ethereum" },
-            { name: "arbitrum", deploy-script: "arbitrum" },
-            { name: "optimism", deploy-script: "optimism" },
-            { name: "polygon", deploy-script: "polygon" },
-            { name: "bnb", deploy-script: "bnb" },
-            { name: "gnosis", deploy-script: "gnosis" },
+            { name: "Ethereum", deploy-script: "ethereum" },
+            { name: "Arbitrum", deploy-script: "arbitrum" },
+            { name: "Optimism", deploy-script: "optimism" },
+            { name: "Polygon", deploy-script: "polygon" },
+            { name: "BNB Chain", deploy-script: "bnb" },
+            { name: "Base", deploy-script: "base" },
+            { name: "Gnosis", deploy-script: "gnosis" },
           ]
     steps:
       - name: Check out github repository

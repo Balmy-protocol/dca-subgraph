@@ -1,4 +1,4 @@
-name: Stable deployment
+name: Hosted service stable deployment
 
 on:
   workflow_dispatch:

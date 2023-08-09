@@ -1,23 +1,24 @@
-name: Canary deployment
+name: Deploy all hosted services canaries
 
 on:
   workflow_dispatch:
-    inputs:
-      network:
-        description: "The subgraph's network to update"
-        required: true
-        type: choice
-        options:
-          - "ethereum"
-          - "arbitrum"
-          - "optimism"
-          - "polygon"
-          - "bnb"
-          - "gnosis"
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        networks:
+          [
+            { name: "Ethereum", deploy-script: "ethereum" },
+            { name: "Arbitrum", deploy-script: "arbitrum" },
+            { name: "Optimism", deploy-script: "optimism" },
+            { name: "Polygon", deploy-script: "polygon" },
+            { name: "BNB Chain", deploy-script: "bnb" },
+            { name: "Base", deploy-script: "base" },
+            { name: "Gnosis", deploy-script: "gnosis" },
+          ]
     steps:
       - name: Check out github repository
         uses: actions/checkout@v2
@@ -46,5 +47,5 @@ jobs:
       - name: Login to hosted service
         run: graph auth --product hosted-service ${{ secrets.ACCESS_TOKEN }}
 
-      - name: Deploy subgraph
-        run: yarn deploy:${{ github.event.inputs.network }}
+      - name: Deploying subgraph to ${{ matrix.networks.name }}
+        run: yarn deploy:${{ matrix.networks.deploy-script }}
