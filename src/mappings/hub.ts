@@ -95,5 +95,22 @@ export function dirtyInitialization(event: RoleAdminChanged): void {
     nativeUSDC.allowed = true;
     nativeUSDC.magnitude = BigInt.fromI32(10).pow(6);
     nativeUSDC.save();
+  } else if (dataSource.network() == 'optimism') {
+    const bridgedUSDC = new Token('0x7f5c764cbc14f9669b88837ca1490cca17c31607');
+    bridgedUSDC.name = 'Bridged USDC';
+    bridgedUSDC.symbol = 'USDC.e';
+    bridgedUSDC.decimals = 6;
+    bridgedUSDC.type = 'BASE';
+    bridgedUSDC.allowed = true;
+    bridgedUSDC.magnitude = BigInt.fromI32(10).pow(6);
+    bridgedUSDC.save();
+    const nativeUSDC = new Token('0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85');
+    nativeUSDC.name = 'USD Coin';
+    nativeUSDC.symbol = 'USDC';
+    nativeUSDC.decimals = 6;
+    nativeUSDC.type = 'BASE';
+    nativeUSDC.allowed = true;
+    nativeUSDC.magnitude = BigInt.fromI32(10).pow(6);
+    nativeUSDC.save();
   }
 }
