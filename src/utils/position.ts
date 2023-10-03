@@ -66,6 +66,7 @@ export function create(event: Deposited, transaction: Transaction): Position {
       event.params.startingSwap,
       event.params.lastSwap,
       position.permissions,
+      event.params.owner,
       transaction
     );
 
@@ -193,6 +194,8 @@ export function terminated(event: Terminated, transaction: Transaction): Positio
   // Auxiliar previous position values
   const previousToWithdraw = position.toWithdraw;
   const previousRemainingLiquidity = position.remainingLiquidity;
+  const previousRemainingSwaps = position.remainingSwaps;
+  const previousToWithdrawUnderlyingAccum = position.toWithdrawUnderlyingAccum;
 
   position.rate = ZERO_BI;
   position.remainingSwaps = ZERO_BI;
@@ -212,7 +215,14 @@ export function terminated(event: Terminated, transaction: Transaction): Positio
   position.terminatedAtTimestamp = transaction.timestamp;
 
   // Position action
-  positionActionLibrary.terminated(position, previousToWithdraw, previousRemainingLiquidity, transaction);
+  positionActionLibrary.terminated(
+    position,
+    previousToWithdraw,
+    previousRemainingLiquidity,
+    previousRemainingSwaps,
+    previousToWithdrawUnderlyingAccum,
+    transaction
+  );
 
   // Save position
   position.save();

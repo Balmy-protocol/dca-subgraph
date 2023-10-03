@@ -1,4 +1,4 @@
-import { log, BigInt, Address } from '@graphprotocol/graph-ts';
+import { log, BigInt, Address, Bytes } from '@graphprotocol/graph-ts';
 import {
   PairSwap,
   PermissionsModifiedAction,
@@ -21,6 +21,7 @@ export function create(
   startingSwap: BigInt,
   lastSwap: BigInt,
   permissions: string[],
+  owner: Bytes,
   transaction: Transaction
 ): CreatedAction {
   const id = positionId.concat('-').concat(transaction.id);
@@ -31,7 +32,7 @@ export function create(
     positionAction.position = positionId;
     positionAction.action = 'CREATED';
     positionAction.actor = transaction.from;
-
+    positionAction.owner = owner;
     positionAction.rate = rate;
     positionAction.rateUnderlying = rateUnderlying;
     positionAction.remainingSwaps = lastSwap.minus(startingSwap).plus(ONE_BI);
@@ -190,6 +191,8 @@ export function terminated(
   position: Position,
   withdrawnSwapped: BigInt,
   withdrawnRemaining: BigInt,
+  remainingSwaps: BigInt,
+  withdrawnUnderlyingAccum: BigInt | null,
   transaction: Transaction
 ): TerminatedAction {
   const id = position.id.concat('-').concat(transaction.id);
@@ -213,12 +216,14 @@ export function terminated(
         Address.fromString(position.to),
         withdrawnSwapped
       );
+      positionAction.withdrawnUnderlyingAccum = withdrawnUnderlyingAccum;
     }
     if (from.type == 'YIELD_BEARING_SHARE') {
       positionAction.withdrawnRemainingUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(
         Address.fromString(position.from),
         withdrawnRemaining
       );
+      positionAction.depositedRemainingUnderlying = position.depositedRateUnderlying!.times(remainingSwaps);
     }
     positionAction.save();
   }
