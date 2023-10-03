@@ -342,7 +342,8 @@ type CreatedAction implements PositionActionInterface @entity {
   action: ACTION!
   "actor who executed the action"
   actor: Bytes!
-
+  "owner of the position"
+  owner: Bytes!
   "rate"
   rate: BigInt!
   "Distributed share value (optional, only if type is a yield-bearing-share)"
@@ -377,6 +378,10 @@ type TerminatedAction implements PositionActionInterface @entity {
   withdrawnRemaining: BigInt!
   "withdrawn remaining underlying (optional, when to token is yield bearing share)"
   withdrawnRemainingUnderlying: BigInt
+  "withdrawn underlying base accumulated since last withdraw (optional, when the token is yield bearing share)"
+  withdrawnUnderlyingAccum: BigInt
+  "amount of underlying funds that remainged deposited before the withdraw. Basically depositedRateUnderlying * remainingSwaps (optional, when the token is yield bearing share)"
+  depositedRemainingUnderlying: BigInt
   "transaction"
   transaction: Transaction!
   "createdAtBlock"
