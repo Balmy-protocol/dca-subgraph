@@ -32,7 +32,8 @@ export function create(
     positionAction.position = positionId;
     positionAction.action = 'CREATED';
     positionAction.actor = transaction.from;
-    (positionAction.owner = owner), (positionAction.rate = rate);
+    positionAction.owner = owner;
+    positionAction.rate = rate;
     positionAction.rateUnderlying = rateUnderlying;
     positionAction.remainingSwaps = lastSwap.minus(startingSwap).plus(ONE_BI);
     positionAction.permissions = permissions;
