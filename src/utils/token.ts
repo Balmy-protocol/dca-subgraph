@@ -85,6 +85,7 @@ export function createProtocolToken(): Token {
     dataSource.network() == 'optimism-kovan' ||
     dataSource.network() == 'arbitrum-one' ||
     dataSource.network() == 'arbitrum-rinkeby' ||
+    dataSource.network() == 'base' ||
     dataSource.network() == 'base-testnet'
   ) {
     token.name = 'Ethereum';

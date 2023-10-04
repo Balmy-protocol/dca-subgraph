@@ -17,6 +17,7 @@ jobs:
             { name: "Polygon", deploy-script: "polygon" },
             { name: "BNB Chain", deploy-script: "bnb" },
             { name: "Base", deploy-script: "base" },
+            { name: "Base Goerli", deploy-script: "base-goerli" },
             { name: "Gnosis", deploy-script: "gnosis" },
           ]
     steps:
