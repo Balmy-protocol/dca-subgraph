@@ -78,7 +78,24 @@ export function dirtyInitialization(event: RoleAdminChanged): void {
   swapIntervalsLibrary.getOrCreate(BigInt.fromString('14400'), true);
   swapIntervalsLibrary.getOrCreate(BigInt.fromString('86400'), true);
   swapIntervalsLibrary.getOrCreate(BigInt.fromString('604800'), true);
-  if (dataSource.network() == 'arbitrum-one') {
+  if (dataSource.network() == 'matic') {
+    const bridgedUSDC = new Token('0x2791bca1f2de4661ed88a30c99a7a9449aa84174');
+    bridgedUSDC.name = 'Bridged USDC';
+    bridgedUSDC.symbol = 'USDC.e';
+    bridgedUSDC.decimals = 6;
+    bridgedUSDC.type = 'BASE';
+    bridgedUSDC.allowed = true;
+    bridgedUSDC.magnitude = BigInt.fromI32(10).pow(6);
+    bridgedUSDC.save();
+    const nativeUSDC = new Token('0x3c499c542cef5e3811e1192ce70d8cc03d5c3359');
+    nativeUSDC.name = 'USD Coin';
+    nativeUSDC.symbol = 'USDC';
+    nativeUSDC.decimals = 6;
+    nativeUSDC.type = 'BASE';
+    nativeUSDC.allowed = true;
+    nativeUSDC.magnitude = BigInt.fromI32(10).pow(6);
+    nativeUSDC.save();
+  } else if (dataSource.network() == 'arbitrum-one') {
     const bridgedUSDC = new Token('0xff970a61a04b1ca14834a43f5de4533ebddb5cc8');
     bridgedUSDC.name = 'Bridged USDC';
     bridgedUSDC.symbol = 'USDC.e';
@@ -87,7 +104,7 @@ export function dirtyInitialization(event: RoleAdminChanged): void {
     bridgedUSDC.allowed = true;
     bridgedUSDC.magnitude = BigInt.fromI32(10).pow(6);
     bridgedUSDC.save();
-    const nativeUSDC = new Token('0xaf88d065e77c8cC2239327C5EDb3A432268e5831');
+    const nativeUSDC = new Token('0xaf88d065e77c8cc2239327c5edb3a432268e5831');
     nativeUSDC.name = 'USD Coin';
     nativeUSDC.symbol = 'USDC';
     nativeUSDC.decimals = 6;
@@ -104,7 +121,7 @@ export function dirtyInitialization(event: RoleAdminChanged): void {
     bridgedUSDC.allowed = true;
     bridgedUSDC.magnitude = BigInt.fromI32(10).pow(6);
     bridgedUSDC.save();
-    const nativeUSDC = new Token('0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85');
+    const nativeUSDC = new Token('0x0b2c639c533813f4aa9d7837caf62653d097ff85');
     nativeUSDC.name = 'USD Coin';
     nativeUSDC.symbol = 'USDC';
     nativeUSDC.decimals = 6;
