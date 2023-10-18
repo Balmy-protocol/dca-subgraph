@@ -1,6 +1,6 @@
 import { Address, ethereum, BigInt, log, Bytes, Value } from '@graphprotocol/graph-ts';
 import { clearStore, test, createMockedFunction, assert, newMockEvent } from 'matchstick-as/assembly/index';
-import { DepositedPermissionsStruct, TokensAllowedUpdated } from '../generated/Hub/Hub';
+import { DepositedPermissionsStruct, TokensAllowedUpdated } from '../generated/TransformerRegistry/Hub';
 import { Position, PositionPermission, Token } from '../generated/schema';
 import { handleDeposited, handleSetAllowedTokens } from '../src/mappings/hub';
 import { ADDRESS_ZERO } from '../src/utils/constants';
