@@ -1,0 +1,58 @@
+name: Deploy all stables to studio
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to deploy"
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        networks:
+          [
+            { name: "Ethereum", deploy-script: "ethereum" },
+            { name: "Arbitrum", deploy-script: "arbitrum" },
+            { name: "Optimism", deploy-script: "optimism" },
+            { name: "Polygon", deploy-script: "polygon" },
+            { name: "Base", deploy-script: "base" },
+            { name: "Base Goerli", deploy-script: "base-goerli" },
+            { name: "Gnosis", deploy-script: "gnosis" },
+          ]
+    steps:
+      - name: Check out github repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Cache node modules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+          cache: yarn
+          cache-dependency-path: "**/yarn.lock"
+
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+
+      - name: Install graph-cli
+        run: yarn global add @graphprotocol/graph-cli
+
+      - name: Login to studio
+        run: graph auth --studio ${{ secrets.GRAPH_STUDIO_ACCESS_TOKEN }}
+
+      - name: Deploying subgraph to ${{ matrix.networks.name }}
+        run: yarn deploy:${{ matrix.networks.deploy-script }}:studio -l ${{ github.event.inputs.version }}
