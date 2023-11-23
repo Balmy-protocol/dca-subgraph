@@ -1,0 +1,9 @@
+{
+  "network": "mainnet",
+  "hubStartBlock": "5835620",
+  "hub": "0x8CC0Df843610cefF7f4AFa01100B6abf6756Bdf2",
+  "permissionsManagerStartBlock": "5832079",
+  "permissionsManager": "0x1ee410fc840CC13C4E1b17DC6f93e245a918c19E",
+  "transformerRegistryStartBlock": "5831634",
+  "transformerRegistry": "0x9008E5147dCf3c70850E0265765E65691b07F2fC"
+}
