@@ -18,10 +18,6 @@ jobs:
           [
             { name: "Ethereum", deploy-script: "ethereum" },
             { name: "Arbitrum", deploy-script: "arbitrum" },
-            { name: "Optimism", deploy-script: "optimism" },
-            { name: "Polygon", deploy-script: "polygon" },
-            { name: "Base", deploy-script: "base" },
-            { name: "Base Goerli", deploy-script: "base-goerli" },
             { name: "Gnosis", deploy-script: "gnosis" },
           ]
     steps:
