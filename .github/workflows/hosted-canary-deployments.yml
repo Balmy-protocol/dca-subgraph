@@ -19,6 +19,7 @@ jobs:
             { name: "Base", deploy-script: "base" },
             { name: "Base Goerli", deploy-script: "base-goerli" },
             { name: "Gnosis", deploy-script: "gnosis" },
+            { name: "Moonbeam", deploy-script: "moonbeam" },
           ]
     steps:
       - name: Check out github repository
