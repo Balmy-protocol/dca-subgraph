@@ -92,17 +92,17 @@
     "test": "graph test"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.60.0",
+    "@graphprotocol/graph-cli": "0.62.0",
     "@graphprotocol/graph-ts": "0.31.0",
     "mustache": "4.2.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "17.8.0",
-    "@commitlint/config-conventional": "17.8.0",
+    "@commitlint/cli": "18.4.3",
+    "@commitlint/config-conventional": "18.4.3",
     "husky": "8.0.3",
     "matchstick-as": "0.6.0",
     "pinst": "3.0.0",
-    "prettier": "3.0.3",
+    "prettier": "3.1.0",
     "sort-package-json": "2.6.0",
     "standard-version": "9.5.0"
   }
