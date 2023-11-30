@@ -99,6 +99,9 @@ export function createProtocolToken(): Token {
   } else if (dataSource.network() == 'gnosis') {
     token.name = 'xDAI';
     token.symbol = 'xDAI';
+  } else if (dataSource.network() == 'moonbeam') {
+    token.name = 'Glimmer';
+    token.symbol = 'GLMR';
   }
   token.decimals = 18;
   token.magnitude = BigInt.fromI32(10).pow(18);
