@@ -22,7 +22,7 @@ export function create(
   lastSwap: BigInt,
   permissions: string[],
   owner: Bytes,
-  transaction: Transaction,
+  transaction: Transaction
 ): CreatedAction {
   const id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Create {}', [id]);
@@ -55,7 +55,7 @@ export function modifiedRate(
   oldRate: BigInt,
   oldRemainingSwaps: BigInt,
   oldRateUnderlying: BigInt | null,
-  transaction: Transaction,
+  transaction: Transaction
 ): ModifiedAction {
   return handleModifiedRateOrDuration(
     'MODIFIED_RATE',
@@ -67,7 +67,7 @@ export function modifiedRate(
     oldRate,
     oldRemainingSwaps,
     oldRateUnderlying,
-    transaction,
+    transaction
   );
 }
 
@@ -80,7 +80,7 @@ export function modifiedDuration(
   oldRate: BigInt,
   oldRemainingSwaps: BigInt,
   oldRateUnderlying: BigInt | null,
-  transaction: Transaction,
+  transaction: Transaction
 ): ModifiedAction {
   return handleModifiedRateOrDuration(
     'MODIFIED_DURATION',
@@ -92,7 +92,7 @@ export function modifiedDuration(
     oldRate,
     oldRemainingSwaps,
     oldRateUnderlying,
-    transaction,
+    transaction
   );
 }
 
@@ -105,7 +105,7 @@ export function modifiedRateAndDuration(
   oldRate: BigInt,
   oldRemainingSwaps: BigInt,
   oldRateUnderlying: BigInt | null,
-  transaction: Transaction,
+  transaction: Transaction
 ): ModifiedAction {
   return handleModifiedRateOrDuration(
     'MODIFIED_RATE_AND_DURATION',
@@ -117,7 +117,7 @@ export function modifiedRateAndDuration(
     oldRate,
     oldRemainingSwaps,
     oldRateUnderlying,
-    transaction,
+    transaction
   );
 }
 
@@ -131,7 +131,7 @@ function handleModifiedRateOrDuration(
   oldRate: BigInt,
   oldRemainingSwaps: BigInt,
   oldRateUnderlying: BigInt | null,
-  transaction: Transaction,
+  transaction: Transaction
 ): ModifiedAction {
   const id = positionId.concat('-').concat(transaction.id);
   log.info('[PositionAction] Modified action with id {}', [id]);
@@ -161,7 +161,7 @@ export function withdrew(
   position: Position,
   withdrawn: BigInt,
   withdrawnUnderlyingAccum: BigInt | null,
-  transaction: Transaction,
+  transaction: Transaction
 ): WithdrewAction {
   const id = position.id.concat('-').concat(transaction.id);
   log.info('[PositionAction] Withdrew {}', [id]);
@@ -193,7 +193,7 @@ export function terminated(
   withdrawnRemaining: BigInt,
   remainingSwaps: BigInt,
   withdrawnUnderlyingAccum: BigInt | null,
-  transaction: Transaction,
+  transaction: Transaction
 ): TerminatedAction {
   const id = position.id.concat('-').concat(transaction.id);
   log.info('[PositionAction] Withdrew {}', [id]);
@@ -214,14 +214,14 @@ export function terminated(
     if (to.type == 'YIELD_BEARING_SHARE') {
       positionAction.withdrawnSwappedUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(
         Address.fromString(position.to),
-        withdrawnSwapped,
+        withdrawnSwapped
       );
       positionAction.withdrawnUnderlyingAccum = withdrawnUnderlyingAccum;
     }
     if (from.type == 'YIELD_BEARING_SHARE') {
       positionAction.withdrawnRemainingUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(
         Address.fromString(position.from),
-        withdrawnRemaining,
+        withdrawnRemaining
       );
       positionAction.depositedRemainingUnderlying = position.depositedRateUnderlying!.times(remainingSwaps);
     }

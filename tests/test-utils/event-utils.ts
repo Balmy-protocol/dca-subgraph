@@ -24,7 +24,7 @@ export function createDepositedEvent(
   rate: i32,
   startingSwap: i32,
   lastSwap: i32,
-  permissions: Array<DepositedPermissionsStruct>,
+  permissions: Array<DepositedPermissionsStruct>
 ): Deposited {
   const newDepositedEvent = changetype<Deposited>(newMockEvent());
   newDepositedEvent.parameters = new Array();
@@ -39,7 +39,7 @@ export function createDepositedEvent(
   newDepositedEvent.parameters.push(new ethereum.EventParam('startingSwap', ethereum.Value.fromI32(startingSwap)));
   newDepositedEvent.parameters.push(new ethereum.EventParam('lastSwap', ethereum.Value.fromI32(lastSwap)));
   newDepositedEvent.parameters.push(
-    new ethereum.EventParam('permissions', ethereum.Value.fromTupleArray(changetype<ethereum.Tuple[]>(permissions))),
+    new ethereum.EventParam('permissions', ethereum.Value.fromTupleArray(changetype<ethereum.Tuple[]>(permissions)))
   );
   return newDepositedEvent;
 }

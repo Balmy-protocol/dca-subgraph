@@ -22,7 +22,7 @@ export function createToken(
   decimals: i32,
   allowed: boolean,
   type: string,
-  underlyingTokens: string[] | null,
+  underlyingTokens: string[] | null
 ): void {
   const token = new Token(tokenAddress.toHexString());
   token.name = name;

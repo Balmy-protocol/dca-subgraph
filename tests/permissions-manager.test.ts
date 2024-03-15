@@ -30,8 +30,8 @@ test('Deposit with empty permissions doesnt create permissions', () => {
       0,
       0,
       0,
-      [],
-    ),
+      []
+    )
   );
   const position = Position.load('1')!;
   assert.equals(ethereum.Value.fromStringArray(position.permissions), ethereum.Value.fromArray([]));
@@ -55,14 +55,14 @@ test('Deposit with permissions creates the correct permissions', () => {
       0,
       0,
       0,
-      [permissionStruct],
-    ),
+      [permissionStruct]
+    )
   );
   const position = Position.load('2')!;
   const positionPermissionId = position.id.concat('-').concat(operator);
   assert.equals(
     ethereum.Value.fromStringArray(position.permissions),
-    ethereum.Value.fromArray([ethereum.Value.fromString(positionPermissionId)]),
+    ethereum.Value.fromArray([ethereum.Value.fromString(positionPermissionId)])
   );
   assert.entityCount(PERMISSION_ENTITY_TYPE, 1);
   const permission = PositionPermission.load(positionPermissionId)!;
