@@ -67,7 +67,7 @@ export function create(event: Deposited, transaction: Transaction): Position {
       event.params.lastSwap,
       position.permissions,
       event.params.owner,
-      transaction,
+      transaction
     );
 
     position.totalDeposited = event.params.rate.times(position.remainingSwaps);
@@ -117,7 +117,7 @@ export function modified(event: Modified, transaction: Transaction): Position {
       const previousTotalUnderlyingRemaining = position.depositedRateUnderlying!.times(previousRemainingSwaps);
       const underlyingValueOfIncreasedAmount = tokenLibrary.transformYieldBearingSharesToUnderlying(
         Address.fromString(position.from),
-        changeInAmount,
+        changeInAmount
       );
       const newTotalUnderlying = previousTotalUnderlyingRemaining.plus(underlyingValueOfIncreasedAmount);
       // underlyingRate = (underlyingRate * remainingSwaps + toUnderlying(increaseAmount)) / newSwaps
@@ -128,7 +128,7 @@ export function modified(event: Modified, transaction: Transaction): Position {
     } else {
       position.depositedRateUnderlying = tokenLibrary.transformYieldBearingSharesToUnderlying(
         Address.fromString(position.from),
-        event.params.rate,
+        event.params.rate
       );
     }
   }
@@ -155,7 +155,7 @@ export function modified(event: Modified, transaction: Transaction): Position {
       previousPositionRate,
       previousRemainingSwaps,
       previousDepositedRateUnderlying,
-      transaction,
+      transaction
     );
   } else if (!previousPositionRate.equals(event.params.rate)) {
     positionActionLibrary.modifiedRate(
@@ -167,7 +167,7 @@ export function modified(event: Modified, transaction: Transaction): Position {
       previousPositionRate,
       previousRemainingSwaps,
       previousDepositedRateUnderlying,
-      transaction,
+      transaction
     );
   } else {
     positionActionLibrary.modifiedDuration(
@@ -179,7 +179,7 @@ export function modified(event: Modified, transaction: Transaction): Position {
       previousPositionRate,
       previousRemainingSwaps,
       previousDepositedRateUnderlying,
-      transaction,
+      transaction
     );
   }
   return position;
@@ -207,7 +207,7 @@ export function terminated(event: Terminated, transaction: Transaction): Positio
   if (to.type == 'YIELD_BEARING_SHARE') {
     position.toWithdrawUnderlyingAccum = ZERO_BI;
     position.totalWithdrawnUnderlying = position.totalWithdrawnUnderlying!.plus(
-      tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), previousToWithdraw),
+      tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), previousToWithdraw)
     );
   }
 
@@ -221,7 +221,7 @@ export function terminated(event: Terminated, transaction: Transaction): Positio
     previousRemainingLiquidity,
     previousRemainingSwaps,
     previousToWithdrawUnderlyingAccum,
-    transaction,
+    transaction
   );
 
   // Save position
@@ -246,7 +246,7 @@ export function withdrew(positionId: string, transaction: Transaction): Position
   if (to.type == 'YIELD_BEARING_SHARE') {
     position.toWithdrawUnderlyingAccum = ZERO_BI;
     position.totalWithdrawnUnderlying = position.totalWithdrawnUnderlying!.plus(
-      tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), previousToWithdraw),
+      tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), previousToWithdraw)
     );
   }
   position.save();
@@ -288,10 +288,10 @@ export function registerPairSwap(positionId: string, pair: Pair, pairSwap: PairS
   position.toWithdraw = totalSwapped.minus(position.withdrawn);
   if (to.type == 'YIELD_BEARING_SHARE') {
     position.totalSwappedUnderlyingAccum = position.totalSwappedUnderlyingAccum!.plus(
-      tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), swapped),
+      tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), swapped)
     );
     position.toWithdrawUnderlyingAccum = position.toWithdrawUnderlyingAccum!.plus(
-      tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), swapped),
+      tokenLibrary.transformYieldBearingSharesToUnderlying(Address.fromString(position.to), swapped)
     );
   }
 

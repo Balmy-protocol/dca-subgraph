@@ -24,7 +24,7 @@ describe('Token library', () => {
         () => {
           tokenLibrary.getByAddress(Address.fromString('0x0000000000000000000000000000000000000069'));
         },
-        true,
+        true
       );
     });
     describe('when it does exist', () => {
@@ -42,7 +42,7 @@ describe('Token library', () => {
         () => {
           tokenLibrary.getById('0x0000000000000000000000000000000000000069');
         },
-        true,
+        true
       );
     });
     describe('when it does exist', () => {
