@@ -49,8 +49,8 @@ function _getOrCreate(ethTransaction: ethereum.Transaction, block: ethereum.Bloc
     transaction.overhead = null;
 
     if (dataSource.network() == 'optimism') {
-      // transaction.l1GasPrice = calculateL1GasPrice();
-      // transaction.overhead = getFixedOverhead();
+      transaction.l1GasPrice = calculateL1GasPrice();
+      transaction.overhead = getFixedOverhead();
     }
 
     transaction.save();
