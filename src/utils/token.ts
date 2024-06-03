@@ -85,12 +85,11 @@ export function createProtocolToken(): Token {
     dataSource.network() == 'optimism-kovan' ||
     dataSource.network() == 'arbitrum-one' ||
     dataSource.network() == 'arbitrum-rinkeby' ||
-    dataSource.network() == 'base' ||
-    dataSource.network() == 'base-testnet'
+    dataSource.network() == 'base'
   ) {
     token.name = 'Ethereum';
     token.symbol = 'ETH';
-  } else if (dataSource.network() == 'matic' || dataSource.network() == 'mumbai') {
+  } else if (dataSource.network() == 'matic') {
     token.name = 'Matic';
     token.symbol = 'MATIC';
   } else if (dataSource.network() == 'bsc') {
