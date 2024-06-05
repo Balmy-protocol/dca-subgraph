@@ -1,4 +1,4 @@
-name: Deploy all stables to studio
+name: Deploy All Networks to Studio
 
 on:
   workflow_dispatch:
@@ -55,4 +55,4 @@ jobs:
         run: graph auth --studio ${{ secrets.GRAPH_STUDIO_ACCESS_TOKEN }}
 
       - name: Deploying subgraph to ${{ matrix.networks.name }}
-        run: yarn deploy:${{ matrix.networks.deploy-script }}:studio -l ${{ github.event.inputs.version }}
+        run: yarn deploy:${{ matrix.networks.deploy-script }} -l ${{ github.event.inputs.version }}
